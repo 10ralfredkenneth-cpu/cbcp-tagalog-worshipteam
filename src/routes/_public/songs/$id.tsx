@@ -101,9 +101,7 @@ function SongDetailPage() {
               <Split className="w-4 h-4 mr-2" /> Split
             </Button>
             <Button variant="default" size="sm" className="rounded-none bg-primary text-white h-9">
-              '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
-
-                                            Create shareable links that open the public song page with my selected key and split-view settings pre-applied via URL parameters.
+              <Share2 className="w-4 h-4 mr-2" /> Share
             </Button>
           </div>
         </div>
