@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { setPostLoginRedirect } from '@/components/auth/PostLoginRedirect';
 
 const loginSearchSchema = z.object({
   redirect: z.string().optional(),
@@ -54,6 +55,9 @@ function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      const target = search.redirect && search.redirect.startsWith('/') ? search.redirect : '/dashboard';
+      setPostLoginRedirect(target);
+
       const result = await lovable.auth.signInWithOAuth('google', {
         redirect_uri: window.location.origin,
       });
