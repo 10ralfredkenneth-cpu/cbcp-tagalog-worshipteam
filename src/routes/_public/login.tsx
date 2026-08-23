@@ -179,6 +179,7 @@ function LoginPage() {
             )}
           </Button>
         </form>
+        </div>
 
         <div className="text-center border-t border-accent/10 pt-8">
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
