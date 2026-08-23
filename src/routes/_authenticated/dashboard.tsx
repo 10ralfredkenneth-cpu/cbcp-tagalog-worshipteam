@@ -35,19 +35,22 @@ function AdminDashboardOverview() {
 
   const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: () => getSongs() });
   const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: () => getServices() });
-  const { data: team = [] } = useQuery({ 
+  const { data: teamCount = 0 } = useQuery({ 
     queryKey: ['team-count'], 
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('status', 'Archived');
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .neq('status', 'Archived');
       if (error) throw error;
-      return data;
+      return count ?? 0;
     } 
   });
   
   const stats = [
     { label: 'Upcoming Services', value: services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar, to: '/dashboard/services' },
     { label: 'Active Songs', value: songs.filter(s => s.status === 'Active').length, icon: Music, to: '/dashboard/songs' },
-    { label: 'Team Members', value: (team as any).length || 0, icon: Users, to: '/dashboard/team' },
+    { label: 'Team Members', value: teamCount, icon: Users, to: '/dashboard/team' },
     { label: 'Pending Assignments', value: services.reduce((acc: number, s: any) => acc + (s.assignments || []).filter((a: any) => a.status === 'Pending').length, 0), icon: Clock, to: '/dashboard/schedule' },
   ];
 
