@@ -136,10 +136,10 @@ function SongDetailPage() {
 
             <TabsContent value="scripture" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="space-y-6">
-                 {song.scriptureReferences.map(ref => (
-                   <div key={ref} className="p-6 bg-muted/20 border border-accent/10">
-                     <h4 className="font-serif text-lg text-accent mb-2">{ref}</h4>
-                     <p className="text-muted-foreground">Detailed scriptural commentary and connection to the song's themes will be added here.</p>
+                 {song.scriptureReferences.map((ref, idx) => (
+                   <div key={idx} className="p-6 bg-muted/20 border border-accent/10">
+                     <h4 className="font-serif text-lg text-accent mb-2">{ref.reference}</h4>
+                     <p className="text-muted-foreground">{ref.notes || "Detailed scriptural commentary and connection to the song's themes will be added here."}</p>
                    </div>
                  ))}
               </div>
