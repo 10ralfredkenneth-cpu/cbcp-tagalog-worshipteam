@@ -25,6 +25,8 @@ export type WorshipFlowCategory =
   | 'Preparation for the Word'
   | 'Closing';
 
+export type ServiceItemType = 'Song' | 'Custom';
+
 export interface SetlistSong {
   id: string;
   songId: string;
@@ -34,6 +36,18 @@ export interface SetlistSong {
   duration?: number; // in minutes
   transitionNote?: string;
   leaderNote?: string;
+  musicianNotes?: string;
+}
+
+export interface ServiceItem {
+  id: string;
+  order: number;
+  type: ServiceItemType;
+  title: string;
+  assignedPerson?: string;
+  duration?: number;
+  notes?: string;
+  songId?: string; // Only if type is 'Song'
 }
 
 export interface WorshipSetlist {
