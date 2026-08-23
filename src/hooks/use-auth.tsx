@@ -97,8 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAdmin = roles.includes('super_admin');
   const isMinistryAdmin = isAdmin || roles.includes('ministry_admin');
-  const isWorshipLeader = isMinistryAdmin || roles.includes('worship_pastor') || roles.includes('worship_leader');
+  const isWorshipLeader = isMinistryAdmin || roles.includes('worship_director') || roles.includes('worship_pastor') || roles.includes('worship_leader');
   const isTeamMember = isWorshipLeader || roles.includes('team_member');
+  const isPending = status === 'Pending';
 
   return (
     <AuthContext.Provider value={{ 
@@ -109,7 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin, 
       isMinistryAdmin, 
       isWorshipLeader,
-      isTeamMember
+      isTeamMember,
+      status,
+      isPending
     }}>
       {children}
     </AuthContext.Provider>
