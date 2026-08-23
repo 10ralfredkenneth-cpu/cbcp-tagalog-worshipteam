@@ -44,7 +44,7 @@ function MemberProfilePage() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const servingHistory = useMemo(() => {

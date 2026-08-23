@@ -47,7 +47,7 @@ function ServiceManagementPage() {
   const queryClient = useQueryClient();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const archiveMutation = useMutation({

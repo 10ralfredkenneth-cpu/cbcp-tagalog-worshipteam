@@ -28,7 +28,7 @@ function ScheduleManagementPage() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const { data: team = [] } = useQuery({

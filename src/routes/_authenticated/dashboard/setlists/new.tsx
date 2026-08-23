@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/setlists/new')({
 function CreateSetlistPage() {
   const { data: services = [] } = useQuery({
     queryKey: ['services-upcoming'],
-    queryFn: getServices
+    queryFn: () => getServices()
   });
 
   return (

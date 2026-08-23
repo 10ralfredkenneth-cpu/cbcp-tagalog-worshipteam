@@ -29,7 +29,7 @@ function SetlistsPage() {
 
   const { data: setlists = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const filteredSetlists = useMemo(() => {

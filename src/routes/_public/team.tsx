@@ -46,7 +46,7 @@ function TeamDirectoryLayout() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const filteredMembers = useMemo(() => {

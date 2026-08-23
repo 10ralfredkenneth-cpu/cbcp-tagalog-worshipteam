@@ -28,7 +28,7 @@ function AddSchedulePage() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services-upcoming-schedule'],
-    queryFn: getServices
+    queryFn: () => getServices()
   });
 
   const { data: team = [] } = useQuery({

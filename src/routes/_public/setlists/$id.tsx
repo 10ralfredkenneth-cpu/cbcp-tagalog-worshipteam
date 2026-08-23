@@ -58,7 +58,7 @@ function SetlistDetailPage() {
   const navigate = useNavigate();
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const { data: songs = [] } = useQuery({
