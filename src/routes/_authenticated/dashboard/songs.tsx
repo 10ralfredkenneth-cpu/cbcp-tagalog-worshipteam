@@ -56,7 +56,7 @@ function SongManagementPage() {
   });
 
   const handleArchive = (id: string) => {
-    archiveMutation.mutate(id);
+    archiveMutation.mutate({ data: id });
   };
 
   return (
