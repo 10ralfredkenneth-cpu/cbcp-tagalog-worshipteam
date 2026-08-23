@@ -54,6 +54,7 @@ import { Route as AuthenticatedDashboardSongsNewRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardTeamIdRouteImport } from './routes/_authenticated/dashboard/team/$id'
 import { Route as AuthenticatedDashboardTeamNewRouteImport } from './routes/_authenticated/dashboard/team/new'
 import { Route as AuthenticatedDashboardUsersNewRouteImport } from './routes/_authenticated/dashboard/users/new'
+import { Route as AuthenticatedDashboardTeamEditIdRouteImport } from './routes/_authenticated/dashboard/team/edit/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -305,6 +306,12 @@ const AuthenticatedDashboardUsersNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedDashboardUsersRoute,
   } as any)
+const AuthenticatedDashboardTeamEditIdRoute =
+  AuthenticatedDashboardTeamEditIdRouteImport.update({
+    id: '/edit/$id',
+    path: '/edit/$id',
+    getParentRoute: () => AuthenticatedDashboardTeamRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -350,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/dashboard/songs/': typeof AuthenticatedDashboardSongsIndexRoute
+  '/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -392,6 +400,7 @@ export interface FileRoutesByTo {
   '/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/dashboard/songs': typeof AuthenticatedDashboardSongsIndexRoute
+  '/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -440,6 +449,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/_authenticated/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/_authenticated/dashboard/songs/': typeof AuthenticatedDashboardSongsIndexRoute
+  '/_authenticated/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -487,6 +497,7 @@ export interface FileRouteTypes {
     | '/dashboard/team/new'
     | '/dashboard/users/new'
     | '/dashboard/songs/'
+    | '/dashboard/team/edit/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/dashboard/team/new'
     | '/dashboard/users/new'
     | '/dashboard/songs'
+    | '/dashboard/team/edit/$id'
   id:
     | '__root__'
     | '/'
@@ -576,6 +588,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/team/new'
     | '/_authenticated/dashboard/users/new'
     | '/_authenticated/dashboard/songs/'
+    | '/_authenticated/dashboard/team/edit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -901,6 +914,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardUsersNewRouteImport
       parentRoute: typeof AuthenticatedDashboardUsersRoute
     }
+    '/_authenticated/dashboard/team/edit/$id': {
+      id: '/_authenticated/dashboard/team/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/dashboard/team/edit/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardTeamEditIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardTeamRoute
+    }
   }
 }
 
@@ -1009,12 +1029,15 @@ const AuthenticatedDashboardSongsRouteWithChildren =
 interface AuthenticatedDashboardTeamRouteChildren {
   AuthenticatedDashboardTeamIdRoute: typeof AuthenticatedDashboardTeamIdRoute
   AuthenticatedDashboardTeamNewRoute: typeof AuthenticatedDashboardTeamNewRoute
+  AuthenticatedDashboardTeamEditIdRoute: typeof AuthenticatedDashboardTeamEditIdRoute
 }
 
 const AuthenticatedDashboardTeamRouteChildren: AuthenticatedDashboardTeamRouteChildren =
   {
     AuthenticatedDashboardTeamIdRoute: AuthenticatedDashboardTeamIdRoute,
     AuthenticatedDashboardTeamNewRoute: AuthenticatedDashboardTeamNewRoute,
+    AuthenticatedDashboardTeamEditIdRoute:
+      AuthenticatedDashboardTeamEditIdRoute,
   }
 
 const AuthenticatedDashboardTeamRouteWithChildren =

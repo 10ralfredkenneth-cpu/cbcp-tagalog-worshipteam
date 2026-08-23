@@ -43,7 +43,7 @@ function EditTeamMemberPage() {
         full_name: member.full_name || '',
         email: member.email || '',
         primary_role: member.primary_role || '',
-        instruments: Array.isArray(member.instruments) ? member.instruments.join(', ') : (member.instruments || ''),
+        instruments: Array.isArray(member.instrument) ? member.instrument.join(', ') : (member.instrument || ''),
         status: member.status || 'Active',
         is_public: member.is_public ?? true,
         avatar_url: member.avatar_url || ''
@@ -71,11 +71,17 @@ function EditTeamMemberPage() {
       return;
     }
     
-    // Map instruments back to array if needed
+    // Map instruments back to array for skills/instruments
+    const instrumentArr = formData.instruments.split(',').map(s => s.trim()).filter(Boolean);
     const updates = {
-      ...formData,
-      instruments: formData.instruments.split(',').map(s => s.trim()).filter(Boolean),
-      skills: formData.instruments.split(',').map(s => s.trim()).filter(Boolean)
+      full_name: formData.full_name,
+      email: formData.email,
+      primary_role: formData.primary_role,
+      status: formData.status,
+      is_public: formData.is_public,
+      avatar_url: formData.avatar_url,
+      instrument: instrumentArr.join(', '), // DB column is text
+      skills: instrumentArr // DB column is ARRAY
     };
 
     mutation.mutate(updates);
