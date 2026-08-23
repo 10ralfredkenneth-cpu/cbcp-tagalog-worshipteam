@@ -190,7 +190,7 @@ function AdminDashboardOverview() {
                     <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-none">
                       <ArrowRight className="w-4 h-4" />
                     </Button>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <div className="p-12 border border-accent/5 border-dashed text-center">
