@@ -1,46 +1,33 @@
-# LOAD 8A — SYSTEM AUDIT, SECURITY & PERFORMANCE
+# LOAD 8B: Final UX, SEO & Premium Polish Plan
 
-This plan covers a comprehensive audit and stabilization of the Praise & Worship Ministry website. It focuses on fixing broken links, improving performance, ensuring security (especially RLS and Permissions), and enhancing UI consistency.
+Refining the Radiant Worship website for visual consistency, usability, and professional finishing. This plan focuses on premium ministry identity, mobile/tablet optimization, SEO, and finalizing the remaining placeholder content.
 
-## 1. Full System Audit & Route Fixes
-- Fix navigation links in `AdminSidebar.tsx` (missing setlists and schedule routes).
-- Create missing dashboard routes:
-  - `src/routes/_authenticated/dashboard/setlists.tsx` (linked to `services.tsx` logic or a new management view).
-  - `src/routes/_authenticated/dashboard/schedule.tsx` (team availability and scheduling).
-- Ensure all public links work correctly.
-- Add error boundaries and proper "Not Found" handling.
+## Design Refinement & Consistency
+- Standardize UI tokens in `src/styles.css` (spacing scales, subtle animations, improved typography contrast).
+- Ensure all buttons use the `premium` or `accent` variants consistently across public and dashboard views.
+- Audit border-radii and shadows to match the "Reverent & Modern" aesthetic.
 
-## 2. Authentication & Permission Stabilization
-- Review `use-auth.tsx` logic for role hierarchy.
-- Ensure all dashboard routes correctly check permissions.
-- Implement specialized views based on roles (Director vs Team Member).
-- Fix session persistence issues if any.
+## Homepage & Navigation Polish
+- Refine section rhythm (padding/margins) in `src/routes/index.tsx`.
+- Improve active state visibility in `Navbar.tsx` and fix the mobile menu layout.
+- Finalize `MinistryIntro.tsx` and `CoreValues.tsx` with optimized content.
 
-## 3. Database & RLS Audit
-- Verify RLS policies for:
-  - `profiles`: Ensure `internal_notes` and private data are protected from non-admins.
-  - `user_roles`: Ensure only admins can manage roles.
-  - `audit_logs`: Ensure only admins can view.
-  - `ministry_settings`: Ensure only admins can modify.
-- Check and fix database relationships in mock data and preparation for real data.
+## Specialized Views & Accessibility
+- Enhance `Musician View`, `Vocalist View`, and `Presentation View` for tablet performance (chord chart layout, font scaling).
+- Conduct an accessibility pass: ARIA labels, keyboard focus states, and color contrast checks.
+- Add a custom 404 page in `src/routes/__root.tsx`.
 
-## 4. Performance & Optimization
-- Implement image optimization (lazy loading, responsive sizing).
-- Audit re-renders in heavy components (Song Library, Setlist Planner).
-- Add skeleton loading states for data-heavy views.
+## SEO & Identity
+- Define unique `head()` metadata (titles, descriptions, OG tags) for all public routes: Worship, Songs, Resources, Media, About, Contact.
+- Add a `robots.txt` to prevent indexing of `/dashboard` and `/login`.
+- Ensure all placeholder content is replaced with high-quality demo text that reflects ministry values.
 
-## 5. UI/UX Consistency & Stability
-- Fix responsive layout issues (tables, menus, modals) across various breakpoints.
-- Standardize empty states for all lists (Songs, Services, Team, etc.).
-- Add form validation and duplicate submission protection.
-- Improve print views for Chord Sheets and Setlists.
-- Accessibility audit: Add aria labels, improve focus states, and check color contrast.
-
-## 6. Code Cleanup
-- Remove console errors and unused code.
-- Standardize utility usage.
+## Final UX Touches
+- Implement subtle route transitions.
+- Refine the `/contact` and `/about` pages from placeholders to complete, professional sections.
+- Verify Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) through image optimization.
 
 ## Technical Details
-- **Tech Stack**: TanStack Start v1, React 19, Supabase, Tailwind CSS v4.
-- **Security**: RLS Definer functions for role checks.
-- **Routing**: TanStack Router (flat file structure).
+- **SEO**: Use TanStack Router's `head()` function for per-route metadata.
+- **Accessibility**: Use Radix UI primitives' built-in accessibility features where possible; manual audit for custom components.
+- **Responsive**: Targeted CSS media queries for common tablet sizes (768px - 1024px) specifically for chord sheets.
