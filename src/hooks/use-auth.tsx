@@ -13,6 +13,8 @@ type AuthContextType = {
   isMinistryAdmin: boolean;
   isWorshipLeader: boolean;
   isTeamMember: boolean;
+  status: string | null;
+  isPending: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState<string[]>([]);
+  const [status, setStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,15 +57,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchRoles = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch Roles
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId);
 
-      if (error) throw error;
-      setRoles(data.map(r => r.role));
+      if (roleError) throw roleError;
+      setRoles(roleData.map(r => r.role));
+
+      // Fetch Profile Status
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile status:', profileError);
+      } else {
+        setStatus(profileData?.status);
+      }
     } catch (error) {
-      console.error('Error fetching user roles:', error);
+      console.error('Error fetching user auth data:', error);
     } finally {
       setLoading(false);
     }
@@ -80,8 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAdmin = roles.includes('super_admin');
   const isMinistryAdmin = isAdmin || roles.includes('ministry_admin');
-  const isWorshipLeader = isMinistryAdmin || roles.includes('worship_pastor') || roles.includes('worship_leader');
+  const isWorshipLeader = isMinistryAdmin || roles.includes('worship_director') || roles.includes('worship_pastor') || roles.includes('worship_leader');
   const isTeamMember = isWorshipLeader || roles.includes('team_member');
+  const isPending = status === 'Pending';
 
   return (
     <AuthContext.Provider value={{ 
@@ -92,7 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin, 
       isMinistryAdmin, 
       isWorshipLeader,
-      isTeamMember
+      isTeamMember,
+      status,
+      isPending
     }}>
       {children}
     </AuthContext.Provider>

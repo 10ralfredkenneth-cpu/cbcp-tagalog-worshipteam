@@ -47,6 +47,21 @@ export type Database = {
         }
         Relationships: []
       }
+      initial_super_admin_setup: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
       ministry_settings: {
         Row: {
           id: string
@@ -73,6 +88,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auth_provider: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
@@ -93,6 +109,7 @@ export type Database = {
           vocal_range: string | null
         }
         Insert: {
+          auth_provider?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
@@ -113,6 +130,7 @@ export type Database = {
           vocal_range?: string | null
         }
         Update: {
+          auth_provider?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
@@ -215,12 +233,15 @@ export type Database = {
         | "team_member"
         | "media_tech"
         | "viewer"
+        | "worship_director"
       member_status:
         | "Active"
         | "Available"
         | "Limited Availability"
         | "On Break"
         | "Inactive"
+        | "Pending"
+        | "Suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -356,6 +377,7 @@ export const Constants = {
         "team_member",
         "media_tech",
         "viewer",
+        "worship_director",
       ],
       member_status: [
         "Active",
@@ -363,6 +385,8 @@ export const Constants = {
         "Limited Availability",
         "On Break",
         "Inactive",
+        "Pending",
+        "Suspended",
       ],
     },
   },

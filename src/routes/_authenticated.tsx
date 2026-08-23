@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect, useNavigate, useLocation } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { useAuth } from '@/hooks/use-auth';
@@ -21,7 +22,15 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 function AuthenticatedLayout() {
-  const { loading } = useAuth();
+  const { loading, isPending } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && isPending && location.pathname !== '/awaiting-approval') {
+      navigate({ to: '/awaiting-approval' });
+    }
+  }, [loading, isPending, location.pathname, navigate]);
 
   if (loading) {
     return (
@@ -31,11 +40,16 @@ function AuthenticatedLayout() {
     );
   }
 
+  // Show a blank state while navigating to avoid flickering the sidebar/dashboard
+  if (isPending && location.pathname !== '/awaiting-approval') {
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
-      <main className="flex-1 lg:pl-64 transition-all duration-500">
-        <div className="min-h-screen pt-20 lg:pt-0">
+      {location.pathname !== '/awaiting-approval' && <AdminSidebar />}
+      <main className={`flex-1 ${location.pathname !== '/awaiting-approval' ? 'lg:pl-64' : ''} transition-all duration-500`}>
+        <div className={`min-h-screen ${location.pathname !== '/awaiting-approval' ? 'pt-20 lg:pt-0' : ''}`}>
           <Outlet />
         </div>
       </main>
