@@ -314,7 +314,7 @@ function TeamManagementPage() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/dashboard/team/new">
+                        <Link to="/dashboard/team/edit/$id" params={{ id: member.id }}>
                           <Edit className="w-3 h-3 mr-2" /> Edit Member
                         </Link>
                       </DropdownMenuItem>
