@@ -52,8 +52,6 @@ export async function createMember(input: { data: any } | any) {
     status: payload.status || 'Active',
     bio: payload.bio ?? null,
     avatar_url: payload.avatar_url ?? null,
-    status: payload.status ?? 'Active',
-    is_public: payload.is_public ?? false,
   };
 
   const { data, error } = await supabase
