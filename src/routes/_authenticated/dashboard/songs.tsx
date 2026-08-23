@@ -117,13 +117,13 @@ function SongManagementPage() {
                   Loading repertoire...
                 </TableCell>
               </TableRow>
-            ) : songs.length === 0 ? (
+            ) : (songs || []).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
                   No songs found in the library.
                 </TableCell>
               </TableRow>
-            ) : songs.map((song) => (
+            ) : (songs || []).map((song: any) => (
               <TableRow key={song.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">

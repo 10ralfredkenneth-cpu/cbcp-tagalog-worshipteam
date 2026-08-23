@@ -42,8 +42,8 @@ function AdminDashboardOverview() {
   const stats = [
     { label: 'Upcoming Services', value: services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar, to: '/dashboard/services' },
     { label: 'Active Songs', value: songs.filter(s => s.status === 'Active').length, icon: Music, to: '/dashboard/songs' },
-    { label: 'Team Members', value: team.length || 0, icon: Users, to: '/dashboard/team' },
-    { label: 'Pending Assignments', value: services.reduce((acc, s) => acc + s.assignments.filter(a => a.status === 'Pending').length, 0), icon: Clock, to: '/dashboard/schedule' },
+    { label: 'Team Members', value: (team as any).length || 0, icon: Users, to: '/dashboard/team' },
+    { label: 'Pending Assignments', value: services.reduce((acc: number, s: any) => acc + (s.assignments || []).filter((a: any) => a.status === 'Pending').length, 0), icon: Clock, to: '/dashboard/schedule' },
   ];
 
   const { data: recentActivity = [] } = useQuery({

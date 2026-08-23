@@ -143,13 +143,13 @@ function TeamManagementPage() {
                   Loading team members...
                 </TableCell>
               </TableRow>
-            ) : team.length === 0 ? (
+            ) : (team || []).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
                   No team members found.
                 </TableCell>
               </TableRow>
-            ) : team.map((member) => (
+            ) : (team || []).map((member: any) => (
               <TableRow key={member.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">

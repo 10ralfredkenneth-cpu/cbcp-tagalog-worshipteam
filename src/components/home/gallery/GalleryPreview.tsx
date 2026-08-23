@@ -28,9 +28,10 @@ export function GalleryPreview() {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-           {displayMedia.map((item, i) => (
+           {displayMedia.map((item: any, i) => (
              <Link 
                key={item.id} 
+
                to="/media"
                className={`group relative aspect-[4/5] overflow-hidden ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
              >

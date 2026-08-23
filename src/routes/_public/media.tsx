@@ -88,17 +88,17 @@ function MediaPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {featuredAlbums.map(album => (
+              {(featuredAlbums || []).map((album: any) => (
                 <div key={album.id} className="group cursor-pointer space-y-6">
                   <div className="aspect-[4/5] overflow-hidden border border-accent/10 relative">
                     <img 
-                      src={album.coverImageUrl} 
+                      src={album.cover_image_url || album.coverImageUrl} 
                       alt={album.title}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                     />
                     <div className="absolute top-6 right-6">
                       <Badge className="rounded-none bg-accent text-primary text-[8px] font-bold uppercase tracking-widest">
-                        {album.mediaCount} Items
+                        {album.media_count || album.mediaCount || 0} Items
                       </Badge>
                     </div>
                   </div>

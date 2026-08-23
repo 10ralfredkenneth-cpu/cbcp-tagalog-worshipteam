@@ -177,7 +177,7 @@ function ResourceDetailPage() {
               prose-strong:text-foreground prose-strong:font-bold
               prose-li:text-muted-foreground
             "
-            dangerouslySetInnerHTML={{ __html: resource.content }}
+            dangerouslySetInnerHTML={{ __html: resource.content || '' }}
           />
 
           {/* Tags */}
