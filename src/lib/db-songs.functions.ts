@@ -167,35 +167,51 @@ export async function restoreSongVersion(songId: string, version: Partial<SongVe
 export function enhanceChordParsing(text: string): string {
   if (!text) return '';
 
-  const chordPattern = '\\b[A-G][#b]?(?:m|min|maj|dim|aug|sus|add|M|Δ)?[0-9]*(?:/[A-G][#b]?)?\\b';
-  const chordRegex = new RegExp(chordPattern, 'g');
+  // Improved regex to handle common chord variations and inconsistent punctuation/spacing
+  // Catches A, Am, A#maj7, G/B, Dsus4, etc. Even with trailing periods or commas.
+  const chordPattern = '[A-G][#b]?(?:m|min|maj|dim|aug|sus|add|M|Δ)?[0-9]*(?:/[A-G][#b]?)?';
+  const chordRegex = new RegExp('\\b' + chordPattern + '\\b', 'g');
 
   return text.split('\n').map(line => {
+    // Skip already formatted lines to avoid double brackets
+    if (line.includes('[') && line.includes(']')) return line;
+
     const trimmed = line.trim();
     if (!trimmed) return line;
 
+    // Split by whitespace but keep punctuation attached to words for analysis
     const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-    const chordMatches = trimmed.match(chordRegex);
     
-    if (!chordMatches) return line;
-
+    // Count how many "words" in the line look like chords
     const chordWordCount = words.filter(word => {
-      const cleanWord = word.replace(/[.,]$/, '');
+      // Clean word of common punctuation prefix/suffix for detection
+      const cleanWord = word.replace(/^[.,()]+|[.,()]+$/g, '');
       return new RegExp('^' + chordPattern + '$').test(cleanWord);
     }).length;
 
+    // Heuristic: If more than 40% of words are chords, or it's a very short line with at least one chord,
+    // we treat it as a chord line.
     const isChordLine = chordWordCount / words.length > 0.4 || (words.length <= 3 && chordWordCount >= 1);
 
     if (isChordLine) {
       let result = line;
-      const sortedMatches = [...new Set(chordMatches)].sort((a, b) => b.length - a.length);
+      // We want to replace chords with [Chord] while preserving punctuation and spacing.
+      // We process words individually to handle punctuation correctly.
+      const lineWords = line.split(/(\s+)/); // Keep delimiters (spaces)
       
-      for (const match of sortedMatches) {
-        const escapeMatch = match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const replaceRegex = new RegExp('(?<=^|\\s)' + escapeMatch + '(?=\\s|$|[.,])', 'g');
-        result = result.replace(replaceRegex, `[${match}]`);
-      }
-      return result;
+      return lineWords.map(part => {
+        if (/^\s+$/.test(part)) return part; // Keep spaces as is
+        
+        // Check if this word is a chord (potentially with punctuation)
+        const prefix = part.match(/^[.,()]+/)?.[0] || '';
+        const suffix = part.match(/[.,()]+$/)?.[0] || '';
+        const core = part.slice(prefix.length, suffix.length ? -suffix.length : undefined);
+        
+        if (new RegExp('^' + chordPattern + '$').test(core)) {
+          return `${prefix}[${core}]${suffix}`;
+        }
+        return part;
+      }).join('');
     }
 
     return line;
