@@ -23,22 +23,22 @@ function AddTeamMemberPage() {
     email: '',
     primary_role: '',
     instruments: '',
-    status: 'Active',
-    is_public: true, // Default to true so it syncs to public page
+    status: 'Active' as const,
+    is_public: true,
     avatar_url: ''
   });
 
   const mutation = useMutation({
     mutationFn: createMember,
     onSuccess: () => {
-      toast.success('Personnel profile created successfully and synced to public team page.');
+      toast.success('Personnel profile created successfully.');
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       queryClient.invalidateQueries({ queryKey: ['team-public'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       navigate({ to: '/dashboard/team' });
     },
-    onError: (error) => {
-      toast.error('Failed to add member: ' + (error as Error).message);
+    onError: (error: any) => {
+      toast.error('Failed to add member: ' + error.message);
     }
   });
 
@@ -99,7 +99,8 @@ function AddTeamMemberPage() {
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
-                  id="full_name"
+                  id="full_name_input"
+                  name="full_name"
                   value={formData.full_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                   placeholder="John Doe" 
@@ -114,7 +115,8 @@ function AddTeamMemberPage() {
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
-                  id="email"
+                  id="email_input"
+                  name="email"
                   type="email" 
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -155,7 +157,8 @@ function AddTeamMemberPage() {
               <div className="relative">
                 <Music className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
-                  id="instruments"
+                  id="instruments_input"
+                  name="instruments"
                   value={formData.instruments}
                   onChange={(e) => setFormData(prev => ({ ...prev, instruments: e.target.value }))}
                   placeholder="e.g. Acoustic Guitar, Soprano, ProPresenter" 
