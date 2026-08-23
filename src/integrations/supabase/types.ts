@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json | null
+          summary: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          summary?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          summary?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ministry_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -31,6 +88,7 @@ export type Database = {
           primary_role: string | null
           skills: string[] | null
           status: Database["public"]["Enums"]["member_status"] | null
+          team_member_id: string | null
           updated_at: string | null
           vocal_range: string | null
         }
@@ -50,6 +108,7 @@ export type Database = {
           primary_role?: string | null
           skills?: string[] | null
           status?: Database["public"]["Enums"]["member_status"] | null
+          team_member_id?: string | null
           updated_at?: string | null
           vocal_range?: string | null
         }
@@ -69,6 +128,7 @@ export type Database = {
           primary_role?: string | null
           skills?: string[] | null
           status?: Database["public"]["Enums"]["member_status"] | null
+          team_member_id?: string | null
           updated_at?: string | null
           vocal_range?: string | null
         }
