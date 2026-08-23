@@ -22,6 +22,7 @@ import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
 import { Route as AuthenticatedDashboardActivityRouteImport } from './routes/_authenticated/dashboard/activity'
+import { Route as AuthenticatedDashboardMediaRouteImport } from './routes/_authenticated/dashboard/media'
 import { Route as AuthenticatedDashboardServicesRouteImport } from './routes/_authenticated/dashboard/services'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard/settings'
 import { Route as AuthenticatedDashboardSongsRouteImport } from './routes/_authenticated/dashboard/songs'
@@ -97,6 +98,12 @@ const AuthenticatedDashboardActivityRoute =
   AuthenticatedDashboardActivityRouteImport.update({
     id: '/activity',
     path: '/activity',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardMediaRoute =
+  AuthenticatedDashboardMediaRouteImport.update({
+    id: '/media',
+    path: '/media',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardServicesRoute =
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
   '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/dashboard/media': typeof AuthenticatedDashboardMediaRoute
   '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
@@ -201,6 +209,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamIndexRoute
   '/worship': typeof PublicWorshipRoute
   '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/dashboard/media': typeof AuthenticatedDashboardMediaRoute
   '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
@@ -228,6 +237,7 @@ export interface FileRoutesById {
   '/_public/team': typeof PublicTeamRouteWithChildren
   '/_public/worship': typeof PublicWorshipRoute
   '/_authenticated/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/_authenticated/dashboard/media': typeof AuthenticatedDashboardMediaRoute
   '/_authenticated/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/_authenticated/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/worship'
     | '/dashboard/activity'
+    | '/dashboard/media'
     | '/dashboard/services'
     | '/dashboard/settings'
     | '/dashboard/songs'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/worship'
     | '/dashboard/activity'
+    | '/dashboard/media'
     | '/dashboard/services'
     | '/dashboard/settings'
     | '/dashboard/songs'
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/_public/team'
     | '/_public/worship'
     | '/_authenticated/dashboard/activity'
+    | '/_authenticated/dashboard/media'
     | '/_authenticated/dashboard/services'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/dashboard/songs'
@@ -418,6 +431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardActivityRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/media': {
+      id: '/_authenticated/dashboard/media'
+      path: '/media'
+      fullPath: '/dashboard/media'
+      preLoaderRoute: typeof AuthenticatedDashboardMediaRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/services': {
       id: '/_authenticated/dashboard/services'
       path: '/services'
@@ -507,6 +527,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardActivityRoute: typeof AuthenticatedDashboardActivityRoute
+  AuthenticatedDashboardMediaRoute: typeof AuthenticatedDashboardMediaRoute
   AuthenticatedDashboardServicesRoute: typeof AuthenticatedDashboardServicesRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
   AuthenticatedDashboardSongsRoute: typeof AuthenticatedDashboardSongsRoute
@@ -516,6 +537,7 @@ interface AuthenticatedDashboardRouteChildren {
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardActivityRoute: AuthenticatedDashboardActivityRoute,
+    AuthenticatedDashboardMediaRoute: AuthenticatedDashboardMediaRoute,
     AuthenticatedDashboardServicesRoute: AuthenticatedDashboardServicesRoute,
     AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
     AuthenticatedDashboardSongsRoute: AuthenticatedDashboardSongsRoute,
