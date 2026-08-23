@@ -33,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';

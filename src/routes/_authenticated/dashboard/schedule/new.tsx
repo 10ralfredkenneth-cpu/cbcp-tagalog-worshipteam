@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Calendar, User, Shield, Clock, Loader2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { getTeamMembers, createAssignment } from '@/lib/db-team.functions';
 import { useState } from 'react';
 import { toast } from 'sonner';

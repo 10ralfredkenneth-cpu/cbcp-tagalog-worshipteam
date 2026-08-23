@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';

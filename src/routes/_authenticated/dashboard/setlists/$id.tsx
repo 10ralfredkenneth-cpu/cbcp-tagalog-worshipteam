@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
-import { getSongs } from '@/lib/db-songs';
+import { getServices } from '@/lib/db-services.functions';
+import { getSongs } from '@/lib/db-songs.functions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

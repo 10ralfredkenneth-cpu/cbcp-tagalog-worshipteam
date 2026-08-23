@@ -22,8 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { getSongs } from '@/lib/db-songs';
-import { getServices } from '@/lib/db-services';
+import { getSongs } from '@/lib/db-songs.functions';
+import { getServices } from '@/lib/db-services.functions';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({

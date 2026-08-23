@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from "@/lib/utils";
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/schedule')({

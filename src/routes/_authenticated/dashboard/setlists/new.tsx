@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, ListMusic, Calendar, Search, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 
 export const Route = createFileRoute('/_authenticated/dashboard/setlists/new')({
   component: CreateSetlistPage,
