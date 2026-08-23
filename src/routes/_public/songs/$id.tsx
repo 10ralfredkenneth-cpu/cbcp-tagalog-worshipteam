@@ -33,34 +33,63 @@ function SongDetailPage() {
   const rawSong = (songs || []).find((s: any) => s.id === (id as string));
   const song = useMemo(() => rawSong as unknown as WorshipSong, [rawSong]);
   
-  const [currentKey, setCurrentKey] = useState(song?.defaultKey || 'C');
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  
+  const [currentKey, setCurrentKey] = useState(searchParams.get('key') || song?.defaultKey || 'C');
   const [showChords, setShowChords] = useState(() => {
+    const fromUrl = searchParams.get('chords');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-showChords-${id}`);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [showLyrics, setShowLyrics] = useState(() => {
+    const fromUrl = searchParams.get('lyrics');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-showLyrics-${id}`);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [numberNotation, setNumberNotation] = useState(false);
   const [isSplit, setIsSplit] = useState(() => {
+    const fromUrl = searchParams.get('split');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [fontSize, setFontSize] = useState(16);
   const [chordColor, setChordColor] = useState(() => {
+    const fromUrl = searchParams.get('color');
+    if (fromUrl !== null) return `text-${fromUrl}`;
     return localStorage.getItem(`song-pref-chordColor-${id}`) || 'text-accent';
   });
   
   // Metronome state
   const [metronomePlaying, setMetronomePlaying] = useState(false);
-  const [bpm, setBpm] = useState(song?.bpm || 72);
-  const [metronomeVolume, setMetronomeVolume] = useState(0.5);
-  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>('beep');
+  const [isCountingIn, setIsCountingIn] = useState(false);
+  const [countInBeats, setCountInBeats] = useState(4);
+  const [currentCount, setCurrentCount] = useState(0);
+  const [bpm, setBpm] = useState(() => {
+    const fromUrl = searchParams.get('bpm');
+    return fromUrl ? parseInt(fromUrl) : (song?.bpm || 72);
+  });
+  const [metronomeVolume, setMetronomeVolume] = useState(() => {
+    return song?.externalResources?.metronomeDefaultVolume ?? 0.5;
+  });
+  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>(() => {
+    const fromUrl = searchParams.get('sound');
+    if (fromUrl === 'beep' || fromUrl === 'woodblock' || fromUrl === 'click') return fromUrl;
+    return song?.externalResources?.metronomeDefaultSound ?? 'beep';
+  });
   const [autoScroll, setAutoScroll] = useState(false);
+  const [latency, setLatency] = useState(0); // in ms
+  const [loopMode, setLoopMode] = useState(false);
+  const [loopStart, setLoopStart] = useState<number | null>(null);
+  const [loopEnd, setLoopEnd] = useState<number | null>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const nextTickTimeRef = useRef<number>(0);
+  const beatCountRef = useRef<number>(0);
+
 
   // Persistence effects
   useEffect(() => {
