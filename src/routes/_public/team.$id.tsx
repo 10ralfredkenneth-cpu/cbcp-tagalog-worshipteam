@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { MOCK_TEAM } from '@/lib/mock-team';
+import { MOCK_SETLISTS } from '@/lib/mock-setlists';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,9 +11,17 @@ import {
   ArrowLeft,
   Clock,
   Shield,
-  Star
+  Star,
+  CheckCircle2,
+  Clock3,
+  XCircle,
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 import { TeamMemberStatus } from '@/types/team';
+import { cn } from '@/lib/utils';
+import { useMemo } from 'react';
+import { AssignmentStatus } from '@/types/setlists';
 
 export const Route = createFileRoute('/_public/team/$id')({
   component: MemberProfilePage,
