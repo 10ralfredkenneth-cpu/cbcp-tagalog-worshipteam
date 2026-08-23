@@ -35,14 +35,34 @@ function Index() {
     queryFn: () => getSongsPublic()
   });
 
-  const sampleEvent = {
-    title: "Sunday Worship Service",
-    date: "Sunday",
-    time: "9:00 AM",
-    location: "Main Sanctuary",
-    description: "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
-    theme: "The Holiness of God"
-  };
+  const { data: upcomingService } = useQuery({
+    queryKey: ['upcoming-service-public'],
+    queryFn: () => getUpcomingServicePublic()
+  });
+
+  const featuredSongs = useMemo(() => {
+    return songs.filter((s: any) => s.featured).slice(0, 3);
+  }, [songs]);
+
+  const serviceEvent = useMemo(() => {
+    if (!upcomingService) return {
+      title: "Sunday Worship Service",
+      date: "Sunday",
+      time: "9:00 AM",
+      location: "Main Sanctuary",
+      description: "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
+      theme: "The Holiness of God"
+    };
+
+    return {
+      title: upcomingService.title,
+      date: new Date(upcomingService.service_date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }),
+      time: upcomingService.service_time,
+      location: upcomingService.rehearsal_location || "Main Sanctuary",
+      description: upcomingService.notes || "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
+      theme: upcomingService.theme
+    };
+  }, [upcomingService]);
 
 
   return (
