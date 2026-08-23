@@ -98,9 +98,15 @@ function TeamDirectoryLayout() {
             </Badge>
             <h1 className="font-serif text-5xl lg:text-7xl text-foreground">Worship Team</h1>
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
-              Verify that team member avatar uploads now work end to end on both admin and the public Team page across multiple image sizes and formats.
+              Verify avatar uploads end to end for PNG, JPG, WEBP, and HEIC files, including very small and very large images, and ensure the correct avatar shows on the public Team page.
 
-Add a way for me to remove or replace a team member’s avatar, and ensure the public Team page updates instantly afterward.
+Add an upload progress indicator and clear success/failure messages when I upload or remove a team member avatar.
+
+Implement a default placeholder avatar when a team member has no image and ensure it displays consistently on both admin and the public Team page.
+
+Add drag-and-drop support to the avatar upload component so I can quickly replace a team member’s photo.
+
+Add a preview step that shows the new avatar before I save, and let me cancel without changing the current avatar.
             </p>
           </div>
           <div className="flex gap-3">
@@ -214,7 +220,8 @@ Add a way for me to remove or replace a team member’s avatar, and ensure the p
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-muted mb-4">
                     <img 
-                      src={member.avatar_url || member.photoUrl} 
+                      src={member.avatar_url || member.photoUrl || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop&q=80&auto=format"} 
+
                       alt={member.full_name || member.fullName} 
 
                       className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
@@ -254,7 +261,7 @@ Add a way for me to remove or replace a team member’s avatar, and ensure the p
                   className="group flex flex-col sm:flex-row sm:items-center gap-6 p-6 bg-muted/20 border border-accent/5 hover:border-accent/10 transition-all"
                 >
                   <div className="h-16 w-16 overflow-hidden bg-muted flex-shrink-0">
-                    <img src={member.avatar_url || member.photoUrl} alt={member.full_name || member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                    <img src={member.avatar_url || member.photoUrl || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop&q=80&auto=format"} alt={member.full_name || member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors truncate">{member.full_name || member.fullName}</h3>
