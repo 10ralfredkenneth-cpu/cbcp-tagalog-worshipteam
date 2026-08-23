@@ -15,6 +15,10 @@ export const MOCK_TEAM: TeamMember[] = [
     dateJoined: "2018-03-15",
     skills: ["Lead Vocal", "Backing Vocal", "Soprano"],
     groups: ["Worship Leaders", "Vocals"],
+    availability: [
+      { id: 'av-1', memberId: '1', date: '2026-08-30', status: 'Available' },
+      { id: 'av-2', memberId: '1', date: '2026-09-06', status: 'Unavailable', notes: 'Out of town' }
+    ],
     createdAt: "2018-03-15T10:00:00Z",
     updatedAt: "2024-01-20T14:30:00Z"
   },
@@ -32,6 +36,9 @@ export const MOCK_TEAM: TeamMember[] = [
     dateJoined: "2020-06-22",
     skills: ["Keyboard", "Sound"],
     groups: ["Band"],
+    availability: [
+      { id: 'av-3', memberId: '2', date: '2026-08-30', status: 'Available' }
+    ],
     createdAt: "2020-06-22T09:00:00Z",
     updatedAt: "2024-02-15T11:20:00Z"
   },
