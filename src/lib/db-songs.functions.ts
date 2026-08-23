@@ -51,9 +51,9 @@ export async function archiveSong(input: { data: string } | string) {
 export async function createSong(input: { data: Partial<WorshipSong> } | Partial<WorshipSong>) {
   const song = ((input as any)?.data ?? input) as Partial<WorshipSong>;
   
-  const insertData = {
+  const insertData: any = {
     title: song.title,
-    artist: song.artist,
+    artist: song.artist || 'Unknown Artist',
     songwriter: song.songwriter,
     default_key: song.defaultKey,
     bpm: song.bpm,
@@ -72,6 +72,9 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     chords: song.chords,
   };
 
+  // Remove undefined properties to satisfy exactOptionalPropertyTypes
+  Object.keys(insertData).forEach(key => insertData[key] === undefined && delete insertData[key]);
+
   const { data, error } = await supabase
     .from('songs')
     .insert([insertData])
@@ -85,7 +88,7 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
 export async function updateSong(input: { data: { id: string, song: Partial<WorshipSong> } } | { id: string, song: Partial<WorshipSong> }) {
   const { id, song } = ((input as any)?.data ?? input);
 
-  const updateData = {
+  const updateData: any = {
     title: song.title,
     artist: song.artist,
     songwriter: song.songwriter,
@@ -106,6 +109,9 @@ export async function updateSong(input: { data: { id: string, song: Partial<Wors
     chords: song.chords,
     updated_at: new Date().toISOString(),
   };
+
+  // Remove undefined properties to satisfy exactOptionalPropertyTypes
+  Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
   const { data, error } = await supabase
     .from('songs')
@@ -140,13 +146,18 @@ export async function getSongVersions(songId: string): Promise<SongVersion[]> {
 }
 
 export async function restoreSongVersion(songId: string, version: Partial<SongVersion>) {
+  const updateData: any = {
+    lyrics: version.lyrics,
+    chords: version.chords,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Remove undefined properties
+  Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
   const { error } = await supabase
     .from('songs')
-    .update({
-      lyrics: version.lyrics,
-      chords: version.chords,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('id', songId);
 
   if (error) throw error;
