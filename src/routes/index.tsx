@@ -40,7 +40,7 @@ function Index() {
 
 
   return (
-    <div className="animate-in fade-in duration-1000 overflow-x-hidden">
+    <div className="overflow-x-hidden selection:bg-accent selection:text-primary">
       <HeroSection
         variant="full"
         tagline="John 4:23–24"
@@ -58,8 +58,9 @@ function Index() {
       <CoreValues />
 
       {/* Primary Scripture Feature */}
-      <section className="bg-primary py-32 px-6">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-primary py-40 px-6 overflow-hidden relative group">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale scale-110 group-hover:scale-100 transition-transform duration-10000" />
+        <div className="mx-auto max-w-7xl relative z-10">
            <ScriptureBlock 
               verse="Let everything that has breath praise the LORD. Praise the LORD!"
               reference="Psalm 150:6"
@@ -67,6 +68,7 @@ function Index() {
            />
         </div>
       </section>
+
 
       {/* Upcoming Worship Gathering */}
       <section className="py-24 px-6 bg-background">

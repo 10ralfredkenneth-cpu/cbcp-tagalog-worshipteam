@@ -39,7 +39,7 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
   return (
     <div className="group animate-in fade-in slide-in-from-bottom-6 duration-700">
       <Link to="/songs/$id" params={{ id: song.id }}>
-        <div className="aspect-square w-full mb-6 overflow-hidden bg-muted relative border border-accent/5">
+        <div className="aspect-square w-full mb-6 overflow-hidden bg-muted relative border border-accent/5 group-hover:border-accent/30 transition-all duration-500">
           {song.artworkUrl ? (
             <img 
               src={song.artworkUrl} 
@@ -55,6 +55,8 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
               </span>
             </div>
           )}
+          <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
           <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-1 text-[8px] font-bold tracking-[0.2em] text-foreground uppercase border border-accent/20">
             Key: {song.defaultKey}
           </div>

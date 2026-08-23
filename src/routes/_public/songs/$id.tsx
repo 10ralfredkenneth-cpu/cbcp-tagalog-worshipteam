@@ -13,8 +13,19 @@ import { KEYS, transposeChord, getSemitoneDifference } from '@/utils/transpositi
 import { WorshipSong, SongSection } from '@/types/songs';
 
 export const Route = createFileRoute('/_public/songs/$id')({
+  head: ({ params }) => {
+    // In a real app we'd fetch the song title here, but we'll use a generic placeholder for now
+    // or we could potentially pass data if TanStack Router supported it easily in head() without loaders.
+    return {
+      meta: [
+        { title: `Worship Song | Radiant Worship` },
+        { name: "description", content: "View chords, lyrics, and biblical foundation for this worship song." },
+      ],
+    };
+  },
   component: SongDetailPage,
 });
+
 
 type ViewMode = 'Standard' | 'Musician' | 'Vocalist' | 'Presentation';
 
@@ -58,23 +69,23 @@ function SongDetailPage() {
 
   // Helper to render sections for different views
   const SectionDisplay = ({ section, mode }: { section: SongSection, mode: ViewMode }) => (
-    <div className="mb-8 last:mb-0">
-      <h4 className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase mb-3 flex items-center gap-2">
-        <span className="w-6 h-px bg-accent/30" />
+    <div className={`mb-12 last:mb-0 ${mode === 'Musician' ? 'bg-muted/10 p-6 border-l border-accent/20' : ''}`}>
+      <h4 className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase mb-6 flex items-center gap-4">
+        <span className="w-8 h-px bg-accent/30" />
         {section.type} {section.label}
       </h4>
-      <div className="space-y-2 font-mono text-sm leading-relaxed">
+      <div className={`space-y-4 ${mode === 'Musician' ? 'font-mono' : 'font-serif'} leading-relaxed`}>
         {section.lines.map((line, idx) => {
           if (line.type === 'chords' && mode !== 'Vocalist' && showChords) {
             return (
-              <div key={idx} className="text-accent font-bold tracking-wider mb-1">
+              <div key={idx} className="text-accent font-bold tracking-widest text-lg sm:text-xl lg:text-2xl mb-2">
                 {renderChords(line.content)}
               </div>
             );
           }
           if (line.type === 'lyrics' && mode !== 'Musician') {
             return (
-              <div key={idx} className="text-foreground/80 mb-3 whitespace-pre-wrap">
+              <div key={idx} className={`${mode === 'Standard' ? 'text-lg text-foreground/80' : 'text-2xl sm:text-3xl lg:text-4xl text-foreground'} mb-6 whitespace-pre-wrap leading-tight`}>
                 {line.content}
               </div>
             );
@@ -84,6 +95,7 @@ function SongDetailPage() {
       </div>
     </div>
   );
+
 
   if (viewMode === 'Presentation') {
     return (
