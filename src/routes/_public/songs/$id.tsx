@@ -297,8 +297,12 @@ function SongDetailPage() {
                 <div className="space-y-4">
                   {initialSong.scriptureReferences.map((ref, idx) => (
                     <div key={idx}>
-                      <p className="font-serif italic text-foreground text-xl">"{ref.reference}"</p>
-                      {ref.notes && <p className="text-sm text-muted-foreground mt-2">{ref.notes}</p>}
+                      <p className="font-serif italic text-foreground text-xl">
+                        "{typeof ref === 'string' ? ref : ref.reference}"
+                      </p>
+                      {typeof ref !== 'string' && ref.notes && (
+                        <p className="text-sm text-muted-foreground mt-2">{ref.notes}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -359,13 +363,17 @@ function SongDetailPage() {
               <div className="space-y-6">
                  {initialSong.scriptureReferences.map((ref, idx) => (
                    <div key={idx} className="p-8 bg-muted/20 border border-accent/10">
-                     <h4 className="font-serif text-2xl text-accent mb-4">{ref.reference}</h4>
+                     <h4 className="font-serif text-2xl text-accent mb-4">
+                       {typeof ref === 'string' ? ref : ref.reference}
+                     </h4>
                      <p className="text-foreground/80 leading-relaxed italic mb-4">
                        "Detailed scriptural text from the ESV or NKJV translation will be loaded here to assist in worship preparation."
                      </p>
-                     <p className="text-muted-foreground text-sm border-t border-accent/10 pt-4 mt-4">
-                       {ref.notes || "No additional commentary provided."}
-                     </p>
+                     {typeof ref !== 'string' && ref.notes && (
+                       <p className="text-muted-foreground text-sm border-t border-accent/10 pt-4 mt-4">
+                         {ref.notes}
+                       </p>
+                     )}
                    </div>
                  ))}
               </div>

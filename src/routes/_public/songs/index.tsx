@@ -45,7 +45,7 @@ function SongLibraryPage() {
         song.title.toLowerCase().includes(search.toLowerCase()) ||
         song.artist.toLowerCase().includes(search.toLowerCase()) ||
         song.themes.some(t => t.toLowerCase().includes(search.toLowerCase())) ||
-        song.scriptureReferences.some(r => r.reference.toLowerCase().includes(search.toLowerCase()));
+        song.scriptureReferences.some(r => (typeof r === 'string' ? r : r.reference).toLowerCase().includes(search.toLowerCase()));
       
       const matchesTheme = themeFilter === 'All' || song.themes.includes(themeFilter);
       const matchesKey = keyFilter === 'All' || song.defaultKey === keyFilter;
