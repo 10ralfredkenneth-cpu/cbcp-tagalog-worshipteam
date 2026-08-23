@@ -35,6 +35,21 @@ export const Route = createFileRoute('/_public/team/$id')({
 function MemberProfilePage() {
   const { member } = Route.useLoaderData();
 
+  const servingHistory = useMemo(() => {
+    const history: any[] = [];
+    MOCK_SETLISTS.forEach(service => {
+      const assignment = service.assignments?.find(a => a.memberId === member.id);
+      if (assignment) {
+        history.push({
+          ...assignment,
+          serviceTitle: service.title,
+          serviceDate: service.serviceDate
+        });
+      }
+    });
+    return history.sort((a, b) => new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime()).slice(0, 5);
+  }, [member.id]);
+
   const getStatusColor = (status: TeamMemberStatus) => {
     switch (status) {
       case 'Active': return 'bg-green-500/10 text-green-600 border-green-200';
