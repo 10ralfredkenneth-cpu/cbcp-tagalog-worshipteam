@@ -213,6 +213,7 @@ function TeamPage() {
                         <Link 
                           to="/team/$id" 
                           params={{ id: member.id }}
+
                           className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase hover:underline"
                         >
                           View Profile
