@@ -1,5 +1,6 @@
 import { WorshipSong } from '@/types/songs';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 
 interface SongProps {
   song: WorshipSong;
@@ -7,6 +8,15 @@ interface SongProps {
 }
 
 export function SongCard({ song, viewMode = 'grid' }: SongProps) {
+  const [localChordColor, setLocalChordColor] = useState(() => {
+    return localStorage.getItem(`song-pref-chordColor-${song.id}`) || 'text-accent';
+  });
+
+  const saveChordColor = (color: string) => {
+    setLocalChordColor(color);
+    localStorage.setItem(`song-pref-chordColor-${song.id}`, color);
+  };
+
   if (viewMode === 'list') {
     return (
       <div className="group flex items-center justify-between p-4 bg-background hover:bg-muted/30 transition-colors duration-300 border-b border-accent/10">
@@ -57,8 +67,26 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
           )}
           <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-1 text-[8px] font-bold tracking-[0.2em] text-foreground uppercase border border-accent/20">
-            Key: {song.defaultKey}
+          <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-1 text-[8px] font-bold tracking-[0.2em] text-foreground uppercase border border-accent/20 flex items-center gap-2">
+            <span className={localChordColor}>Key: {song.defaultKey}</span>
+          </div>
+          <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm p-1 border border-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-1">
+             {[
+               { name: 'Gold', class: 'text-accent', bg: 'bg-accent' },
+               { name: 'Navy', class: 'text-primary', bg: 'bg-primary' },
+               { name: 'Red', class: 'text-red-600', bg: 'bg-red-600' }
+             ].map((c) => (
+               <button
+                 key={c.name}
+                 onClick={(e) => {
+                   e.preventDefault();
+                   e.stopPropagation();
+                   saveChordColor(c.class);
+                 }}
+                 className={`w-4 h-4 rounded-full border border-white/20 ${c.bg} ${localChordColor === c.class ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                 title={c.name}
+               />
+             ))}
           </div>
           <div className="absolute bottom-4 right-4 bg-primary/90 backdrop-blur-sm px-2 py-1 text-[8px] font-bold tracking-[0.1em] text-background uppercase">
             {song.bpm} BPM

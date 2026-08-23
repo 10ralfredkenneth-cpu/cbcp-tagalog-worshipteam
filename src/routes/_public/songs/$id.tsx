@@ -34,18 +34,70 @@ function SongDetailPage() {
   const song = useMemo(() => rawSong as unknown as WorshipSong, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(song?.defaultKey || 'C');
-  const [showChords, setShowChords] = useState(true);
-  const [showLyrics, setShowLyrics] = useState(true);
+  const [showChords, setShowChords] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-showChords-${id}`);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [showLyrics, setShowLyrics] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-showLyrics-${id}`);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [numberNotation, setNumberNotation] = useState(false);
-  const [isSplit, setIsSplit] = useState(false);
+  const [isSplit, setIsSplit] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
+    return saved !== null ? JSON.parse(saved) : false;
+  });
   const [fontSize, setFontSize] = useState(16);
-  const [chordColor, setChordColor] = useState('text-accent');
+  const [chordColor, setChordColor] = useState(() => {
+    return localStorage.getItem(`song-pref-chordColor-${id}`) || 'text-accent';
+  });
   
   // Metronome state
   const [metronomePlaying, setMetronomePlaying] = useState(false);
   const [bpm, setBpm] = useState(song?.bpm || 72);
+  const [metronomeVolume, setMetronomeVolume] = useState(0.5);
+  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>('beep');
+  const [autoScroll, setAutoScroll] = useState(false);
+  
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(`song-pref-showChords-${id}`, JSON.stringify(showChords));
+  }, [showChords, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-showLyrics-${id}`, JSON.stringify(showLyrics));
+  }, [showLyrics, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-isSplit-${id}`, JSON.stringify(isSplit));
+  }, [isSplit, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
+  }, [chordColor, id]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      switch (e.key.toLowerCase()) {
+        case 'c': setShowChords((prev: boolean) => !prev); break;
+        case 'l': setShowLyrics((prev: boolean) => !prev); break;
+        case 's': setIsSplit((prev: boolean) => !prev); break;
+        case ' ': 
+          e.preventDefault();
+          setMetronomePlaying((prev: boolean) => !prev); 
+          break;
+        case 'r': setBpm(song?.bpm || 72); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [song?.bpm]);
 
   useEffect(() => {
     if (song?.bpm) setBpm(song.bpm);
@@ -58,9 +110,16 @@ function SongDetailPage() {
     const osc = audioCtxRef.current.createOscillator();
     const envelope = audioCtxRef.current.createGain();
 
-    osc.frequency.value = 880;
-    envelope.gain.value = 1;
-    envelope.gain.exponentialRampToValueAtTime(1, audioCtxRef.current.currentTime + 0.001);
+    if (metronomeSound === 'beep') {
+      osc.frequency.value = 880;
+    } else if (metronomeSound === 'woodblock') {
+      osc.frequency.value = 600;
+    } else {
+      osc.frequency.value = 1200;
+    }
+    
+    envelope.gain.value = metronomeVolume;
+    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, audioCtxRef.current.currentTime + 0.001);
     envelope.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.02);
 
     osc.connect(envelope);
@@ -73,7 +132,7 @@ function SongDetailPage() {
   useEffect(() => {
     if (metronomePlaying) {
       const interval = (60 / bpm) * 1000;
-      playClick(); // Initial click
+      playClick();
       timerRef.current = setInterval(playClick, interval);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -81,7 +140,18 @@ function SongDetailPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [metronomePlaying, bpm]);
+  }, [metronomePlaying, bpm, metronomeSound, metronomeVolume]);
+
+  // Auto-scroll logic
+  useEffect(() => {
+    let scrollInterval: NodeJS.Timeout;
+    if (autoScroll && metronomePlaying) {
+      scrollInterval = setInterval(() => {
+        window.scrollBy({ top: 1, behavior: 'auto' });
+      }, 50);
+    }
+    return () => clearInterval(scrollInterval);
+  }, [autoScroll, metronomePlaying]);
 
   if (!song) {
     return (
@@ -236,9 +306,20 @@ function SongDetailPage() {
 
               {/* Metronome Tool */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Metronome:</h3>
-                <div className="bg-gray-50 p-4 border border-gray-100 rounded-sm">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Metronome:</h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setBpm(song?.bpm || 72)}
+                    className="h-6 text-[9px] uppercase tracking-tighter text-accent font-bold px-2"
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" /> Reset BPM
+                  </Button>
+                </div>
+                
+                <div className="bg-gray-50 p-4 border border-gray-100 rounded-sm space-y-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">BPM</span>
                       <span className="text-2xl font-serif font-bold text-primary">{bpm}</span>
@@ -250,6 +331,7 @@ function SongDetailPage() {
                       {metronomePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
                     </Button>
                   </div>
+                  
                   <div className="flex items-center gap-4">
                     <button onClick={() => setBpm(Math.max(40, bpm - 1))} className="text-gray-400 hover:text-accent p-1"><Minus className="w-4 h-4" /></button>
                     <input 
@@ -261,6 +343,43 @@ function SongDetailPage() {
                       className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
                     />
                     <button onClick={() => setBpm(Math.min(220, bpm + 1))} className="text-gray-400 hover:text-accent p-1"><Plus className="w-4 h-4" /></button>
+                  </div>
+
+                  {/* Volume and Sound */}
+                  <div className="pt-2 space-y-3">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span>Volume</span>
+                      <Volume2 className="w-3 h-3" />
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.05"
+                      value={metronomeVolume} 
+                      onChange={(e) => setMetronomeVolume(parseFloat(e.target.value))}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                    
+                    <div className="grid grid-cols-3 gap-1 pt-2">
+                      {['beep', 'woodblock', 'click'].map((sound) => (
+                        <button
+                          key={sound}
+                          onClick={() => setMetronomeSound(sound as any)}
+                          className={`text-[9px] uppercase font-bold py-1 border transition-all ${metronomeSound === sound ? 'bg-accent text-primary border-accent' : 'bg-white text-gray-400 border-gray-100'}`}
+                        >
+                          {sound}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Auto-scroll Toggle */}
+                  <div className="flex items-center gap-3 pt-2 cursor-pointer select-none" onClick={() => setAutoScroll(!autoScroll)}>
+                    <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${autoScroll ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                      {autoScroll && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Auto-Scroll</span>
                   </div>
                 </div>
               </div>
