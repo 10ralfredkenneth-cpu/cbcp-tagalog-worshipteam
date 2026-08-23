@@ -772,6 +772,7 @@ export type Database = {
         | "Inactive"
         | "Pending"
         | "Suspended"
+        | "Archived"
       resource_category:
         | "Worship Devotionals"
         | "Biblical Worship"
@@ -979,6 +980,7 @@ export const Constants = {
         "Inactive",
         "Pending",
         "Suspended",
+        "Archived",
       ],
       resource_category: [
         "Worship Devotionals",
