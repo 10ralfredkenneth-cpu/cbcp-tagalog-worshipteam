@@ -38,11 +38,6 @@ export async function createMember(input: { data: any } | any) {
     full_name: payload.full_name,
     email: payload.email,
     primary_role: payload.primary_role || null,
-    instruments: payload.instruments
-      ? (Array.isArray(payload.instruments)
-          ? payload.instruments
-          : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
-      : null,
     skills: payload.instruments
       ? (Array.isArray(payload.instruments)
           ? payload.instruments
@@ -52,6 +47,7 @@ export async function createMember(input: { data: any } | any) {
     status: payload.status || 'Active',
     bio: payload.bio ?? null,
     avatar_url: payload.avatar_url ?? null,
+    instrument: payload.instruments && !Array.isArray(payload.instruments) ? payload.instruments : null,
   };
 
   const { data, error } = await supabase
