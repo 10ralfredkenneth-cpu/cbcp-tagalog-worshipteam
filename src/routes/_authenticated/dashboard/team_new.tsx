@@ -4,14 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2, Camera } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMember } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/dashboard/team/new')({
+export const Route = createFileRoute('/_authenticated/dashboard/team_new')({
   component: AddTeamMemberPage,
 });
 
@@ -23,26 +23,27 @@ function AddTeamMemberPage() {
     email: '',
     primary_role: '',
     instruments: '',
-    status: 'Active',
-    is_public: true, // Default to true so it syncs to public page
+    status: 'Active' as const,
+    is_public: true,
     avatar_url: ''
   });
 
   const mutation = useMutation({
     mutationFn: createMember,
     onSuccess: () => {
-      toast.success('Personnel profile created successfully and synced to public team page.');
+      toast.success('Personnel profile created successfully.');
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       queryClient.invalidateQueries({ queryKey: ['team-public'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       navigate({ to: '/dashboard/team' });
     },
-    onError: (error) => {
-      toast.error('Failed to add member: ' + (error as Error).message);
+    onError: (error: any) => {
+      toast.error('Failed to add member: ' + error.message);
     }
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.full_name || !formData.email) {
       toast.error('Name and email are required');
       return;
@@ -58,7 +59,7 @@ function AddTeamMemberPage() {
             Worship Team Personnel Profile
           </Badge>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="h-10 w-10 text-accent rounded-none" onClick={() => window.history.back()}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-accent rounded-none" onClick={() => navigate({ to: '/dashboard/team' })}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-serif text-5xl text-foreground">Add Team Profile</h1>
@@ -68,7 +69,7 @@ function AddTeamMemberPage() {
           </p>
         </div>
         <Button 
-          onClick={handleSubmit}
+          onClick={() => handleSubmit()}
           disabled={mutation.isPending}
           className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
         >
@@ -77,7 +78,7 @@ function AddTeamMemberPage() {
         </Button>
       </header>
 
-      <div className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 ml-14">
+      <form onSubmit={handleSubmit} className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 ml-14">
         <div className="space-y-8">
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Profile Image</h3>
@@ -88,37 +89,40 @@ function AddTeamMemberPage() {
                 bucket="personnel-avatars"
               />
             </div>
-            <p className="text-[9px] text-muted-foreground italic">
-              A high-quality profile photo helps visitors connect with our team.
-            </p>
           </section>
 
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Personal Information</h3>
             
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
+              <Label htmlFor="full_name_input" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
+                  id="full_name_input"
+                  name="full_name"
                   value={formData.full_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                   placeholder="John Doe" 
                   className="pl-10 rounded-none border-accent/10 bg-background" 
+                  autoComplete="off"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Email Address</Label>
+              <Label htmlFor="email_input" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Email Address</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
+                  id="email_input"
+                  name="email"
                   type="email" 
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="john@example.com" 
                   className="pl-10 rounded-none border-accent/10 bg-background" 
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -149,29 +153,23 @@ function AddTeamMemberPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Instrument / Skill</Label>
+              <Label htmlFor="instruments_input" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Instrument / Skill</Label>
               <div className="relative">
                 <Music className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
+                  id="instruments_input"
+                  name="instruments"
                   value={formData.instruments}
                   onChange={(e) => setFormData(prev => ({ ...prev, instruments: e.target.value }))}
                   placeholder="e.g. Acoustic Guitar, Soprano, ProPresenter" 
                   className="pl-10 rounded-none border-accent/10 bg-background" 
+                  autoComplete="off"
                 />
               </div>
             </div>
-
-            <div className="p-6 bg-muted/20 border border-accent/5 space-y-3">
-               <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Personnel Profile vs. System Account</h3>
-               <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                 This record is a **Personnel Profile** for ministry management and public visibility. It is **not** a system login account. To allow this member to log in, you must later link this profile to a registered user in the "User Accounts" section.
-               </p>
-            </div>
           </section>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
-
-
