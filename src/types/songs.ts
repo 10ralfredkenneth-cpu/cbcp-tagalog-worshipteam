@@ -28,7 +28,7 @@ export interface WorshipSong {
   timeSignature?: string;
   language: SongLanguage;
   themes: string[];
-  scriptureReferences: ScriptureReference[];
+  scriptureReferences: (ScriptureReference | string)[];
   songType: SongType;
   status: SongStatus;
   artworkUrl?: string;
