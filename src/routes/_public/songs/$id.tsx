@@ -167,15 +167,17 @@ function SongDetailPage() {
       const time = nextTickTimeRef.current;
       
       if (isCountingIn) {
-        playClick(time, beatCountRef.current === 0);
-        const nextBeat = beatCountRef.current + 1;
-        setCurrentCount(nextBeat);
-        
-        if (nextBeat >= countInBeats) {
+        if (beatCountRef.current < countInBeats) {
+          playClick(time, beatCountRef.current === 0);
+          const nextBeat = beatCountRef.current + 1;
+          setCurrentCount(nextBeat);
+          beatCountRef.current = nextBeat;
+        } else {
           setIsCountingIn(false);
           beatCountRef.current = 0;
-        } else {
-          beatCountRef.current = nextBeat;
+          setCurrentCount(0);
+          playClick(time, true);
+          beatCountRef.current = 1;
         }
       } else {
         playClick(time, beatCountRef.current === 0);
