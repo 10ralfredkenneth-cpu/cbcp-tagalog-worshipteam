@@ -604,6 +604,7 @@ export type Database = {
           description: string | null
           featured: boolean | null
           id: string
+          is_public: boolean | null
           ministry_roles: string[] | null
           published_at: string | null
           reading_time: number | null
