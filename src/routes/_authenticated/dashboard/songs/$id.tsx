@@ -172,7 +172,7 @@ function EditSongPage() {
 
       <div className="max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-12 ml-14">
         <div className="md:col-span-2 space-y-12">
-          {/* Metadata Section - same as new.tsx but using formData */}
+          {/* Metadata Section */}
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Song Metadata</h3>
             
@@ -241,44 +241,6 @@ function EditSongPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Original Key</Label>
-                <Select value={formData.defaultKey || 'C'} onValueChange={(v) => updateField('defaultKey', v)}>
-                  <SelectTrigger className="rounded-none border-accent/10 bg-background">
-                    <SelectValue placeholder="Key" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-none">
-                    {['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map(k => (
-                      <SelectItem key={k} value={k}>{k}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Tempo (BPM)</Label>
-                <Input 
-                  type="number" 
-                  className="rounded-none border-accent/10 bg-background" 
-                  value={formData.bpm || ''}
-                  onChange={(e) => updateField('bpm', parseInt(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Time Signature</Label>
-                <Select value={formData.timeSignature || '4/4'} onValueChange={(v) => updateField('timeSignature', v)}>
-                  <SelectTrigger className="rounded-none border-accent/10 bg-background">
-                    <SelectValue placeholder="Meter" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-none">
-                    <SelectItem value="4/4">4/4</SelectItem>
-                    <SelectItem value="3/4">3/4</SelectItem>
-                    <SelectItem value="6/8">6/8</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </section>
@@ -465,22 +427,7 @@ function EditSongPage() {
                       Upload Audio
                     </label>
                   </Button>
-                  {(formData as any).audioUrl && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="rounded-none text-red-400" 
-                      onClick={() => updateField('audioUrl' as any, null)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
-                {(formData as any).audioUrl && (
-                  <p className="text-[9px] text-accent flex items-center gap-1">
-                    <Music className="w-3 h-3" /> Audio attached
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -503,22 +450,7 @@ function EditSongPage() {
                       Upload PDF
                     </label>
                   </Button>
-                  {(formData as any).sheetMusicUrl && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="rounded-none text-red-400" 
-                      onClick={() => updateField('sheetMusicUrl' as any, null)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
-                {(formData as any).sheetMusicUrl && (
-                  <p className="text-[9px] text-accent flex items-center gap-1">
-                    <FileText className="w-3 h-3" /> PDF attached
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
