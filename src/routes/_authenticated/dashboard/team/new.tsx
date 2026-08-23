@@ -29,8 +29,10 @@ function AddTeamMemberPage() {
   const mutation = useMutation({
     mutationFn: createMember,
     onSuccess: () => {
-      toast.success('Team member added successfully');
+      toast.success('Personnel profile created successfully and synced to public team page.');
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      queryClient.invalidateQueries({ queryKey: ['team-public'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       navigate({ to: '/dashboard/team' });
     },
     onError: (error) => {
