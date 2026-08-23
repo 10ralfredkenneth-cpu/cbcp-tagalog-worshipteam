@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMember } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/dashboard/team/new')({
+export const Route = createFileRoute('/_authenticated/dashboard/team_new')({
   component: AddTeamMemberPage,
 });
 
