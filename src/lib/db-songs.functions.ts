@@ -14,7 +14,7 @@ export async function getSongs(): Promise<WorshipSong[]> {
     language: song.language as SongLanguage,
     songType: song.song_type as SongType,
     status: song.status as SongStatus,
-    visibility: song.visibility as SongVisibility,
+    visibility: song.is_public ? 'Public' : 'Team Only',
     scriptureReferences: song.scripture_references as any,
     defaultKey: song.default_key,
     isPublic: song.is_public,
@@ -36,6 +36,8 @@ export async function archiveSong(input: { data: string } | string) {
 
 export async function createSong(input: { data: Partial<WorshipSong> } | Partial<WorshipSong>) {
   const song = ((input as any)?.data ?? input) as Partial<WorshipSong>;
+  
+  // Only include columns that exist in the database
   const insertData: any = {
     title: song.title || '',
     artist: song.artist || '',
@@ -46,16 +48,12 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     language: song.language || 'English',
     song_type: song.songType || 'Worship',
     status: song.status || 'Active',
-    visibility: song.visibility || 'Public',
     is_public: song.visibility === 'Public',
     featured: song.featured || false,
-    themes: song.themes || null,
-    scripture_references: song.scriptureReferences || null,
-    sections: (song as any).sections || null,
-    flow: (song as any).flow || null,
-    lyrics: (song as any).lyrics || null,
-    chords: (song as any).chords || null,
-    copyright_notes: (song as any).copyrightNotes || null,
+    themes: song.themes || [],
+    scripture_references: song.scriptureReferences || [],
+    sections: (song as any).sections || [],
+    flow: (song as any).flow || [],
     ccli_number: song.ccliNumber || null,
   };
 
@@ -72,6 +70,7 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
 export async function updateSong(input: { data: { id: string; song: Partial<WorshipSong> } } | { id: string; song: Partial<WorshipSong> }) {
   const { id, song } = ((input as any)?.data ?? input) as { id: string; song: Partial<WorshipSong> };
   const updateData: any = {};
+  
   if (song.title !== undefined) updateData.title = song.title;
   if (song.artist !== undefined) updateData.artist = song.artist || null;
   if (song.songwriter !== undefined) updateData.songwriter = song.songwriter || null;
@@ -82,17 +81,13 @@ export async function updateSong(input: { data: { id: string; song: Partial<Wors
   if (song.songType !== undefined) updateData.song_type = song.songType;
   if (song.status !== undefined) updateData.status = song.status;
   if (song.visibility !== undefined) {
-    updateData.visibility = song.visibility;
     updateData.is_public = song.visibility === 'Public';
   }
   if (song.featured !== undefined) updateData.featured = song.featured;
-  if (song.themes !== undefined) updateData.themes = song.themes || null;
-  if (song.scriptureReferences !== undefined) updateData.scripture_references = song.scriptureReferences || null;
-  if ((song as any).sections !== undefined) updateData.sections = (song as any).sections || null;
-  if ((song as any).flow !== undefined) updateData.flow = (song as any).flow || null;
-  if ((song as any).lyrics !== undefined) updateData.lyrics = (song as any).lyrics || null;
-  if ((song as any).chords !== undefined) updateData.chords = (song as any).chords || null;
-  if ((song as any).copyrightNotes !== undefined) updateData.copyright_notes = (song as any).copyrightNotes || null;
+  if (song.themes !== undefined) updateData.themes = song.themes;
+  if (song.scriptureReferences !== undefined) updateData.scripture_references = song.scriptureReferences;
+  if ((song as any).sections !== undefined) updateData.sections = (song as any).sections;
+  if ((song as any).flow !== undefined) updateData.flow = (song as any).flow;
   if (song.ccliNumber !== undefined) updateData.ccli_number = song.ccliNumber || null;
 
   const { data, error } = await supabase
