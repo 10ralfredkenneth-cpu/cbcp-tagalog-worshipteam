@@ -54,9 +54,15 @@ function UploadMediaPage() {
     finally { setIsUploadingFile(false); }
   };
 
-  const handleSubmit = () => {
-    if (!formData.title) return toast.error('Title is required');
-    if (!formData.file_url) return toast.error('Select a file before starting the upload');
+  const handleSubmit = (): void => {
+    if (!formData.title) {
+      toast.error('Title is required');
+      return;
+    }
+    if (!formData.file_url) {
+      toast.error('Select a file before starting the upload');
+      return;
+    }
     mutation.mutate({ data: formData });
   };
 
