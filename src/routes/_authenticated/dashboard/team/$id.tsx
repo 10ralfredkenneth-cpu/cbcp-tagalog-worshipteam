@@ -17,7 +17,7 @@ function MemberDetailsPage() {
   
   const { data: team = [], isLoading } = useQuery({
     queryKey: ['team-full'],
-    queryFn: () => getTeamMembers()(),
+    queryFn: () => getTeamMembers(),
   });
 
   const member = team.find((m: any) => m.id === id);
