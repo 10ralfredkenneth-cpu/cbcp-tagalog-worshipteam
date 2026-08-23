@@ -625,6 +625,7 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string | null
+          visibility: Database["public"]["Enums"]["visibility_level"] | null
         }
         Insert: {
           author_id?: string | null
@@ -646,6 +647,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["visibility_level"] | null
         }
         Update: {
           author_id?: string | null
@@ -667,6 +669,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["visibility_level"] | null
         }
         Relationships: [
           {
@@ -772,6 +775,7 @@ export type Database = {
         | "Inactive"
         | "Pending"
         | "Suspended"
+        | "Archived"
       resource_category:
         | "Worship Devotionals"
         | "Biblical Worship"
@@ -979,6 +983,7 @@ export const Constants = {
         "Inactive",
         "Pending",
         "Suspended",
+        "Archived",
       ],
       resource_category: [
         "Worship Devotionals",
