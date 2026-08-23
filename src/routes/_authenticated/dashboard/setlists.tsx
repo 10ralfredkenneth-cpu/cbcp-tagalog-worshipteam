@@ -63,8 +63,10 @@ function SetlistManagementPage() {
           <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
             Browse Archive
           </Button>
-          <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-            <Plus className="w-4 h-4 mr-2" /> New Setlist
+          <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+            <Link to="/setlists">
+              <Plus className="w-4 h-4 mr-2" /> New Setlist
+            </Link>
           </Button>
         </div>
       </header>
