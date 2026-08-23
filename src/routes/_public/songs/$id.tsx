@@ -48,8 +48,10 @@ function SongDetailPage() {
       updatedAt: (rawSong as any).updated_at || (rawSong as any).updatedAt,
       scriptureReferences: (rawSong as any).scripture_references || (rawSong as any).scriptureReferences || [],
       sections: rawSong.sections || [],
-      flow: rawSong.flow || []
-    };
+      flow: rawSong.flow || [],
+      lyrics: (rawSong as any).lyrics,
+      chords: (rawSong as any).chords
+    } as unknown as WorshipSong;
   }, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
