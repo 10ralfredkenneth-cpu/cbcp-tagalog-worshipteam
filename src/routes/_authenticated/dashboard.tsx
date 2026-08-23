@@ -33,8 +33,8 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
 function AdminDashboardOverview() {
   const { isWorshipLeader, isMinistryAdmin } = useAuth();
 
-  const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: getSongs });
-  const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: getServices });
+  const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: () => getSongs() });
+  const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: () => getServices() });
   const { data: team = [] } = useQuery({ 
     queryKey: ['team-count'], 
     queryFn: async () => {
