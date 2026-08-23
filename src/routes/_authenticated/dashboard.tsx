@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { MOCK_SETLISTS } from '@/lib/mock-setLISTS';
+import { MOCK_RESOURCES } from '@/lib/mock-resources';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -12,7 +13,9 @@ import {
   XCircle, 
   AlertCircle,
   ChevronRight,
-  Info
+  Info,
+  User,
+  Bookmark
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AssignmentStatus } from '@/types/setlists';
@@ -140,6 +143,40 @@ function DashboardPage() {
                 )}
               </div>
             </section>
+            <section className="space-y-8">
+              <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase border-b border-accent/10 pb-4">
+                Saved Resources
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {MOCK_RESOURCES.slice(0, 2).map((resource) => (
+                  <Link 
+                    key={resource.id} 
+                    to="/resources/$id" 
+                    params={{ id: resource.id }}
+                    className="group flex flex-col p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest border-accent/20 text-accent/60">
+                        {resource.category}
+                      </Badge>
+                      <Bookmark className="w-3 h-3 text-accent/40 group-hover:text-accent transition-colors" />
+                    </div>
+                    <h3 className="font-serif text-lg mb-2 group-hover:text-accent transition-colors line-clamp-1">
+                      {resource.title}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-auto pt-4 border-t border-accent/5">
+                      {resource.author} • {resource.readingTime} min
+                    </p>
+                  </Link>
+                ))}
+                <Link 
+                  to="/resources" 
+                  className="flex items-center justify-center p-6 border border-dashed border-accent/10 hover:border-accent/30 transition-all text-[9px] font-bold uppercase tracking-widest text-muted-foreground hover:text-accent"
+                >
+                  View Library <ChevronRight className="ml-2 w-3 h-3" />
+                </Link>
+              </div>
+            </section>
           </div>
 
           <div className="space-y-12">
@@ -189,5 +226,3 @@ function DashboardPage() {
   );
 }
 
-import { useMemo } from 'react';
-import { User } from 'lucide-react';
