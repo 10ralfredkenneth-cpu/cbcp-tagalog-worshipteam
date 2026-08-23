@@ -55,8 +55,6 @@ export async function createMember(input: { data: any } | any) {
     .upsert([insertData], { onConflict: 'email' })
     .select()
     .single();
-    .select()
-    .single();
 
   if (error) throw error;
   return data;
