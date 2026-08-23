@@ -402,6 +402,53 @@ function EditSongPage() {
             </div>
           </section>
 
+          {/* Metronome Defaults Section */}
+          <section className="space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Metronome Defaults</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Default BPM</Label>
+                <Input 
+                  type="number"
+                  placeholder="e.g. 72"
+                  className="rounded-none border-accent/10 bg-background" 
+                  value={formData.bpm || ''}
+                  onChange={(e) => updateField('bpm', parseInt(e.target.value))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Default Sound</Label>
+                <Select 
+                  value={formData.externalResources?.metronomeDefaultSound || 'beep'} 
+                  onValueChange={(v) => updateField('externalResources', { ...formData.externalResources, metronomeDefaultSound: v })}
+                >
+                  <SelectTrigger className="rounded-none border-accent/10 bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none">
+                    <SelectItem value="beep">Beep</SelectItem>
+                    <SelectItem value="woodblock">Woodblock</SelectItem>
+                    <SelectItem value="click">Click</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Default Volume ({Math.round((formData.externalResources?.metronomeDefaultVolume ?? 0.5) * 100)}%)</Label>
+                <input 
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={formData.externalResources?.metronomeDefaultVolume ?? 0.5}
+                  onChange={(e) => updateField('externalResources', { ...formData.externalResources, metronomeDefaultVolume: parseFloat(e.target.value) })}
+                  className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Media Section */}
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Resources & Media</h3>
