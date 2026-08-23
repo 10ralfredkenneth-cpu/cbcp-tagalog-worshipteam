@@ -10,7 +10,7 @@ export function ScriptureBlock({
   return (
     <div className={`flex flex-col items-center text-center ${className}`}>
       <blockquote className="max-w-3xl">
-        <p className="font-serif text-2xl italic leading-relaxed text-foreground/90 md:text-3xl">
+        <p className="font-serif text-2xl italic leading-relaxed md:text-3xl lg:text-4xl">
           "{verse}"
         </p>
         <footer className="mt-6 flex items-center justify-center gap-4">

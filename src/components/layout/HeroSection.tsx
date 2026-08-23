@@ -9,6 +9,7 @@ export function HeroSection({
   secondaryCtaText,
   secondaryCtaTo,
   imageSrc,
+  variant = "split",
 }: {
   title: React.ReactNode;
   subtitle?: string;
@@ -18,7 +19,60 @@ export function HeroSection({
   secondaryCtaText?: string;
   secondaryCtaTo?: string;
   imageSrc?: string;
+  variant?: "split" | "full";
 }) {
+  if (variant === "full") {
+    return (
+      <section className="relative h-[90vh] min-h-[600px] w-full overflow-hidden flex items-center">
+        {imageSrc && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={imageSrc}
+              alt="Worship Hero"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-primary/60 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-transparent to-primary/60" />
+          </div>
+        )}
+        
+        <div className="relative z-10 mx-auto max-w-7xl px-6 text-center text-primary-foreground">
+          {tagline && (
+            <span className="mb-6 inline-block text-[10px] font-bold tracking-[0.4em] text-accent uppercase animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {tagline}
+            </span>
+          )}
+          <h1 className="font-serif text-5xl font-normal leading-[1.1] tracking-tight md:text-7xl lg:text-8xl animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-8 mx-auto max-w-2xl text-lg md:text-xl leading-relaxed opacity-90 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+              {subtitle}
+            </p>
+          )}
+          <div className="mt-12 flex flex-wrap justify-center gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-400">
+            {primaryCtaText && (
+              <Link
+                to={primaryCtaTo as any}
+                className="inline-flex h-14 items-center justify-center bg-accent px-10 text-[10px] font-bold tracking-[0.2em] text-accent-foreground uppercase transition-all hover:bg-accent/90 hover:scale-105 active:scale-95 shadow-lg"
+              >
+                {primaryCtaText}
+              </Link>
+            )}
+            {secondaryCtaText && (
+              <Link
+                to={secondaryCtaTo as any}
+                className="inline-flex h-14 items-center justify-center border border-primary-foreground/30 bg-white/10 backdrop-blur-sm px-10 text-[10px] font-bold tracking-[0.2em] text-primary-foreground uppercase transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+              >
+                {secondaryCtaText}
+              </Link>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative overflow-hidden bg-background px-6 pt-24 pb-32 lg:px-8">
       <div className="mx-auto max-w-7xl">
