@@ -98,11 +98,15 @@ function TeamDirectoryLayout() {
             </Badge>
             <h1 className="font-serif text-5xl lg:text-7xl text-foreground">Worship Team</h1>
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
-              '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+              Verify avatar uploads end to end for PNG, JPG, WEBP, and HEIC files, including very small and very large images, and ensure the correct avatar shows on the public Team page.
 
-                                            Implement a global content filter that prevents command-like phrases from rendering anywhere in the app UI.
+Add an upload progress indicator and clear success/failure messages when I upload or remove a team member avatar.
 
-Add automated tests that verify command-like text never appears on the public Team page or admin screens.
+Implement a default placeholder avatar when a team member has no image and ensure it displays consistently on both admin and the public Team page.
+
+Add drag-and-drop support to the avatar upload component so I can quickly replace a team member’s photo.
+
+Add a preview step that shows the new avatar before I save, and let me cancel without changing the current avatar.
             </p>
           </div>
           <div className="flex gap-3">
