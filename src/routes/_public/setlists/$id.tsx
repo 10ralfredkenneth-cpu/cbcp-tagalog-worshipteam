@@ -59,6 +59,8 @@ function SetlistDetailPage() {
   const [setlist, setSetlist] = useState(initialSetlist);
   const [viewMode, setViewMode] = useState<'Standard' | 'Rehearsal' | 'Musician' | 'Vocalist' | 'Presentation'>('Standard');
   const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<TeamRole | null>(null);
 
   if (!setlist) {
     return (
