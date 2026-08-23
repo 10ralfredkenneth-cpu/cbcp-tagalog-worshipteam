@@ -5,16 +5,12 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SongCard } from '@/components/ui/songs/SongCard'
 
-// Mock data for demo
-const SONGS = [
-  { id: '1', title: 'Holy Forever', artist: 'Chris Tomlin', theme: 'Grace', key: 'G', scriptureTag: 'Rev 4:8', imageUrl: '' },
-  { id: '2', title: 'King of Kings', artist: 'Hillsong Worship', theme: 'Resurrection', key: 'D', scriptureTag: '1 Cor 15:57', imageUrl: '' },
-  { id: '3', title: 'Great Are You Lord', artist: 'All Sons & Daughters', theme: 'Praise', key: 'A', scriptureTag: 'Psalm 145:3', imageUrl: '' },
-]
+import { MOCK_SONGS } from '@/lib/mock-songs'
 
 export const Route = createFileRoute('/_public/songs')({
   component: SongLibraryPage,
 })
+
 
 function SongLibraryPage() {
   const [view, setView] = useState<'grid' | 'list'>('grid')
@@ -58,23 +54,18 @@ function SongLibraryPage() {
       {/* Results */}
       {view === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {SONGS.map((song) => (
+          {MOCK_SONGS.filter(s => s.title.toLowerCase().includes(search.toLowerCase()) || s.artist.toLowerCase().includes(search.toLowerCase())).map((song) => (
             <SongCard key={song.id} song={song} />
           ))}
         </div>
       ) : (
         <div className="border border-accent/20 rounded-lg overflow-hidden divide-y divide-accent/20">
-            {SONGS.map((song) => (
-                <div key={song.id} className="p-4 flex items-center justify-between hover:bg-muted/30">
-                    <div>
-                        <h4 className="font-serif text-lg">{song.title}</h4>
-                        <p className="text-xs text-muted-foreground">{song.artist}</p>
-                    </div>
-                    <Button variant="ghost" className="text-accent hover:text-accent/80 font-bold tracking-widest uppercase text-xs">View Song</Button>
-                </div>
+            {MOCK_SONGS.filter(s => s.title.toLowerCase().includes(search.toLowerCase()) || s.artist.toLowerCase().includes(search.toLowerCase())).map((song) => (
+                <SongCard key={song.id} song={song} viewMode="list" />
             ))}
         </div>
       )}
+
     </div>
   )
 }
