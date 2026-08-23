@@ -7,6 +7,7 @@ import { ResourceFilters } from '@/components/resources/ResourceFilters';
 import { ResourceCategory, ResourceType } from '@/types/resources';
 import { TeamRole } from '@/types/team';
 import { Separator } from '@/components/ui/separator';
+import { BookOpen, GraduationCap, Heart, Info } from 'lucide-react';
 
 export const Route = createFileRoute('/_public/resources')({
   component: ResourcesLibrary,
@@ -41,6 +42,13 @@ function ResourcesLibrary() {
     return MOCK_RESOURCES.filter(r => r.featured).slice(0, 2);
   }, []);
 
+  const trainingCategories = [
+    { title: 'Worship Leaders', icon: Heart, description: 'Leading biblically, song selection, and pastoral leadership.' },
+    { title: 'Vocalists', icon: Info, description: 'Harmony, blending, vocal care, and preparation.' },
+    { title: 'Musicians', icon: GraduationCap, description: 'Rhythm, dynamics, arrangement, and rehearsal discipline.' },
+    { title: 'Technical Team', icon: BookOpen, description: 'Sound basics, gain structure, and livestream.' },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Hero Header */}
@@ -57,6 +65,23 @@ function ResourcesLibrary() {
       </section>
 
       <div className="max-w-7xl mx-auto px-6 mt-16">
+        {/* Training Quick Links */}
+        <section className="mb-24">
+          <div className="flex items-center gap-4 mb-12">
+            <h2 className="font-serif text-3xl">Worship Team Training</h2>
+            <Separator className="flex-1 bg-accent/10" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trainingCategories.map((cat) => (
+              <div key={cat.title} className="p-8 border border-accent/10 bg-card hover:border-accent/30 transition-all group cursor-pointer">
+                <cat.icon className="w-8 h-8 text-accent mb-6 group-hover:scale-110 transition-transform" />
+                <h3 className="font-serif text-xl mb-3 group-hover:text-accent transition-colors">{cat.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{cat.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Sidebar Filters */}
           <aside className="lg:col-span-1 space-y-12">
@@ -87,7 +112,7 @@ function ResourcesLibrary() {
             {searchQuery === '' && category === 'All' && resourceType === 'All' && role === 'All' && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
-                  <h2 className="font-serif text-3xl">Featured</h2>
+                  <h2 className="font-serif text-3xl text-accent">Featured Resources</h2>
                   <Separator className="flex-1 bg-accent/10" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -101,7 +126,7 @@ function ResourcesLibrary() {
             {/* Library Grid */}
             <section>
               <div className="flex items-center gap-4 mb-8">
-                <h2 className="font-serif text-3xl">Library</h2>
+                <h2 className="font-serif text-3xl">Resource Library</h2>
                 <Separator className="flex-1 bg-accent/10" />
               </div>
               
