@@ -17,6 +17,7 @@ import {
 export const Route = createFileRoute('/_public/team/_index')({
 
 
+
   component: TeamPage,
 });
 
