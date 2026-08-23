@@ -230,13 +230,23 @@ function SongDetailPage() {
   // Auto-scroll logic
   useEffect(() => {
     let scrollInterval: NodeJS.Timeout;
-    if (autoScroll && metronomePlaying) {
+    if (autoScroll && metronomePlaying && !isCountingIn) {
       scrollInterval = setInterval(() => {
         window.scrollBy({ top: 1, behavior: 'auto' });
-      }, 50);
+      }, 50 + latency);
     }
     return () => clearInterval(scrollInterval);
-  }, [autoScroll, metronomePlaying]);
+  }, [autoScroll, metronomePlaying, isCountingIn, latency]);
+
+  const sections = useMemo(() => song.lyrics?.split('\n\n') || [], [song.lyrics]);
+
+  useEffect(() => {
+    if (loopMode && loopStart !== null && metronomePlaying && !isCountingIn) {
+      // Logic for looping could be handled by detecting when the scroll reaches a point
+      // Or by timing. Simplest is a manual trigger or just visual focus.
+    }
+  }, [loopMode, loopStart, metronomePlaying, isCountingIn]);
+
 
   if (!song) {
     return (
