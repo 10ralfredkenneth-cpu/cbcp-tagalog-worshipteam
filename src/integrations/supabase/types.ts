@@ -531,7 +531,6 @@ export type Database = {
           title: string
           updated_at: string | null
           worship_leader_notes: string[] | null
-          visibility: Database["public"]["Enums"]["visibility_level"]
         }
         Insert: {
           artist: string
@@ -773,8 +772,6 @@ export type Database = {
         | "Inactive"
         | "Pending"
         | "Suspended"
-        | "Archived"
-        | "Archived"
       resource_category:
         | "Worship Devotionals"
         | "Biblical Worship"
@@ -810,7 +807,7 @@ export type Database = {
         | "Fellowship"
       setlist_status: "Draft" | "Preparing" | "Ready" | "Completed" | "Archived"
       song_language: "English" | "Filipino/Tagalog" | "Cebuano/Bisaya" | "Other"
-      song_status: "Active" | "Learning" | "Inactive" | "Archived"
+      song_status: "Active" | "Learning" | "Archived"
       song_type:
         | "Opening"
         | "Praise"
@@ -819,8 +816,7 @@ export type Database = {
         | "Communion"
         | "Offering"
         | "Closing"
-        | "Special Number"
-      visibility_level: "Public" | "Team Only" | "Private"
+      visibility_level: "Public" | "Worship Team" | "Leaders Only" | "Private"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -983,7 +979,6 @@ export const Constants = {
         "Inactive",
         "Pending",
         "Suspended",
-        "Archived",
       ],
       resource_category: [
         "Worship Devotionals",
