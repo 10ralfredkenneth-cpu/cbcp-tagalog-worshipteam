@@ -10,8 +10,13 @@ import {
   ArrowRight,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  PlusCircle,
+  Settings,
+  TrendingUp,
+  LayoutDashboard
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -98,41 +103,33 @@ function AdminDashboardOverview() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Quick Actions */}
-        <div className="lg:col-span-1 space-y-8">
-          <section className="space-y-6">
-            <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase border-b border-accent/10 pb-4">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-muted/10 border border-accent/5 p-8">
+            <h2 className="font-serif text-2xl mb-8 flex items-center gap-3">
+              <TrendingUp className="w-5 h-5 text-accent" />
               Quick Actions
             </h2>
-            <div className="grid grid-cols-1 gap-3">
-              {isWorshipLeader && (
-                <>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/services">Create Service <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/setlists">Create Setlist <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/songs">Add Song <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                </>
-              )}
-              {isMinistryAdmin && (
-                <>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/team">Add Team Member <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/resources">Add Resource <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    <Link to="/dashboard/media">Upload Media <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
-                  </Button>
-                </>
-              )}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[
+                { label: "New Service", icon: PlusCircle, path: "/dashboard/services", color: "text-accent" },
+                { label: "Add Song", icon: Music, path: "/dashboard/songs", color: "text-blue-400" },
+                { label: "Schedule Team", icon: Clock, path: "/dashboard/schedule", color: "text-green-400" },
+                { label: "New Resource", icon: BookOpen, path: "/dashboard/resources", color: "text-purple-400" },
+                { label: "Upload Media", icon: FileVideo, path: "/dashboard/media", color: "text-orange-400" },
+                { label: "Settings", icon: Settings, path: "/dashboard/settings", color: "text-muted-foreground" },
+              ].map((action) => (
+                <Link 
+                  key={action.label}
+                  to={action.path}
+                  className="flex flex-col items-center justify-center p-6 bg-background border border-accent/5 hover:border-accent/20 transition-all group"
+                >
+                  <action.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", action.color)} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-center">{action.label}</span>
+                </Link>
+              ))}
             </div>
-          </section>
+          </div>
+        </div>
 
           <section className="p-8 bg-primary text-primary-foreground rounded-none shadow-2xl space-y-6">
             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent">Ministry Status</h3>
