@@ -88,7 +88,7 @@ function MemberProfilePage() {
               <div className="pt-6 border-t border-muted/20 space-y-4">
                 <h4 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Ministry Groups</h4>
                 <div className="flex flex-wrap gap-2">
-                  {member.groups.map(group => (
+                  {member.groups.map((group: string) => (
                     <Badge key={group} variant="outline" className="text-[10px] tracking-wide border-muted">
                       {group}
                     </Badge>
@@ -121,7 +121,7 @@ function MemberProfilePage() {
               <div className="space-y-6">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Skills & Capabilities</h3>
                 <div className="flex flex-wrap gap-3">
-                  {member.skills.map(skill => (
+                  {member.skills.map((skill: string) => (
                     <div key={skill} className="flex items-center gap-2 bg-muted/30 px-4 py-2 rounded-full border border-muted/20">
                       <Star className="h-3 w-3 text-accent fill-accent" />
                       <span className="text-sm font-medium">{skill}</span>
