@@ -49,9 +49,9 @@ function AddTeamMemberPage() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.full_name) newErrors.full_name = 'Full name is required';
-    if (!formData.email) newErrors.email = 'Email address is required';
-    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Invalid email format';
+    if (!formData.full_name) newErrors['full_name'] = 'Full name is required';
+    if (!formData.email) newErrors['email'] = 'Email address is required';
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors['email'] = 'Invalid email format';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -116,11 +116,11 @@ function AddTeamMemberPage() {
                   value={formData.full_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                   placeholder="John Doe" 
-                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors.full_name && "border-red-500")}
+                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors['full_name'] && "border-red-500")}
                   autoComplete="off"
                 />
               </div>
-              {errors.full_name && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors.full_name}</p>}
+              {errors['full_name'] && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors['full_name']}</p>}
             </div>
 
             <div className="space-y-2">
@@ -134,11 +134,11 @@ function AddTeamMemberPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="john@example.com" 
-                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors.email && "border-red-500")}
+                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors['email'] && "border-red-500")}
                   autoComplete="off"
                 />
               </div>
-              {errors.email && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors.email}</p>}
+              {errors['email'] && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors['email']}</p>}
             </div>
           </section>
         </div>
