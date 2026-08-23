@@ -4,14 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2, Camera } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMember } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/dashboard/team/new')({
+export const Route = createFileRoute('/_authenticated/dashboard/team/new/')({
   component: AddTeamMemberPage,
 });
 
@@ -24,7 +24,7 @@ function AddTeamMemberPage() {
     primary_role: '',
     instruments: '',
     status: 'Active',
-    is_public: true, // Default to true so it syncs to public page
+    is_public: true,
     avatar_url: ''
   });
 
@@ -160,18 +160,9 @@ function AddTeamMemberPage() {
                 />
               </div>
             </div>
-
-            <div className="p-6 bg-muted/20 border border-accent/5 space-y-3">
-               <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Personnel Profile vs. System Account</h3>
-               <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                 This record is a **Personnel Profile** for ministry management and public visibility. It is **not** a system login account. To allow this member to log in, you must later link this profile to a registered user in the "User Accounts" section.
-               </p>
-            </div>
           </section>
         </div>
       </div>
     </div>
   );
 }
-
-
