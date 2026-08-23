@@ -90,8 +90,8 @@ function ServiceManagementPage() {
           </p>
         </div>
         <div className="flex gap-4">
-          <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
-            Templates
+          <Button asChild variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
+            <Link to="/dashboard/services">Service Planner</Link>
           </Button>
           <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
             <Link to="/dashboard/services/new">
