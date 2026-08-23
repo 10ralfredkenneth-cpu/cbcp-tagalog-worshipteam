@@ -100,11 +100,7 @@ function TeamDirectoryLayout() {
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
 
-                                            I want you to remove those words below the Worship Team.
-
-Verify avatar uploads end to end for PNG, JPG, WEBP, and HEIC files, including very small and very large images, and ensure the correct avatar shows on the public Team page. Add an upload progress indicator and clear success/failure messages when I upload or remove a team member avatar. Implement a default placeholder avatar when a team member has no image and ensure it displays consistently on both admin and the public Team page. Add drag-and-drop support to the avatar upload component so I can quickly replace a team member’s photo. Add a preview step that shows the new avatar before I save, and let me cancel without changing the current avatar.
-
-make sure it will not appear again those kind of words  in this build app.
+                                            Add a content filter that prevents command-like text from appearing anywhere in the app UI.
             </p>
           </div>
           <div className="flex gap-3">
