@@ -961,6 +961,7 @@ export const Constants = {
         "Inactive",
         "Pending",
         "Suspended",
+        \"Archived\",
       ],
       resource_category: [
         "Worship Devotionals",
