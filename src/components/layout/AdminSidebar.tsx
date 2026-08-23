@@ -62,23 +62,27 @@ export function AdminSidebar() {
   const navigation = [
     { section: "Main", items: [
       { to: "/dashboard", icon: <LayoutDashboard size={18} />, label: "Overview" },
+      ...(isMinistryAdmin ? [{ to: "/dashboard/activity", icon: <Clock size={18} />, label: "Activity Log" }] : []),
     ]},
     { section: "Planning", items: [
-      { to: "/setlists", icon: <Calendar size={18} />, label: "Services" },
-      { to: "/setlists", icon: <ListMusic size={18} />, label: "Setlists" },
-      { to: "/songs", icon: <Music size={18} />, label: "Song Library" },
+      { to: "/dashboard/services", icon: <Calendar size={18} />, label: "Services" },
+      { to: "/dashboard/setlists", icon: <ListMusic size={18} />, label: "Setlists" },
+      { to: "/dashboard/songs", icon: <Music size={18} />, label: "Song Library" },
     ]},
     { section: "Team", items: [
-      { to: "/team", icon: <Users size={18} />, label: "Members" },
-      { to: "/dashboard", icon: <Clock size={18} />, label: "Schedule" },
+      { to: "/dashboard/team", icon: <Users size={18} />, label: "Members" },
+      { to: "/dashboard/schedule", icon: <Clock size={18} />, label: "Schedule" },
     ]},
     { section: "Content", items: [
-      { to: "/resources", icon: <BookOpen size={18} />, label: "Resources" },
-      { to: "/media", icon: <FileVideo size={18} />, label: "Media" },
+      { to: "/dashboard/resources", icon: <BookOpen size={18} />, label: "Resources" },
+      { to: "/dashboard/media", icon: <FileVideo size={18} />, label: "Media" },
     ]},
     { section: "System", items: [
-      { to: "/dashboard", icon: <User size={18} />, label: "My Profile" },
-      ...(isMinistryAdmin ? [{ to: "/dashboard", icon: <Settings size={18} />, label: "Settings" }] : []),
+      { to: "/dashboard/profile", icon: <User size={18} />, label: "My Profile" },
+      ...(isMinistryAdmin ? [
+        { to: "/dashboard/users", icon: <Users size={18} />, label: "User Accounts" },
+        { to: "/dashboard/settings", icon: <Settings size={18} />, label: "Settings" }
+      ] : []),
     ]},
   ];
 
