@@ -31,12 +31,40 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     setDiagnostics([]);
     logDiagnostic(`File selected: ${file.name} (${file.type}, ${Math.round(file.size / 1024)}KB)`);
     
-    // Create local preview immediately
-    logDiagnostic("Generating local preview...");
+    // Create local preview and validate dimensions
+    logDiagnostic("Generating local preview and checking dimensions...");
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result as string);
-      logDiagnostic("Local preview generated.");
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        logDiagnostic(`Dimensions detected: ${img.width}x${img.height}px`);
+        const ratio = img.width / img.height;
+        logDiagnostic(`Aspect ratio: ${ratio.toFixed(2)}:1`);
+
+        // Warn if not roughly square (personnel profiles usually expect 1:1)
+        if (Math.abs(ratio - 1) > 0.2) {
+          const warning = "Note: Personnel photos display best when square (1:1 ratio).";
+          logDiagnostic(`Display Warning: ${warning}`);
+          toast(warning, { icon: '⚠️' });
+        }
+
+        // Check for minimum resolution (e.g. 200px)
+        if (img.width < 200 || img.height < 200) {
+          const warning = "Low resolution: Photos below 200px may appear blurry.";
+          logDiagnostic(`Display Warning: ${warning}`);
+        }
+
+        setPreview(reader.result as string);
+        logDiagnostic("Local preview generated.");
+        startActualUpload(file);
+      };
+      img.onerror = () => {
+        const msg = "Could not read image dimensions.";
+        logDiagnostic(`Error: ${msg}`);
+        setError(msg);
+        setPreview(null);
+      };
+      img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
 
@@ -60,7 +88,9 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
       setPreview(null);
       return;
     }
+  };
 
+  const startActualUpload = async (file: File) => {
     logDiagnostic("File accepted. Starting upload...");
     setIsUploading(true);
     const fileExt = file.name.split('.').pop();
