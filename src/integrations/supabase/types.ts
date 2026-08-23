@@ -88,6 +88,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auth_provider: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
@@ -108,6 +109,7 @@ export type Database = {
           vocal_range: string | null
         }
         Insert: {
+          auth_provider?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
@@ -128,6 +130,7 @@ export type Database = {
           vocal_range?: string | null
         }
         Update: {
+          auth_provider?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
