@@ -242,10 +242,21 @@ function SongDetailPage() {
 
   useEffect(() => {
     if (loopMode && loopStart !== null && metronomePlaying && !isCountingIn) {
-      // Logic for looping could be handled by detecting when the scroll reaches a point
-      // Or by timing. Simplest is a manual trigger or just visual focus.
+      const loopStartEl = document.getElementById(`section-${loopStart}`);
+      const loopEndEl = document.getElementById(`section-${loopEnd !== null ? loopEnd : loopStart}`);
+      
+      if (loopStartEl && loopEndEl) {
+        const checkScroll = () => {
+          const rect = loopEndEl.getBoundingClientRect();
+          if (rect.bottom < 100) {
+            loopStartEl.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+        const interval = setInterval(checkScroll, 100);
+        return () => clearInterval(interval);
+      }
     }
-  }, [loopMode, loopStart, metronomePlaying, isCountingIn]);
+  }, [loopMode, loopStart, loopEnd, metronomePlaying, isCountingIn]);
 
 
   if (!song) {
