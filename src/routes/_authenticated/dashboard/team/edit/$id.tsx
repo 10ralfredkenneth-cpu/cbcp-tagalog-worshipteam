@@ -4,11 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2, Trash2 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { updateMember, getTeamMembers } from '@/lib/db-team.functions';
+import { updateMember, getTeamMembers, deleteMember } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/team/edit/$id')({
@@ -65,6 +65,20 @@ function EditTeamMemberPage() {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteMember({ id: id as string }),
+    onSuccess: () => {
+      toast.success('Personnel profile deleted permanently.');
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      queryClient.invalidateQueries({ queryKey: ['team-full'] });
+      queryClient.invalidateQueries({ queryKey: ['team-public'] });
+      navigate({ to: '/dashboard/team' });
+    },
+    onError: (error) => {
+      toast.error('Failed to delete profile: ' + (error as Error).message);
+    }
+  });
+
   const handleSubmit = () => {
     if (!formData.full_name || !formData.email) {
       toast.error('Name and email are required');
@@ -87,6 +101,12 @@ function EditTeamMemberPage() {
     mutation.mutate(updates);
   };
 
+  const handleDelete = () => {
+    if (confirm('Are you sure you want to PERMANENTLY delete this personnel profile? This action cannot be undone.')) {
+      deleteMutation.mutate();
+    }
+  };
+
   if (isFetching) return <div className="p-24 text-center text-[10px] uppercase tracking-widest text-accent animate-pulse">Loading profile...</div>;
   if (!member) return <div className="p-24 text-center text-[10px] uppercase tracking-widest text-muted-foreground">Profile not found</div>;
 
@@ -104,14 +124,25 @@ function EditTeamMemberPage() {
             <h1 className="font-serif text-5xl text-foreground">Edit {member.full_name}</h1>
           </div>
         </div>
-        <Button 
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
-        >
-          {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Changes
-        </Button>
+        <div className="flex gap-4">
+          <Button 
+            variant="outline"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending || mutation.isPending}
+            className="rounded-none border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
+          >
+            {deleteMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+            Delete Profile
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={mutation.isPending || deleteMutation.isPending}
+            className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
+          >
+            {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Save Changes
+          </Button>
+        </div>
       </header>
 
       <div className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 ml-14">
