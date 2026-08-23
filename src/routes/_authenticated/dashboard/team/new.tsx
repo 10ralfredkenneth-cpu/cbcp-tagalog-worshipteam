@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2, Camera } from 'lucide-react';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMember } from '@/lib/db-team.functions';
@@ -23,7 +24,8 @@ function AddTeamMemberPage() {
     primary_role: '',
     instruments: '',
     status: 'Active',
-    is_public: true // Default to true so it syncs to public page
+    is_public: true, // Default to true so it syncs to public page
+    avatar_url: ''
   });
 
   const mutation = useMutation({
@@ -77,6 +79,20 @@ function AddTeamMemberPage() {
 
       <div className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 ml-14">
         <div className="space-y-8">
+          <section className="space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Profile Image</h3>
+            <div className="max-w-[200px]">
+              <ImageUpload 
+                value={formData.avatar_url}
+                onChange={(url) => setFormData(prev => ({ ...prev, avatar_url: url }))}
+                bucket="personnel-avatars"
+              />
+            </div>
+            <p className="text-[9px] text-muted-foreground italic">
+              A high-quality profile photo helps visitors connect with our team.
+            </p>
+          </section>
+
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Personal Information</h3>
             

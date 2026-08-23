@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState, useMemo } from 'react';
 import { cn } from "@/lib/utils";
 import { 
   Users, 
@@ -12,7 +13,9 @@ import {
   Mail,
   Shield,
   ArrowRight,
-  Archive
+  Archive,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,18 +47,62 @@ export const Route = createFileRoute('/_authenticated/dashboard/team')({
 
 function TeamManagementPage() {
   const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState('');
+
   const { data: team = [], isLoading } = useQuery({
     queryKey: ['team'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .order('full_name');
+        .order('display_order', { ascending: true })
+        .order('full_name', { ascending: true });
       
       if (error) throw error;
       return data;
     },
   });
+
+  const filteredTeam = useMemo(() => {
+    return (team || []).filter((member: any) => 
+      member.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.primary_role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (member.skills || []).some((s: string) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [team, searchQuery]);
+
+  const moveMemberMutation = useMutation({
+    mutationFn: async ({ id, newOrder }: { id: string, newOrder: number }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_order: newOrder })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      queryClient.invalidateQueries({ queryKey: ['team-public'] });
+    }
+  });
+
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const member = team[index];
+    const otherIndex = direction === 'up' ? index - 1 : index + 1;
+    const otherMember = team[otherIndex];
+
+    if (!otherMember) return;
+
+    // Swap orders
+    const memberOrder = member.display_order || 0;
+    const otherOrder = otherMember.display_order || 0;
+
+    await Promise.all([
+      moveMemberMutation.mutateAsync({ id: member.id, newOrder: otherOrder || (direction === 'up' ? memberOrder - 1 : memberOrder + 1) }),
+      moveMemberMutation.mutateAsync({ id: otherMember.id, newOrder: memberOrder })
+    ]);
+    
+    toast.success('Order updated');
+  };
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: any }) => {
@@ -127,6 +174,8 @@ function TeamManagementPage() {
           <Input 
             placeholder="Search members, roles, or skills..." 
             className="pl-10 rounded-none border-accent/10 focus-visible:ring-accent bg-background text-[11px] uppercase tracking-wider"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex gap-4">
@@ -152,6 +201,7 @@ function TeamManagementPage() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-accent/5">
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 w-[50px]">Order</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Member</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Primary Role</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Skills / Instruments</TableHead>
@@ -168,14 +218,36 @@ function TeamManagementPage() {
                   Loading team members...
                 </TableCell>
               </TableRow>
-            ) : (team || []).length === 0 ? (
+            ) : (filteredTeam || []).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                <TableCell colSpan={8} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
                   No team members found.
                 </TableCell>
               </TableRow>
-            ) : (team || []).map((member: any) => (
+            ) : (filteredTeam || []).map((member: any, index: number) => (
               <TableRow key={member.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
+                <TableCell className="py-6 px-6">
+                  <div className="flex flex-col gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 rounded-none text-accent/20 hover:text-accent hover:bg-accent/5 disabled:opacity-0"
+                      onClick={() => handleMove(index, 'up')}
+                      disabled={index === 0}
+                    >
+                      <ChevronUp className="h-3 w-3" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 rounded-none text-accent/20 hover:text-accent hover:bg-accent/5 disabled:opacity-0"
+                      onClick={() => handleMove(index, 'down')}
+                      disabled={index === team.length - 1}
+                    >
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-none overflow-hidden border border-accent/10">
