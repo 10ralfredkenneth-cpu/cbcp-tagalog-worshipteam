@@ -64,6 +64,8 @@ function AddSongPage() {
     mutation.mutate(formData);
   };
 
+  console.log('Rendering AddSongPage, loading:', loading, 'isPending:', isPending);
+
   const updateField = (field: keyof WorshipSong, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
