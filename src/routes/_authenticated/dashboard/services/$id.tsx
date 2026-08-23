@@ -14,7 +14,7 @@ function ServiceDetailsPage() {
   const { id } = Route.useParams();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices
+    queryFn: () => getServices()
   });
 
   const service = services.find(s => s.id === id);
