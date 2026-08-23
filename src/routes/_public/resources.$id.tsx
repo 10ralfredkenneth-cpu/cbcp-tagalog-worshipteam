@@ -35,10 +35,10 @@ function ResourceDetailPage() {
     if (!raw) return null;
     return {
       ...raw,
-      resourceType: raw.resource_type || raw.resourceType,
-      ministryRoles: raw.ministry_roles || raw.ministryRoles,
-      createdAt: raw.created_at || raw.createdAt,
-      updatedAt: raw.updated_at || raw.updatedAt
+      resourceType: (raw as any).resource_type || (raw as any).resourceType,
+      ministryRoles: (raw as any).ministry_roles || (raw as any).ministryRoles,
+      createdAt: (raw as any).created_at || (raw as any).createdAt,
+      updatedAt: (raw as any).updated_at || (raw as any).updatedAt
     };
   }, [resources, id]);
 

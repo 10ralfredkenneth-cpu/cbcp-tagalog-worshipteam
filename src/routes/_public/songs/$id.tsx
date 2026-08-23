@@ -42,11 +42,11 @@ function SongDetailPage() {
     if (!rawSong) return null;
     return {
       ...rawSong,
-      defaultKey: rawSong.default_key || rawSong.defaultKey,
-      timeSignature: rawSong.time_signature || rawSong.timeSignature,
-      createdAt: rawSong.created_at || rawSong.createdAt,
-      updatedAt: rawSong.updated_at || rawSong.updatedAt,
-      scriptureReferences: rawSong.scripture_references || rawSong.scriptureReferences || [],
+      defaultKey: (rawSong as any).default_key || (rawSong as any).defaultKey,
+      timeSignature: (rawSong as any).time_signature || (rawSong as any).timeSignature,
+      createdAt: (rawSong as any).created_at || (rawSong as any).createdAt,
+      updatedAt: (rawSong as any).updated_at || (rawSong as any).updatedAt,
+      scriptureReferences: (rawSong as any).scripture_references || (rawSong as any).scriptureReferences || [],
       sections: rawSong.sections || [],
       flow: rawSong.flow || []
     };
@@ -129,7 +129,7 @@ function SongDetailPage() {
         </Button>
         <div className="max-w-4xl w-full text-center space-y-16 py-20">
           <h1 className="font-serif text-6xl text-foreground mb-12 opacity-50">{initialSong.title}</h1>
-          {initialSong.sections?.map((section: any, idx: number) => (
+          {(initialSong.sections as any || []).map((section: any, idx: number) => (
             <div key={idx} className="space-y-8 animate-in fade-in duration-1000">
               {section.lines.filter((l: any) => l.type === 'lyrics').map((line: any, lIdx: number) => (
                 <p key={lIdx} className="text-4xl lg:text-5xl font-serif text-foreground leading-tight">
@@ -339,7 +339,7 @@ function SongDetailPage() {
                 </div>
               </div>
               
-              {(initialSong as any).worshipLeaderNotes && (
+              {(initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes && (
                 <div className="bg-accent/5 p-8 border-l-4 border-accent/20">
                   <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Worship Leader Notes</h3>
                   <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
@@ -392,7 +392,7 @@ function SongDetailPage() {
 
             <TabsContent value="scripture" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="space-y-6">
-                 {initialSong.scriptureReferences.map((ref, idx) => (
+                 {(initialSong.scriptureReferences as any || []).map((ref: any, idx: number) => (
                    <div key={idx} className="p-8 bg-muted/20 border border-accent/10">
                      <h4 className="font-serif text-2xl text-accent mb-4">
                        {typeof ref === 'string' ? ref : ref.reference}
