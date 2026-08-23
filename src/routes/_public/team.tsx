@@ -42,7 +42,8 @@ function TeamDirectoryLayout() {
 
   const { data: team = [] } = useQuery({
     queryKey: ['team-public'],
-    queryFn: () => getTeamPublic()
+    queryFn: () => getTeamPublic(),
+    refetchInterval: 5000, // Sync real-time (every 5s)
   });
 
   const { data: services = [] } = useQuery({
