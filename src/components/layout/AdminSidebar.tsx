@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 import { 
   LayoutDashboard, 
   Music, 
@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  User
+  User,
+  Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
@@ -54,15 +55,17 @@ function SidebarItem({ to, icon, label, collapsed, active }: SidebarItemProps) {
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { signOut, isMinistryAdmin, isWorshipLeader } = useAuth();
+  const { signOut, isMinistryAdmin } = useAuth();
+  const location = useLocation();
 
   const toggleSidebar = () => setCollapsed(!collapsed);
   const toggleMobile = () => setMobileOpen(!mobileOpen);
 
+  const isActive = (path: string) => location.pathname === path;
+
   const navigation = [
     { section: "Main", items: [
       { to: "/dashboard", icon: <LayoutDashboard size={18} />, label: "Overview" },
-      ...(isMinistryAdmin ? [{ to: "/dashboard/activity", icon: <Clock size={18} />, label: "Activity Log" }] : []),
     ]},
     { section: "Planning", items: [
       { to: "/dashboard/services", icon: <Calendar size={18} />, label: "Services" },
@@ -77,19 +80,21 @@ export function AdminSidebar() {
       { to: "/dashboard/resources", icon: <BookOpen size={18} />, label: "Resources" },
       { to: "/dashboard/media", icon: <FileVideo size={18} />, label: "Media" },
     ]},
-    { section: "System", items: [
-      { to: "/dashboard/profile", icon: <User size={18} />, label: "My Profile" },
+    { section: "Administration", items: [
       ...(isMinistryAdmin ? [
         { to: "/dashboard/users", icon: <Users size={18} />, label: "User Accounts" },
+        { to: "/dashboard/activity", icon: <Activity size={18} />, label: "Activity Log" },
         { to: "/dashboard/settings", icon: <Settings size={18} />, label: "Settings" }
       ] : []),
+    ]},
+    { section: "Account", items: [
+      { to: "/dashboard/profile", icon: <User size={18} />, label: "My Profile" },
     ]},
   ];
 
   return (
     <>
-      {/* Mobile Trigger */}
-      <div className="lg:hidden fixed top-20 left-6 z-50">
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button 
           variant="outline" 
           size="icon" 
@@ -100,7 +105,6 @@ export function AdminSidebar() {
         </Button>
       </div>
 
-      {/* Sidebar Container */}
       <aside 
         className={cn(
           "fixed top-0 left-0 z-40 h-full bg-primary border-r border-accent/10 transition-all duration-500 ease-in-out",
@@ -109,7 +113,6 @@ export function AdminSidebar() {
         )}
       >
         <div className="flex flex-col h-full py-8">
-          {/* Header */}
           <div className={cn("px-6 mb-12 flex items-center", collapsed ? "justify-center" : "justify-between")}>
             {!collapsed && (
               <div className="animate-in fade-in duration-500">
@@ -125,12 +128,11 @@ export function AdminSidebar() {
             </button>
           </div>
 
-          {/* Nav Links */}
           <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none space-y-8">
             {navigation.map((group) => (
               <div key={group.section} className="space-y-1">
                 {!collapsed && (
-                  <h3 className="px-6 text-[8px] font-bold text-accent/30 uppercase tracking-[0.4em] mb-4 px-6">
+                  <h3 className="px-6 text-[8px] font-bold text-accent/30 uppercase tracking-[0.4em] mb-4">
                     {group.section}
                   </h3>
                 )}
@@ -138,14 +140,14 @@ export function AdminSidebar() {
                   <SidebarItem 
                     key={item.label} 
                     {...item} 
-                    collapsed={collapsed} 
+                    collapsed={collapsed}
+                    active={isActive(item.to)}
                   />
                 ))}
               </div>
             ))}
           </nav>
 
-          {/* Footer */}
           <div className="mt-auto px-2 space-y-2">
             <button 
               onClick={signOut}
@@ -163,7 +165,6 @@ export function AdminSidebar() {
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {mobileOpen && (
         <div 
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
@@ -173,3 +174,4 @@ export function AdminSidebar() {
     </>
   );
 }
+
