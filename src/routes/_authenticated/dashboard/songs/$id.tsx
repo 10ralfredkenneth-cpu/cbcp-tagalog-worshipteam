@@ -52,6 +52,11 @@ function EditSongPage() {
     },
   });
 
+  const { data: versions, isLoading: versionsLoading } = useQuery({
+    queryKey: ['song-versions', id],
+    queryFn: () => getSongVersions(id),
+  });
+
   const [formData, setFormData] = useState<Partial<WorshipSong>>({});
 
   useEffect(() => {
