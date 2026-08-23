@@ -99,7 +99,7 @@ function TeamDirectoryLayout() {
           <div className="flex gap-3">
             <Button asChild variant="outline" className="rounded-none h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase border-accent/20 hover:bg-accent hover:text-primary transition-all">
               <Link to="/team">
-                <Plus className="w-3 h-3 mr-2" /> Add Member
+                <Plus className="w-3 h-3 mr-2" /> Application / Info
               </Link>
             </Button>
           </div>

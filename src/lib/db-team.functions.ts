@@ -17,7 +17,15 @@ export async function getTeamMembers() {
     .order("full_name");
 
   if (error) throw error;
-  return data || [];
+  return (data || []).map(profile => ({
+    ...profile,
+    // Ensure primary_role and other fields are mapped consistently
+    primaryRole: profile.primary_role,
+    dateJoined: profile.date_joined,
+    internalNotes: profile.internal_notes,
+    authProvider: profile.auth_provider,
+    isPublic: profile.is_public,
+  }));
 }
 
 export async function createMember(input: { data: any } | any) {
@@ -31,6 +39,11 @@ export async function createMember(input: { data: any } | any) {
     email: payload.email,
     primary_role: payload.primary_role || null,
     instruments: payload.instruments
+      ? (Array.isArray(payload.instruments)
+          ? payload.instruments
+          : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
+      : null,
+    skills: payload.instruments
       ? (Array.isArray(payload.instruments)
           ? payload.instruments
           : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
