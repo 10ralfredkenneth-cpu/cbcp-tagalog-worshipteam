@@ -115,7 +115,7 @@ function AdminDashboardOverview() {
                 { label: "Add Song", icon: Music, path: "/dashboard/songs/new", color: "text-blue-400" },
                 { label: "Schedule Team", icon: Clock, path: "/dashboard/schedule/new", color: "text-green-400" },
                 { label: "New Resource", icon: BookOpen, path: "/dashboard/resources/new", color: "text-purple-400" },
-                { label: "Upload Media", icon: FileVideo, path: "/dashboard/media", color: "text-orange-400" },
+                { label: "Upload Media", icon: FileVideo, path: "/dashboard/media/new", color: "text-orange-400" },
                 { label: "Settings", icon: Settings, path: "/dashboard/settings", color: "text-muted-foreground" },
 
               ].map((action) => (
