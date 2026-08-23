@@ -53,10 +53,7 @@ export async function createMember(input: { data: any } | any) {
 
   const { data, error } = await supabase
     .from("profiles")
-    .upsert([insertData], { 
-      onConflict: 'email',
-      ignoreDuplicates: false 
-    })
+    .insert([insertData])
     .select()
     .single();
 
