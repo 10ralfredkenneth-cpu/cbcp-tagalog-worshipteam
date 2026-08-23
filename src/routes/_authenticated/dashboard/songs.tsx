@@ -41,7 +41,7 @@ function SongManagementPage() {
   const queryClient = useQueryClient();
   const { data: songs = [], isLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: getSongs,
+    queryFn: () => getSongs(),
   });
 
   const archiveMutation = useMutation({
