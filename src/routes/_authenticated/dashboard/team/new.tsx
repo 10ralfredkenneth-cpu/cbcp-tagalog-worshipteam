@@ -118,15 +118,15 @@ function AddTeamMemberPage() {
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
                 <Select value={formData.primary_role} onValueChange={(v) => setFormData(prev => ({ ...prev, primary_role: v }))}>
-                  <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
+                  <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background text-[11px] uppercase tracking-wider">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
                   <SelectContent className="rounded-none">
-                    <SelectItem value="vocalist">Vocalist</SelectItem>
-                    <SelectItem value="musician">Musician (Instrumentalist)</SelectItem>
-                    <SelectItem value="production">Production / Technical Team</SelectItem>
-                    <SelectItem value="leader">Worship Leader</SelectItem>
-                    <SelectItem value="multimedia">Multimedia / Livestream</SelectItem>
+                    <SelectItem value="vocalist" className="text-[11px] uppercase tracking-wider">Vocalist</SelectItem>
+                    <SelectItem value="musician" className="text-[11px] uppercase tracking-wider">Musician (Instrumentalist)</SelectItem>
+                    <SelectItem value="production" className="text-[11px] uppercase tracking-wider">Production / Technical Team</SelectItem>
+                    <SelectItem value="leader" className="text-[11px] uppercase tracking-wider">Worship Leader</SelectItem>
+                    <SelectItem value="multimedia" className="text-[11px] uppercase tracking-wider">Multimedia / Livestream</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

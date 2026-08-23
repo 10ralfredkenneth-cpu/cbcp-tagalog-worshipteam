@@ -48,6 +48,8 @@ export async function createMember(input: { data: any } | any) {
           ? payload.instruments
           : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
       : null,
+    is_public: payload.is_public !== undefined ? payload.is_public : true,
+    status: payload.status || 'Active',
     bio: payload.bio ?? null,
     avatar_url: payload.avatar_url ?? null,
     status: payload.status ?? 'Active',
