@@ -79,7 +79,7 @@ export function AdminSidebar() {
       { to: "/dashboard/songs", icon: <Music size={18} />, label: "Song Library" },
     ]},
     { section: "Team", items: [
-      { to: "/dashboard/team", icon: <Users size={18} />, label: "Members" },
+      { to: "/dashboard/team", icon: <Users size={18} />, label: "Personnel Profiles" },
       { to: "/dashboard/schedule", icon: <Clock size={18} />, label: "Schedule" },
     ]},
     { section: "Content", items: [

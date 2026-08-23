@@ -23,14 +23,16 @@ function AddTeamMemberPage() {
     primary_role: '',
     instruments: '',
     status: 'Active',
-    is_public: false
+    is_public: true // Default to true so it syncs to public page
   });
 
   const mutation = useMutation({
     mutationFn: createMember,
     onSuccess: () => {
-      toast.success('Team member added successfully');
+      toast.success('Personnel profile created successfully and synced to public team page.');
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      queryClient.invalidateQueries({ queryKey: ['team-public'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       navigate({ to: '/dashboard/team' });
     },
     onError: (error) => {
@@ -51,16 +53,16 @@ function AddTeamMemberPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-4">
           <Badge variant="outline" className="rounded-none uppercase text-[10px] tracking-widest border-accent/20 text-accent">
-            Personnel Management
+            Worship Team Personnel Profile
           </Badge>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="h-10 w-10 text-accent rounded-none" onClick={() => window.history.back()}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-serif text-5xl text-foreground">Add Team Member</h1>
+            <h1 className="font-serif text-5xl text-foreground">Add Team Profile</h1>
           </div>
           <p className="text-muted-foreground text-sm max-w-2xl ml-14">
-            Onboard new ministry members. Assign roles and instruments to start scheduling them for services.
+            Create a ministry personnel profile (vocalist, musician, tech). This profile represents a team member's role and skills, independent of their system login account.
           </p>
         </div>
         <Button 
@@ -116,14 +118,15 @@ function AddTeamMemberPage() {
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
                 <Select value={formData.primary_role} onValueChange={(v) => setFormData(prev => ({ ...prev, primary_role: v }))}>
-                  <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
+                  <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background text-[11px] uppercase tracking-wider">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
                   <SelectContent className="rounded-none">
-                    <SelectItem value="vocalist">Vocalist</SelectItem>
-                    <SelectItem value="musician">Musician</SelectItem>
-                    <SelectItem value="production">Production / Tech</SelectItem>
-                    <SelectItem value="leader">Worship Leader</SelectItem>
+                    <SelectItem value="vocalist" className="text-[11px] uppercase tracking-wider">Vocalist</SelectItem>
+                    <SelectItem value="musician" className="text-[11px] uppercase tracking-wider">Musician (Instrumentalist)</SelectItem>
+                    <SelectItem value="production" className="text-[11px] uppercase tracking-wider">Production / Technical Team</SelectItem>
+                    <SelectItem value="leader" className="text-[11px] uppercase tracking-wider">Worship Leader</SelectItem>
+                    <SelectItem value="multimedia" className="text-[11px] uppercase tracking-wider">Multimedia / Livestream</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -143,9 +146,9 @@ function AddTeamMemberPage() {
             </div>
 
             <div className="p-6 bg-muted/20 border border-accent/5 space-y-3">
-               <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Account Connection</h3>
+               <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Personnel Profile vs. System Account</h3>
                <p className="text-[9px] text-muted-foreground leading-relaxed italic">
-                 Once created, this member can be linked to a system user account in the User Management section to allow them to log in and manage their own availability.
+                 This record is a **Personnel Profile** for ministry management and public visibility. It is **not** a system login account. To allow this member to log in, you must later link this profile to a registered user in the "User Accounts" section.
                </p>
             </div>
           </section>

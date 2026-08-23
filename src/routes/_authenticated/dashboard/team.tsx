@@ -106,11 +106,11 @@ function TeamManagementPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-4">
           <Badge variant="outline" className="rounded-none uppercase text-[10px] tracking-widest border-accent/20 text-accent">
-            Personnel & Roles
+            Worship Personnel Profiles
           </Badge>
           <h1 className="font-serif text-5xl text-foreground">Worship Team Management</h1>
           <p className="text-muted-foreground text-sm max-w-2xl">
-            Oversee team members, assign ministry roles, and manage personnel availability.
+            Manage ministry personnel profiles, assign roles, and control visibility on the public "Team" page.
           </p>
         </div>
         <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
@@ -156,6 +156,7 @@ function TeamManagementPage() {
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Primary Role</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Skills / Instruments</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Assignments</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Public Sync</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Status</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 text-right">Actions</TableHead>
             </TableRow>
@@ -207,6 +208,14 @@ function TeamManagementPage() {
                     <p className="text-[9px] font-bold uppercase tracking-widest">8 Upcoming</p>
                     <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Last: Aug 23, 2026</p>
                   </div>
+                </TableCell>
+                <TableCell className="py-6 px-6">
+                  <Badge variant="outline" className={cn(
+                    "rounded-none border text-[8px] font-bold uppercase tracking-widest",
+                    member.is_public ? "border-green-500/20 text-green-500" : "border-accent/10 text-muted-foreground"
+                  )}>
+                    {member.is_public ? 'Public' : 'Hidden'}
+                  </Badge>
                 </TableCell>
                 <TableCell className="py-6 px-6">
                   <Badge className={cn(
