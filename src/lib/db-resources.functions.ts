@@ -23,7 +23,7 @@ export const createResource = createServerFn({ method: "POST" })
     description: z.string().nullable().optional(),
     category: z.string(),
     type: z.string(),
-    content_url: z.string().nullable().optional(),
+    content: z.string().optional(),
     is_public: z.boolean().optional(),
     featured: z.boolean().optional(),
   }).parse(data.data))
@@ -33,7 +33,8 @@ export const createResource = createServerFn({ method: "POST" })
       description: data.description ?? null,
       category: data.category as any,
       resource_type: data.type as any,
-      content_url: data.content_url ?? null,
+      content: data.content ?? '',
+      slug: data.title.toLowerCase().replace(/\s+/g, '-'),
       is_public: data.is_public ?? false,
       featured: data.featured ?? false,
       status: 'Published'
