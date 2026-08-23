@@ -167,42 +167,35 @@ export async function restoreSongVersion(songId: string, version: Partial<SongVe
 export function enhanceChordParsing(text: string): string {
   if (!text) return '';
 
-  // Improved regex to handle common chord variations and inconsistent punctuation/spacing
-  // Catches A, Am, A#maj7, G/B, Dsus4, etc. Even with trailing periods or commas.
   const chordPattern = '[A-G][#b]?(?:m|min|maj|dim|aug|sus|add|M|Δ)?[0-9]*(?:/[A-G][#b]?)?';
-  const chordRegex = new RegExp('\\b' + chordPattern + '\\b', 'g');
+  
+  // Smart cleanup for spacing and punctuation
+  const lines = text.split('\n');
+  const processedLines = lines.map(line => {
+    // Already formatted lines: don't touch but ensure consistent spacing
+    if (line.includes('[') && line.includes(']')) {
+      return line.trimEnd();
+    }
 
-  return text.split('\n').map(line => {
-    // Skip already formatted lines to avoid double brackets
-    if (line.includes('[') && line.includes(']')) return line;
+    const trimmed = line.trimEnd();
+    if (!trimmed) return '';
 
-    const trimmed = line.trim();
-    if (!trimmed) return line;
-
-    // Split by whitespace but keep punctuation attached to words for analysis
-    const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+    const words = trimmed.trim().split(/\s+/).filter(w => w.length > 0);
+    if (words.length === 0) return '';
     
-    // Count how many "words" in the line look like chords
     const chordWordCount = words.filter(word => {
-      // Clean word of common punctuation prefix/suffix for detection
-      const cleanWord = word.replace(/^[.,()]+|[.,()]+$/g, '');
+      const cleanWord = word.replace(/^[.,()\[\]]+|[.,()\[\]]+$/g, '');
       return new RegExp('^' + chordPattern + '$').test(cleanWord);
     }).length;
 
-    // Heuristic: If more than 40% of words are chords, or it's a very short line with at least one chord,
-    // we treat it as a chord line.
     const isChordLine = chordWordCount / words.length > 0.4 || (words.length <= 3 && chordWordCount >= 1);
 
     if (isChordLine) {
-      let result = line;
-      // We want to replace chords with [Chord] while preserving punctuation and spacing.
-      // We process words individually to handle punctuation correctly.
-      const lineWords = line.split(/(\s+)/); // Keep delimiters (spaces)
-      
-      return lineWords.map(part => {
-        if (/^\s+$/.test(part)) return part; // Keep spaces as is
+      // Reformat chord line to be compact and uniform
+      const parts = trimmed.split(/(\s+)/);
+      return parts.map(part => {
+        if (/^\s+$/.test(part)) return ' '; // Normalize spaces in chord lines
         
-        // Check if this word is a chord (potentially with punctuation)
         const prefix = part.match(/^[.,()]+/)?.[0] || '';
         const suffix = part.match(/[.,()]+$/)?.[0] || '';
         const core = part.slice(prefix.length, suffix.length ? -suffix.length : undefined);
@@ -211,9 +204,25 @@ export function enhanceChordParsing(text: string): string {
           return `${prefix}[${core}]${suffix}`;
         }
         return part;
-      }).join('');
+      }).join('').replace(/\s+/g, ' ').trim(); // Single space between chords for compact output
     }
 
-    return line;
-  }).join('\n');
+    // Lyrics line: normalize spacing
+    return trimmed.replace(/\s+/g, ' ');
+  });
+
+  // Smart section compacting: remove excessive blank lines but keep structural breaks
+  const compacted = [];
+  let blankCount = 0;
+  for (const line of processedLines) {
+    if (!line) {
+      blankCount++;
+      if (blankCount === 1) compacted.push(''); // Max 1 blank line
+    } else {
+      blankCount = 0;
+      compacted.push(line);
+    }
+  }
+
+  return compacted.join('\n').trim();
 }
