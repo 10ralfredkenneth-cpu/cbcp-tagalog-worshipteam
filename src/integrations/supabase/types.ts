@@ -14,16 +14,112 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          date_joined: string | null
+          email: string
+          emergency_contact: string | null
+          full_name: string
+          groups: string[] | null
+          id: string
+          instrument: string | null
+          internal_notes: string | null
+          phone: string | null
+          primary_role: string | null
+          skills: string[] | null
+          status: Database["public"]["Enums"]["member_status"] | null
+          updated_at: string | null
+          vocal_range: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          date_joined?: string | null
+          email: string
+          emergency_contact?: string | null
+          full_name: string
+          groups?: string[] | null
+          id: string
+          instrument?: string | null
+          internal_notes?: string | null
+          phone?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          updated_at?: string | null
+          vocal_range?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          date_joined?: string | null
+          email?: string
+          emergency_contact?: string | null
+          full_name?: string
+          groups?: string[] | null
+          id?: string
+          instrument?: string | null
+          internal_notes?: string | null
+          phone?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          updated_at?: string | null
+          vocal_range?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "ministry_admin"
+        | "worship_pastor"
+        | "worship_leader"
+        | "team_member"
+        | "media_tech"
+        | "viewer"
+      member_status:
+        | "Active"
+        | "Available"
+        | "Limited Availability"
+        | "On Break"
+        | "Inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +246,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "super_admin",
+        "ministry_admin",
+        "worship_pastor",
+        "worship_leader",
+        "team_member",
+        "media_tech",
+        "viewer",
+      ],
+      member_status: [
+        "Active",
+        "Available",
+        "Limited Availability",
+        "On Break",
+        "Inactive",
+      ],
+    },
   },
 } as const
