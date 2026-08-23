@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data: songs = [] } = useQuery({
     queryKey: ['songs-public'],
-    queryFn: getSongsPublic
+    queryFn: () => getSongsPublic()
   });
 
   const sampleEvent = {
