@@ -236,9 +236,20 @@ function SongDetailPage() {
 
               {/* Metronome Tool */}
               <div className="space-y-4 pt-2">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Metronome:</h3>
-                <div className="bg-gray-50 p-4 border border-gray-100 rounded-sm">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Metronome:</h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setBpm(song?.bpm || 72)}
+                    className="h-6 text-[9px] uppercase tracking-tighter text-accent font-bold px-2"
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" /> Reset BPM
+                  </Button>
+                </div>
+                
+                <div className="bg-gray-50 p-4 border border-gray-100 rounded-sm space-y-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">BPM</span>
                       <span className="text-2xl font-serif font-bold text-primary">{bpm}</span>
@@ -250,6 +261,7 @@ function SongDetailPage() {
                       {metronomePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
                     </Button>
                   </div>
+                  
                   <div className="flex items-center gap-4">
                     <button onClick={() => setBpm(Math.max(40, bpm - 1))} className="text-gray-400 hover:text-accent p-1"><Minus className="w-4 h-4" /></button>
                     <input 
@@ -261,6 +273,43 @@ function SongDetailPage() {
                       className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
                     />
                     <button onClick={() => setBpm(Math.min(220, bpm + 1))} className="text-gray-400 hover:text-accent p-1"><Plus className="w-4 h-4" /></button>
+                  </div>
+
+                  {/* Volume and Sound */}
+                  <div className="pt-2 space-y-3">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span>Volume</span>
+                      <Volume2 className="w-3 h-3" />
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.05"
+                      value={metronomeVolume} 
+                      onChange={(e) => setMetronomeVolume(parseFloat(e.target.value))}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                    
+                    <div className="grid grid-cols-3 gap-1 pt-2">
+                      {['beep', 'woodblock', 'click'].map((sound) => (
+                        <button
+                          key={sound}
+                          onClick={() => setMetronomeSound(sound as any)}
+                          className={`text-[9px] uppercase font-bold py-1 border transition-all ${metronomeSound === sound ? 'bg-accent text-primary border-accent' : 'bg-white text-gray-400 border-gray-100'}`}
+                        >
+                          {sound}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Auto-scroll Toggle */}
+                  <div className="flex items-center gap-3 pt-2 cursor-pointer select-none" onClick={() => setAutoScroll(!autoScroll)}>
+                    <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${autoScroll ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                      {autoScroll && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Auto-Scroll</span>
                   </div>
                 </div>
               </div>
