@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.15"
+  }
   public: {
     Tables: {
       audit_logs: {
@@ -41,6 +46,166 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      initial_super_admin_setup: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
+      media_albums: {
+        Row: {
+          album_date: string | null
+          category: Database["public"]["Enums"]["media_category"]
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          title: string
+        }
+        Insert: {
+          album_date?: string | null
+          category: Database["public"]["Enums"]["media_category"]
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          title: string
+        }
+        Update: {
+          album_date?: string | null
+          category?: Database["public"]["Enums"]["media_category"]
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      media_items: {
+        Row: {
+          album_id: string | null
+          author_id: string | null
+          category: Database["public"]["Enums"]["media_category"]
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          event_date: string | null
+          featured: boolean | null
+          file_size: string | null
+          file_type: string | null
+          file_url: string
+          id: string
+          media_type: Database["public"]["Enums"]["media_type"]
+          related_resource_id: string | null
+          related_service_id: string | null
+          related_song_id: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          visibility: Database["public"]["Enums"]["visibility_level"]
+        }
+        Insert: {
+          album_id?: string | null
+          author_id?: string | null
+          category: Database["public"]["Enums"]["media_category"]
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          event_date?: string | null
+          featured?: boolean | null
+          file_size?: string | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          media_type: Database["public"]["Enums"]["media_type"]
+          related_resource_id?: string | null
+          related_service_id?: string | null
+          related_song_id?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          visibility?: Database["public"]["Enums"]["visibility_level"]
+        }
+        Update: {
+          album_id?: string | null
+          author_id?: string | null
+          category?: Database["public"]["Enums"]["media_category"]
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          event_date?: string | null
+          featured?: boolean | null
+          file_size?: string | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          media_type?: Database["public"]["Enums"]["media_type"]
+          related_resource_id?: string | null
+          related_service_id?: string | null
+          related_song_id?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          visibility?: Database["public"]["Enums"]["visibility_level"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_items_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "media_albums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_items_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_items_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_items_related_resource_id_fkey"
+            columns: ["related_resource_id"]
+            isOneToOne: false
+            referencedRelation: "worship_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_items_related_service_id_fkey"
+            columns: ["related_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_items_related_song_id_fkey"
+            columns: ["related_song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ministry_settings: {
         Row: {
@@ -83,7 +248,7 @@ export type Database = {
           phone: string | null
           primary_role: string | null
           skills: string[] | null
-          status: string | null
+          status: Database["public"]["Enums"]["member_status"] | null
           team_member_id: string | null
           updated_at: string | null
           vocal_range: string | null
@@ -104,7 +269,7 @@ export type Database = {
           phone?: string | null
           primary_role?: string | null
           skills?: string[] | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["member_status"] | null
           team_member_id?: string | null
           updated_at?: string | null
           vocal_range?: string | null
@@ -125,391 +290,515 @@ export type Database = {
           phone?: string | null
           primary_role?: string | null
           skills?: string[] | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["member_status"] | null
           team_member_id?: string | null
           updated_at?: string | null
           vocal_range?: string | null
         }
         Relationships: []
       }
-      user_roles: {
+      service_assignments: {
         Row: {
+          call_time: string | null
+          created_at: string | null
           id: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role: string
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      songs: {
-        Row: {
-          id: string
-          title: string
-          artist: string | null
-          default_key: string | null
-          bpm: number | null
-          time_signature: string | null
-          language: string
-          song_type: string
-          status: string
-          themes: string[] | null
-          scripture_references: Json | null
-          lyrics: string | null
-          chord_chart: string | null
-          sections: Json | null
-          flow: string[] | null
-          worship_leader_notes: string[] | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          artist?: string | null
-          default_key?: string | null
-          bpm?: number | null
-          time_signature?: string | null
-          language: string
-          song_type: string
-          status: string
-          themes?: string[] | null
-          scripture_references?: Json | null
-          lyrics?: string | null
-          chord_chart?: string | null
-          sections?: Json | null
-          flow?: string[] | null
-          worship_leader_notes?: string[] | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          artist?: string | null
-          default_key?: string | null
-          bpm?: number | null
-          time_signature?: string | null
-          language?: string
-          song_type?: string
-          status?: string
-          themes?: string[] | null
-          scripture_references?: Json | null
-          lyrics?: string | null
-          chord_chart?: string | null
-          sections?: Json | null
-          flow?: string[] | null
-          worship_leader_notes?: string[] | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      services: {
-        Row: {
-          id: string
-          title: string
-          service_date: string
-          service_time: string | null
-          service_type: string
-          status: string
-          theme: string | null
-          scripture_focus: string | null
-          worship_leader_id: string | null
-          rehearsal_date: string | null
-          rehearsal_time: string | null
-          rehearsal_location: string | null
-          rehearsal_notes: string | null
+          member_id: string | null
           notes: string | null
-          estimated_duration: number | null
-          created_at: string
-          updated_at: string
+          role: Database["public"]["Enums"]["app_role"] | null
+          service_id: string | null
+          status: Database["public"]["Enums"]["assignment_status"]
         }
         Insert: {
+          call_time?: string | null
+          created_at?: string | null
           id?: string
-          title: string
-          service_date: string
-          service_time?: string | null
-          service_type: string
-          status: string
-          theme?: string | null
-          scripture_focus?: string | null
-          worship_leader_id?: string | null
-          rehearsal_date?: string | null
-          rehearsal_time?: string | null
-          rehearsal_location?: string | null
-          rehearsal_notes?: string | null
+          member_id?: string | null
           notes?: string | null
-          estimated_duration?: number | null
-          created_at?: string
-          updated_at?: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
         }
         Update: {
+          call_time?: string | null
+          created_at?: string | null
           id?: string
-          title?: string
-          service_date?: string
-          service_time?: string | null
-          service_type?: string
-          status?: string
-          theme?: string | null
-          scripture_focus?: string | null
-          worship_leader_id?: string | null
-          rehearsal_date?: string | null
-          rehearsal_time?: string | null
-          rehearsal_location?: string | null
-          rehearsal_notes?: string | null
+          member_id?: string | null
           notes?: string | null
-          estimated_duration?: number | null
-          created_at?: string
-          updated_at?: string
+          role?: Database["public"]["Enums"]["app_role"] | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["assignment_status"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_assignments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_items: {
         Row: {
-          id: string
-          service_id: string
-          song_id: string | null
-          item_type: string
-          title: string
-          sort_order: number
-          selected_key: string | null
-          category: string | null
           assigned_person: string | null
+          category: string | null
+          created_at: string | null
           duration: number | null
+          id: string
+          item_type: string
           leader_note: string | null
-          transition_note: string | null
           musician_notes: string | null
           notes: string | null
-          created_at: string
+          selected_key: string | null
+          service_id: string | null
+          song_id: string | null
+          sort_order: number
+          title: string
+          transition_note: string | null
         }
         Insert: {
-          id?: string
-          service_id: string
-          song_id?: string | null
-          item_type: string
-          title: string
-          sort_order: number
-          selected_key?: string | null
-          category?: string | null
           assigned_person?: string | null
+          category?: string | null
+          created_at?: string | null
           duration?: number | null
+          id?: string
+          item_type: string
           leader_note?: string | null
-          transition_note?: string | null
           musician_notes?: string | null
           notes?: string | null
-          created_at?: string
+          selected_key?: string | null
+          service_id?: string | null
+          song_id?: string | null
+          sort_order: number
+          title: string
+          transition_note?: string | null
         }
         Update: {
-          id?: string
-          service_id?: string
-          song_id?: string | null
-          item_type?: string
-          title?: string
-          sort_order?: number
-          selected_key?: string | null
-          category?: string | null
           assigned_person?: string | null
+          category?: string | null
+          created_at?: string | null
           duration?: number | null
+          id?: string
+          item_type?: string
           leader_note?: string | null
-          transition_note?: string | null
           musician_notes?: string | null
           notes?: string | null
-          created_at?: string
+          selected_key?: string | null
+          service_id?: string | null
+          song_id?: string | null
+          sort_order?: number
+          title?: string
+          transition_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_items_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          created_at: string | null
+          estimated_duration: number | null
+          id: string
+          notes: string | null
+          rehearsal_date: string | null
+          rehearsal_location: string | null
+          rehearsal_notes: string | null
+          rehearsal_time: string | null
+          scripture_reference: string | null
+          service_date: string
+          service_time: string
+          service_type: Database["public"]["Enums"]["service_type"]
+          status: Database["public"]["Enums"]["setlist_status"]
+          theme: string | null
+          title: string
+          updated_at: string | null
+          worship_leader_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          rehearsal_date?: string | null
+          rehearsal_location?: string | null
+          rehearsal_notes?: string | null
+          rehearsal_time?: string | null
+          scripture_reference?: string | null
+          service_date: string
+          service_time: string
+          service_type?: Database["public"]["Enums"]["service_type"]
+          status?: Database["public"]["Enums"]["setlist_status"]
+          theme?: string | null
+          title: string
+          updated_at?: string | null
+          worship_leader_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          rehearsal_date?: string | null
+          rehearsal_location?: string | null
+          rehearsal_notes?: string | null
+          rehearsal_time?: string | null
+          scripture_reference?: string | null
+          service_date?: string
+          service_time?: string
+          service_type?: Database["public"]["Enums"]["service_type"]
+          status?: Database["public"]["Enums"]["setlist_status"]
+          theme?: string | null
+          title?: string
+          updated_at?: string | null
+          worship_leader_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_worship_leader_id_fkey"
+            columns: ["worship_leader_id"]
+            isOneToOne: false
+            referencedRelation: "profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_worship_leader_id_fkey"
+            columns: ["worship_leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      songs: {
+        Row: {
+          artist: string
+          artwork_url: string | null
+          bpm: number | null
+          ccli_number: string | null
+          copyright_owner: string | null
+          copyright_year: number | null
+          created_at: string | null
+          default_key: string
+          flow: string[] | null
+          id: string
+          language: Database["public"]["Enums"]["song_language"]
+          public_domain: boolean | null
+          scripture_references: Json | null
+          sections: Json | null
+          song_type: Database["public"]["Enums"]["song_type"]
+          songwriter: string | null
+          status: Database["public"]["Enums"]["song_status"]
+          themes: string[] | null
+          time_signature: string | null
+          title: string
+          updated_at: string | null
+          worship_leader_notes: string[] | null
+        }
+        Insert: {
+          artist: string
+          artwork_url?: string | null
+          bpm?: number | null
+          ccli_number?: string | null
+          copyright_owner?: string | null
+          copyright_year?: number | null
+          created_at?: string | null
+          default_key: string
+          flow?: string[] | null
+          id?: string
+          language?: Database["public"]["Enums"]["song_language"]
+          public_domain?: boolean | null
+          scripture_references?: Json | null
+          sections?: Json | null
+          song_type?: Database["public"]["Enums"]["song_type"]
+          songwriter?: string | null
+          status?: Database["public"]["Enums"]["song_status"]
+          themes?: string[] | null
+          time_signature?: string | null
+          title: string
+          updated_at?: string | null
+          worship_leader_notes?: string[] | null
+        }
+        Update: {
+          artist?: string
+          artwork_url?: string | null
+          bpm?: number | null
+          ccli_number?: string | null
+          copyright_owner?: string | null
+          copyright_year?: number | null
+          created_at?: string | null
+          default_key?: string
+          flow?: string[] | null
+          id?: string
+          language?: Database["public"]["Enums"]["song_language"]
+          public_domain?: boolean | null
+          scripture_references?: Json | null
+          sections?: Json | null
+          song_type?: Database["public"]["Enums"]["song_type"]
+          songwriter?: string | null
+          status?: Database["public"]["Enums"]["song_status"]
+          themes?: string[] | null
+          time_signature?: string | null
+          title?: string
+          updated_at?: string | null
+          worship_leader_notes?: string[] | null
         }
         Relationships: []
       }
-      service_assignments: {
+      user_roles: {
         Row: {
           id: string
-          service_id: string
-          member_id: string
-          role: string
-          status: string
-          call_time: string | null
-          notes: string | null
-          created_at: string
-          updated_at: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Insert: {
           id?: string
-          service_id: string
-          member_id: string
-          role: string
-          status: string
-          call_time?: string | null
-          notes?: string | null
-          created_at?: string
-          updated_at?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Update: {
           id?: string
-          service_id?: string
-          member_id?: string
-          role?: string
-          status?: string
-          call_time?: string | null
-          notes?: string | null
-          created_at?: string
-          updated_at?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
       worship_resources: {
         Row: {
-          id: string
-          slug: string
-          title: string
-          description: string | null
-          content: string | null
-          category: string
-          resource_type: string
-          ministry_roles: string[] | null
-          tags: string[] | null
-          scripture_references: Json | null
+          author_id: string | null
+          category: Database["public"]["Enums"]["resource_category"]
+          content: string
           cover_image: string | null
-          author: string | null
-          reading_time: number | null
-          featured: boolean
-          status: string
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          ministry_roles: string[] | null
           published_at: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
+          reading_time: number | null
+          resource_type: Database["public"]["Enums"]["resource_type"]
+          scripture_references: Json | null
           slug: string
-          title: string
-          description?: string | null
-          content?: string | null
-          category: string
-          resource_type: string
-          ministry_roles?: string[] | null
-          tags?: string[] | null
-          scripture_references?: Json | null
-          cover_image?: string | null
-          author?: string | null
-          reading_time?: number | null
-          featured?: boolean
-          status: string
-          published_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          slug?: string
-          title?: string
-          description?: string | null
-          content?: string | null
-          category?: string
-          resource_type?: string
-          ministry_roles?: string[] | null
-          tags?: string[] | null
-          scripture_references?: Json | null
-          cover_image?: string | null
-          author?: string | null
-          reading_time?: number | null
-          featured?: boolean
-          status?: string
-          published_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      media_albums: {
-        Row: {
-          id: string
-          title: string
-          description: string | null
-          cover_image_url: string | null
-          category: string | null
-          featured: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          cover_image_url?: string | null
-          category?: string | null
-          featured?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          description?: string | null
-          cover_image_url?: string | null
-          category?: string | null
-          featured?: boolean
-          created_at?: string
-        }
-        Relationships: []
-      }
-      media_items: {
-        Row: {
-          id: string
-          album_id: string | null
-          title: string
-          description: string | null
-          file_url: string
-          media_type: string
-          category: string | null
+          status: Database["public"]["Enums"]["resource_status"]
           tags: string[] | null
-          featured: boolean
-          created_at: string
+          title: string
+          updated_at: string | null
         }
         Insert: {
-          id?: string
-          album_id?: string | null
-          title: string
+          author_id?: string | null
+          category: Database["public"]["Enums"]["resource_category"]
+          content: string
+          cover_image?: string | null
+          created_at?: string | null
           description?: string | null
-          file_url: string
-          media_type: string
-          category?: string | null
+          featured?: boolean | null
+          id?: string
+          ministry_roles?: string[] | null
+          published_at?: string | null
+          reading_time?: number | null
+          resource_type: Database["public"]["Enums"]["resource_type"]
+          scripture_references?: Json | null
+          slug: string
+          status?: Database["public"]["Enums"]["resource_status"]
           tags?: string[] | null
-          featured?: boolean
-          created_at?: string
+          title: string
+          updated_at?: string | null
         }
         Update: {
-          id?: string
-          album_id?: string | null
-          title?: string
+          author_id?: string | null
+          category?: Database["public"]["Enums"]["resource_category"]
+          content?: string
+          cover_image?: string | null
+          created_at?: string | null
           description?: string | null
-          file_url?: string
-          media_type?: string
-          category?: string | null
+          featured?: boolean | null
+          id?: string
+          ministry_roles?: string[] | null
+          published_at?: string | null
+          reading_time?: number | null
+          resource_type?: Database["public"]["Enums"]["resource_type"]
+          scripture_references?: Json | null
+          slug?: string
+          status?: Database["public"]["Enums"]["resource_status"]
           tags?: string[] | null
-          featured?: boolean
-          created_at?: string
+          title?: string
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "worship_resources_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worship_resources_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      profile_directory: {
+        Row: {
+          avatar_url: string | null
+          date_joined: string | null
+          email: string | null
+          full_name: string | null
+          groups: string[] | null
+          id: string | null
+          instrument: string | null
+          primary_role: string | null
+          skills: string[] | null
+          status: Database["public"]["Enums"]["member_status"] | null
+          vocal_range: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          date_joined?: string | null
+          email?: string | null
+          full_name?: string | null
+          groups?: string[] | null
+          id?: string | null
+          instrument?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          vocal_range?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          date_joined?: string | null
+          email?: string | null
+          full_name?: string | null
+          groups?: string[] | null
+          id?: string | null
+          instrument?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          vocal_range?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
         Args: {
+          _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
-          _role: string
         }
         Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "ministry_admin"
+        | "worship_pastor"
+        | "worship_leader"
+        | "team_member"
+        | "media_tech"
+        | "viewer"
+        | "worship_director"
+      assignment_status:
+        | "Pending"
+        | "Confirmed"
+        | "Declined"
+        | "Needs Replacement"
+      media_category:
+        | "Worship Service"
+        | "Rehearsal"
+        | "Special Event"
+        | "Team Activity"
+        | "Training"
+        | "Ministry File"
+        | "Worship Night"
+        | "Testimony"
+      media_type: "Photo" | "Video" | "Audio" | "Document"
+      member_status:
+        | "Active"
+        | "Available"
+        | "Limited Availability"
+        | "On Break"
+        | "Inactive"
+        | "Pending"
+        | "Suspended"
+      resource_category:
+        | "Worship Devotionals"
+        | "Biblical Worship"
+        | "Worship Leadership"
+        | "Musicianship"
+        | "Vocal Training"
+        | "Band Development"
+        | "Sound & Technical"
+        | "Multimedia"
+        | "Rehearsal Preparation"
+        | "Spiritual Formation"
+        | "Team Culture"
+        | "Songwriting"
+        | "Prayer"
+      resource_status: "Draft" | "Published" | "Archived"
+      resource_type:
+        | "Article"
+        | "Devotional"
+        | "Guide"
+        | "Training"
+        | "Video"
+        | "PDF"
+        | "Checklist"
+        | "Lesson"
+      service_type:
+        | "Sunday Worship"
+        | "Prayer Meeting"
+        | "Youth Worship"
+        | "Midweek Service"
+        | "Communion"
+        | "Special Event"
+        | "Conference"
+        | "Fellowship"
+      setlist_status: "Draft" | "Preparing" | "Ready" | "Completed" | "Archived"
+      song_language: "English" | "Filipino/Tagalog" | "Cebuano/Bisaya" | "Other"
+      song_status: "Active" | "Learning" | "Archived"
+      song_type:
+        | "Opening"
+        | "Praise"
+        | "Worship"
+        | "Response"
+        | "Communion"
+        | "Offering"
+        | "Closing"
+      visibility_level: "Public" | "Worship Team" | "Leaders Only" | "Private"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -517,25 +806,33 @@ export type Database = {
   }
 }
 
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
-        Database["public"]["Views"])
-    ? (Database["public"]["Tables"] &
-        Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -543,20 +840,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -564,20 +865,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof Database["public"]["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
-    ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -585,29 +890,127 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof Database["public"]["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
-    ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof Database["public"]["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof Database["public"]["CompositeTypes"]
-    ? Database["public"]["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      app_role: [
+        "super_admin",
+        "ministry_admin",
+        "worship_pastor",
+        "worship_leader",
+        "team_member",
+        "media_tech",
+        "viewer",
+        "worship_director",
+      ],
+      assignment_status: [
+        "Pending",
+        "Confirmed",
+        "Declined",
+        "Needs Replacement",
+      ],
+      media_category: [
+        "Worship Service",
+        "Rehearsal",
+        "Special Event",
+        "Team Activity",
+        "Training",
+        "Ministry File",
+        "Worship Night",
+        "Testimony",
+      ],
+      media_type: ["Photo", "Video", "Audio", "Document"],
+      member_status: [
+        "Active",
+        "Available",
+        "Limited Availability",
+        "On Break",
+        "Inactive",
+        "Pending",
+        "Suspended",
+      ],
+      resource_category: [
+        "Worship Devotionals",
+        "Biblical Worship",
+        "Worship Leadership",
+        "Musicianship",
+        "Vocal Training",
+        "Band Development",
+        "Sound & Technical",
+        "Multimedia",
+        "Rehearsal Preparation",
+        "Spiritual Formation",
+        "Team Culture",
+        "Songwriting",
+        "Prayer",
+      ],
+      resource_status: ["Draft", "Published", "Archived"],
+      resource_type: [
+        "Article",
+        "Devotional",
+        "Guide",
+        "Training",
+        "Video",
+        "PDF",
+        "Checklist",
+        "Lesson",
+      ],
+      service_type: [
+        "Sunday Worship",
+        "Prayer Meeting",
+        "Youth Worship",
+        "Midweek Service",
+        "Communion",
+        "Special Event",
+        "Conference",
+        "Fellowship",
+      ],
+      setlist_status: ["Draft", "Preparing", "Ready", "Completed", "Archived"],
+      song_language: ["English", "Filipino/Tagalog", "Cebuano/Bisaya", "Other"],
+      song_status: ["Active", "Learning", "Archived"],
+      song_type: [
+        "Opening",
+        "Praise",
+        "Worship",
+        "Response",
+        "Communion",
+        "Offering",
+        "Closing",
+      ],
+      visibility_level: ["Public", "Worship Team", "Leaders Only", "Private"],
+    },
+  },
+} as const
