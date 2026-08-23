@@ -16,23 +16,34 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<string[]>([]);
+
+  const logDiagnostic = (msg: string) => {
+    console.log(`[ImageUpload Diagnostic] ${msg}`);
+    setDiagnostics(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`].slice(-5));
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setError(null);
+    setDiagnostics([]);
+    logDiagnostic(`File selected: ${file.name} (${file.type}, ${Math.round(file.size / 1024)}KB)`);
     
     // Create local preview immediately
+    logDiagnostic("Generating local preview...");
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
+      logDiagnostic("Local preview generated.");
     };
     reader.readAsDataURL(file);
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
       const msg = 'Invalid file type. Please upload an image (PNG, JPG, WEBP).';
+      logDiagnostic(`Validation failed: ${msg}`);
       setError(msg);
       toast.error(msg);
       setPreview(null);
@@ -43,12 +54,14 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     if (file.size > MAX_FILE_SIZE) {
       const msg = 'File too large. Maximum size is 5MB.';
+      logDiagnostic(`Validation failed: ${msg}`);
       setError(msg);
       toast.error(msg);
       setPreview(null);
       return;
     }
 
+    logDiagnostic("File accepted. Starting upload...");
     setIsUploading(true);
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
@@ -57,6 +70,7 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     try {
       if (!file.name) throw new Error('Invalid file name');
 
+      logDiagnostic(`Uploading to bucket: ${bucket} at path: ${filePath}`);
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
@@ -65,20 +79,33 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
         });
 
       if (uploadError) {
-        console.error('Supabase upload error:', uploadError);
+        logDiagnostic(`Storage upload failed: ${uploadError.message}`);
         throw uploadError;
       }
 
+      logDiagnostic("Storage upload successful. Fetching public URL...");
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
+      logDiagnostic(`Public URL generated: ${publicUrl.substring(0, 50)}...`);
+
+      // Verify reachability
+      logDiagnostic("Verifying image reachability...");
+      const response = await fetch(publicUrl, { method: 'HEAD' });
+      if (response.ok) {
+        logDiagnostic("Image is reachable and verified.");
+      } else {
+        logDiagnostic(`Image reachability check returned status: ${response.status}`);
+      }
+
       onChange(publicUrl);
-      setPreview(null); // Clear preview once saved URL is available
+      setPreview(null);
       toast.success('Image uploaded successfully');
     } catch (error: any) {
       console.error('Upload error details:', error);
       const errorMessage = error.message || error.error_description || 'Unknown upload error';
+      logDiagnostic(`Critical error: ${errorMessage}`);
       setError(errorMessage);
       toast.error('Upload failed: ' + errorMessage);
       setPreview(null);
@@ -88,9 +115,11 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
   };
 
   const handleRemove = () => {
+    logDiagnostic("Removing image...");
     onChange('');
     setPreview(null);
     setError(null);
+    setDiagnostics([]);
   };
 
   const displayImage = preview || value;
@@ -191,6 +220,23 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
               <p className="text-[8px] uppercase tracking-[0.2em] font-bold">Live Photo Synced</p>
             </div>
           ) : null}
+
+          {diagnostics.length > 0 && (
+            <div className="mt-4 p-3 bg-muted/30 border border-accent/5 font-mono text-[7px] leading-tight text-muted-foreground/70 uppercase tracking-tighter">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-accent/5 pb-1">
+                <div className="w-1 h-1 rounded-full bg-accent animate-pulse" />
+                <span>Upload Diagnostics</span>
+              </div>
+              <div className="space-y-1">
+                {diagnostics.map((d, i) => (
+                  <div key={i} className="flex gap-2">
+                    <span className="opacity-50 shrink-0">{d.split(': ')[0]}</span>
+                    <span>{d.split(': ').slice(1).join(': ')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
