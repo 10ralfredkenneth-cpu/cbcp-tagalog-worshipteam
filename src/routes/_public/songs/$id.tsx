@@ -132,7 +132,7 @@ function SongDetailPage() {
     if (song?.bpm) setBpm(song.bpm);
   }, [song?.bpm]);
 
-  const playClick = () => {
+  const playClick = useCallback((time: number, isAccent: boolean = false) => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -140,36 +140,90 @@ function SongDetailPage() {
     const envelope = audioCtxRef.current.createGain();
 
     if (metronomeSound === 'beep') {
-      osc.frequency.value = 880;
+      osc.frequency.value = isAccent ? 880 : 440;
     } else if (metronomeSound === 'woodblock') {
-      osc.frequency.value = 600;
+      osc.frequency.value = isAccent ? 600 : 300;
     } else {
-      osc.frequency.value = 1200;
+      osc.frequency.value = isAccent ? 1200 : 600;
     }
     
     envelope.gain.value = metronomeVolume;
-    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, audioCtxRef.current.currentTime + 0.001);
-    envelope.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, time + 0.001);
+    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
 
     osc.connect(envelope);
     envelope.connect(audioCtxRef.current.destination);
 
-    osc.start(audioCtxRef.current.currentTime);
-    osc.stop(audioCtxRef.current.currentTime + 0.03);
-  };
+    osc.start(time);
+    osc.stop(time + 0.03);
+  }, [metronomeSound, metronomeVolume]);
+
+  const scheduler = useCallback(() => {
+    if (!audioCtxRef.current) return;
+    
+    while (nextTickTimeRef.current < audioCtxRef.current.currentTime + 0.1) {
+      const time = nextTickTimeRef.current;
+      
+      if (isCountingIn) {
+        playClick(time, beatCountRef.current === 0);
+        const nextBeat = beatCountRef.current + 1;
+        setCurrentCount(nextBeat);
+        
+        if (nextBeat >= countInBeats) {
+          setIsCountingIn(false);
+          beatCountRef.current = 0;
+        } else {
+          beatCountRef.current = nextBeat;
+        }
+      } else {
+        playClick(time, beatCountRef.current === 0);
+        beatCountRef.current = (beatCountRef.current + 1) % 4;
+      }
+      
+      nextTickTimeRef.current += 60.0 / bpm;
+    }
+  }, [bpm, isCountingIn, countInBeats, playClick]);
 
   useEffect(() => {
     if (metronomePlaying) {
-      const interval = (60 / bpm) * 1000;
-      playClick();
-      timerRef.current = setInterval(playClick, interval);
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      nextTickTimeRef.current = audioCtxRef.current.currentTime;
+      beatCountRef.current = 0;
+      
+      if (countInBeats > 0) {
+        setIsCountingIn(true);
+        setCurrentCount(0);
+      }
+      
+      timerRef.current = setInterval(scheduler, 25);
     } else {
+      setIsCountingIn(false);
+      setCurrentCount(0);
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [metronomePlaying, bpm, metronomeSound, metronomeVolume]);
+  }, [metronomePlaying, scheduler, countInBeats]);
+
+  const handleShare = () => {
+    const params = new URLSearchParams();
+    params.set('bpm', bpm.toString());
+    params.set('key', currentKey);
+    params.set('chords', showChords.toString());
+    params.set('lyrics', showLyrics.toString());
+    params.set('split', isSplit.toString());
+    params.set('sound', metronomeSound);
+    params.set('color', chordColor.replace('text-', ''));
+    
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Practice link copied to clipboard!');
+  };
+
 
   // Auto-scroll logic
   useEffect(() => {
