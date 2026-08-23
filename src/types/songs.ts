@@ -33,8 +33,11 @@ export interface WorshipSong {
   songType: SongType;
   status: SongStatus;
   visibility: SongVisibility;
-  isPublic: boolean; // Legacy/Compat helper
+  isPublic: boolean;
   featured: boolean;
+  lyrics?: string;
+  chords?: string;
+  copyrightNotes?: string;
   artworkUrl?: string;
   sections?: SongSection[];
   flow?: string[];
