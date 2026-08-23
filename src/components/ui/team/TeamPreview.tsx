@@ -6,7 +6,6 @@ export function TeamPreview() {
   const { data: team = [] } = useQuery({
     queryKey: ['team-public'],
     queryFn: getTeamPublic,
-    refetchInterval: 5000, // Sync real-time (every 5s)
   });
 
   const featuredMembers = team.filter((m: any) => m.featured).slice(0, 4);
