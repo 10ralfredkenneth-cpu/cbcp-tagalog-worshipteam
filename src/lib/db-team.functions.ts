@@ -64,9 +64,20 @@ export async function createMember(input: { data: any } | any) {
 export async function updateMember(input: { data: { id: string; updates: any } } | { id: string; updates: any }) {
   const { id, updates } = ((input as any)?.data ?? input) as { id: string; updates: any };
 
+  // Map camelCase to snake_case for Supabase updates
+  const updateData: any = { ...updates };
+  if (updates.primaryRole) updateData.primary_role = updates.primaryRole;
+  if (updates.avatarUrl) updateData.avatar_url = updates.avatarUrl;
+  if (updates.isPublic !== undefined) updateData.is_public = updates.isPublic;
+  
+  // Clean camelCase keys that were mapped
+  delete updateData.primaryRole;
+  delete updateData.avatarUrl;
+  delete updateData.isPublic;
+
   const { data, error } = await supabase
     .from("profiles")
-    .update(updates)
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();
