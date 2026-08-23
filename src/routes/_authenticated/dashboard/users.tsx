@@ -364,7 +364,7 @@ function UserManagementPage() {
           </DialogHeader>
           <div className="py-6 space-y-4">
             <Select 
-              defaultValue={selectedUser?.role} 
+              value={selectedUser?.role} 
               onValueChange={handleUpdateRole}
               disabled={updating}
             >
