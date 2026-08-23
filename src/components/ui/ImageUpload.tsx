@@ -29,13 +29,8 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     const filePath = fileName;
 
     try {
-      // Supabase has its own size limits configured on the bucket, 
-      // but we can add a client-side check if needed. Default is usually 5MB.
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File is too large (max 5MB)');
-        setIsUploading(false);
-        return;
-      }
+      // Check if file is valid
+      if (!file.name) throw new Error('Invalid file name');
 
       const { data, error: uploadError } = await supabase.storage
         .from(bucket)
@@ -64,14 +59,8 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     }
   };
 
-  const handleRemove = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // If the image is already a public URL, we might want to delete it from storage,
-    // but often we just clear the field to allow replacement.
+  const handleRemove = () => {
     onChange('');
-    toast.success('Image removed. Save to persist changes.');
   };
 
   return (

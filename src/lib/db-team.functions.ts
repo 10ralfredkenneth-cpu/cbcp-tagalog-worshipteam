@@ -62,21 +62,11 @@ export async function createMember(input: { data: any } | any) {
 }
 
 export async function updateMember(input: { data: { id: string; updates: any } } | { id: string; updates: any }) {
-  const payload = (input as any)?.data ?? input;
-  const { id, updates } = payload as { id: string; updates: any };
-
-  // Map camelCase to snake_case for updates if needed
-  const mappedUpdates: any = { ...updates };
-  
-  if (updates.primaryRole !== undefined) mappedUpdates.primary_role = updates.primaryRole;
-  if (updates.avatarUrl !== undefined) mappedUpdates.avatar_url = updates.avatarUrl;
-  if (updates.isPublic !== undefined) mappedUpdates.is_public = updates.isPublic;
-  if (updates.internalNotes !== undefined) mappedUpdates.internal_notes = updates.internalNotes;
-  if (updates.dateJoined !== undefined) mappedUpdates.date_joined = updates.dateJoined;
+  const { id, updates } = ((input as any)?.data ?? input) as { id: string; updates: any };
 
   const { data, error } = await supabase
     .from("profiles")
-    .update(mappedUpdates)
+    .update(updates)
     .eq("id", id)
     .select()
     .single();
