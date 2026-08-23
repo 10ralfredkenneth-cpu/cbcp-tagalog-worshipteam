@@ -195,7 +195,7 @@ function SetlistDetailPage() {
                   <div className="flex flex-wrap gap-8 pt-4">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold tracking-widest text-accent uppercase">Selected Key</p>
-                      <p className="text-2xl font-serif">{setlistSong?.selectedKey || song.defaultKey}</p>
+                      <p className="text-2xl font-serif">{setlistSong?.selectedKey || (song as any).default_key || (song as any).defaultKey}</p>
                     </div>
                     {song.bpm && (
                       <div className="space-y-1">
