@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const getResources = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabase
-      .from("worship_resources" as any)
+      .from("worship_resources")
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -15,7 +15,7 @@ export const getResources = createServerFn({ method: "GET" })
 export const getMedia = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabase
-      .from("media_items" as any)
+      .from("media_items")
       .select(`
         *,
         media_albums (

@@ -2,7 +2,7 @@ import { WorshipSong, SongLanguage, SongType, SongStatus } from '@/types/songs';
 import { supabase } from '@/integrations/supabase/client';
 
 export const getSongs = async () => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('songs')
     .select('*')
     .order('title');
@@ -22,7 +22,7 @@ export const getSongs = async () => {
 };
 
 export const archiveSong = async (id: string) => {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('songs')
     .update({ status: 'Archived' })
     .eq('id', id);

@@ -2,7 +2,7 @@ import { WorshipSetlist, SetlistStatus, ServiceType } from '@/types/setlists';
 import { supabase } from '@/integrations/supabase/client';
 
 export const getServices = async () => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('services')
     .select(`
       *,

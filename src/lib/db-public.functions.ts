@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const getSongsPublic = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabase
-      .from("songs" as any)
+      .from("songs")
       .select("*")
       .eq("status", "Active")
       .order("title");
