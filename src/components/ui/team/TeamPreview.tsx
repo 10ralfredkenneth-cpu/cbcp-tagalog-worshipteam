@@ -34,7 +34,7 @@ export function TeamPreview() {
             {displayMembers.map((member: any) => (
               <div key={member.id} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-muted mb-4">
-                  <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" loading="lazy" decoding="async" />
+                  <img src={member.avatar_url || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop&q=80&auto=format"} alt={member.full_name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" loading="lazy" decoding="async" />
                 </div>
                 <h4 className="font-serif text-lg">{member.full_name}</h4>
                 <p className="text-[10px] tracking-[0.2em] text-accent uppercase">{member.primary_role}</p>
