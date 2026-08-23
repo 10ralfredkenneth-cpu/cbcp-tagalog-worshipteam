@@ -16,6 +16,12 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<string[]>([]);
+
+  const logDiagnostic = (msg: string) => {
+    console.log(`[ImageUpload Diagnostic] ${msg}`);
+    setDiagnostics(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`].slice(-5));
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -191,6 +197,23 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
               <p className="text-[8px] uppercase tracking-[0.2em] font-bold">Live Photo Synced</p>
             </div>
           ) : null}
+
+          {diagnostics.length > 0 && (
+            <div className="mt-4 p-3 bg-muted/30 border border-accent/5 font-mono text-[7px] leading-tight text-muted-foreground/70 uppercase tracking-tighter">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-accent/5 pb-1">
+                <div className="w-1 h-1 rounded-full bg-accent animate-pulse" />
+                <span>Upload Diagnostics</span>
+              </div>
+              <div className="space-y-1">
+                {diagnostics.map((d, i) => (
+                  <div key={i} className="flex gap-2">
+                    <span className="opacity-50 shrink-0">{d.split(': ')[0]}</span>
+                    <span>{d.split(': ').slice(1).join(': ')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
