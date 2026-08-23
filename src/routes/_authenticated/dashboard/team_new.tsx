@@ -39,10 +39,12 @@ function AddTeamMemberPage() {
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       queryClient.invalidateQueries({ queryKey: ['team-public'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      // Small delay to ensure DB sync before navigation
-      setTimeout(() => {
-        navigate({ to: '/dashboard/team' });
-      }, 500);
+      
+      // Perform a hard refetch to be absolutely sure the public page sees it
+      queryClient.refetchQueries({ queryKey: ['team-public'] });
+
+      // Navigate back to the team list
+      navigate({ to: '/dashboard/team' });
     },
     onError: (error: any) => {
       const message = error.message || 'Failed to add member';
