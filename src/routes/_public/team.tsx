@@ -38,6 +38,7 @@ function TeamDirectoryLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<string>('all');
 
   const { data: team = [] } = useQuery({
     queryKey: ['team-public'],
@@ -56,12 +57,15 @@ function TeamDirectoryLayout() {
       
       const matchesSearch = fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           primaryRole.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRole = roleFilter === 'all' || primaryRole === roleFilter;
+      const matchesRole = roleFilter === 'all' || primaryRole.toLowerCase() === roleFilter.toLowerCase();
       const matchesStatus = statusFilter === 'all' || member.status === statusFilter;
+      const matchesVisibility = visibilityFilter === 'all' || 
+                               (visibilityFilter === 'featured' && member.featured) ||
+                               (visibilityFilter === 'standard' && !member.featured);
       
-      return matchesSearch && matchesRole && matchesStatus;
+      return matchesSearch && matchesRole && matchesStatus && matchesVisibility;
     });
-  }, [team, searchQuery, roleFilter, statusFilter]);
+  }, [team, searchQuery, roleFilter, statusFilter, visibilityFilter]);
 
   const roles = Array.from(new Set(team.map((m: any) => m.primary_role || m.primaryRole))).filter(Boolean).sort();
   const statuses = ['Active', 'Available', 'Limited Availability', 'On Break', 'Inactive'];
@@ -134,13 +138,26 @@ function TeamDirectoryLayout() {
           <div className="md:col-span-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="h-14 bg-muted/20 border-accent/10 rounded-none focus:ring-accent uppercase text-[10px] tracking-widest font-bold">
-                <SelectValue placeholder="All Status" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="rounded-none border-accent/10">
                 <SelectItem value="all" className="uppercase text-[10px] tracking-widest">All Status</SelectItem>
                 {statuses.map(status => (
                   <SelectItem key={status} value={status} className="uppercase text-[10px] tracking-widest">{status}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-2">
+            <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+              <SelectTrigger className="h-14 bg-muted/20 border-accent/10 rounded-none focus:ring-accent uppercase text-[10px] tracking-widest font-bold">
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent className="rounded-none border-accent/10">
+                <SelectItem value="all" className="uppercase text-[10px] tracking-widest">All Members</SelectItem>
+                <SelectItem value="featured" className="uppercase text-[10px] tracking-widest">Featured Only</SelectItem>
+                <SelectItem value="standard" className="uppercase text-[10px] tracking-widest">Standard Only</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -177,6 +194,7 @@ function TeamDirectoryLayout() {
                   setSearchQuery('');
                   setRoleFilter('all');
                   setStatusFilter('all');
+                  setVisibilityFilter('all');
                 }}
               >
                 Clear all filters

@@ -53,10 +53,11 @@ export async function getMediaPublic() {
 export async function getTeamPublic() {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, primary_role, bio, featured, is_public")
+    .select("id, full_name, avatar_url, primary_role, bio, featured, is_public, display_order")
     .eq("is_public", true)
     .eq("status", "Active")
-    .order("full_name");
+    .order("display_order", { ascending: true })
+    .order("full_name", { ascending: true });
 
   if (error) throw error;
   return data || [];
