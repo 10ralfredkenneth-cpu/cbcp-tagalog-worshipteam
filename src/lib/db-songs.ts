@@ -34,16 +34,16 @@ export const createSong = async (song: Partial<WorshipSong>) => {
   const { data, error } = await supabase
     .from('songs')
     .insert([{
-      title: song.title,
-      artist: song.artist,
+      title: song.title || '',
+      artist: song.artist || '',
       default_key: song.defaultKey,
       bpm: song.bpm,
       time_signature: song.timeSignature,
-      language: song.language,
-      song_type: song.songType,
-      status: song.status,
+      language: song.language || 'English',
+      song_type: song.songType || 'Worship',
+      status: song.status || 'Active',
       themes: song.themes,
-      scripture_references: song.scriptureReferences,
+      scripture_references: song.scriptureReferences as any,
       sections: (song as any).sections,
       flow: (song as any).flow
     }])
@@ -67,7 +67,7 @@ export const updateSong = async (id: string, song: Partial<WorshipSong>) => {
       song_type: song.songType,
       status: song.status,
       themes: song.themes,
-      scripture_references: song.scriptureReferences,
+      scripture_references: song.scriptureReferences as any,
       sections: (song as any).sections,
       flow: (song as any).flow
     })
