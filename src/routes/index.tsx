@@ -6,6 +6,8 @@ import { CoreValues } from "@/components/home/CoreValues";
 import { EventCard } from "@/components/ui/events/EventCard";
 import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
+import { MOCK_SONGS } from "@/lib/mock-songs";
+
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
 import { GalleryPreview } from "@/components/home/gallery/GalleryPreview";
@@ -36,32 +38,6 @@ function Index() {
     theme: "The Holiness of God"
   };
 
-  const sampleSongs = [
-    {
-      title: "Holy Forever",
-      artist: "Chris Tomlin",
-      theme: "Praise",
-      key: "D",
-      scriptureTag: "Revelation 4:8",
-      imageUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=2069&auto=format&fit=crop"
-    },
-    {
-      title: "King of Kings",
-      artist: "Hillsong Worship",
-      theme: "Gospel",
-      key: "D",
-      scriptureTag: "Philippians 2:9-11",
-      imageUrl: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=2070&auto=format&fit=crop"
-    },
-    {
-      title: "Yet Not I But Through Christ In Me",
-      artist: "CityAlight",
-      theme: "Assurance",
-      key: "C",
-      scriptureTag: "Galatians 2:20",
-      imageUrl: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop"
-    }
-  ];
 
   return (
     <div className="animate-in fade-in duration-1000 overflow-x-hidden">
@@ -120,10 +96,11 @@ function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {sampleSongs.map((song) => (
-              <SongCard key={song.title} song={song} />
+            {MOCK_SONGS.slice(0, 3).map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
+
         </div>
       </section>
 
