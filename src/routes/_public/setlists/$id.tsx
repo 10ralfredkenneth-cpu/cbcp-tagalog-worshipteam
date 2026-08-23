@@ -830,16 +830,6 @@ function SetlistDetailPage() {
             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent">Quick Templates</h3>
             <div className="grid grid-cols-1 gap-2">
               {/* Templates removed */}
-                <Button 
-                  key={template.title}
-                  variant="outline" 
-                  className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-10 px-4"
-                  onClick={() => alert(`Applied ${template.title} template logic`)}
-                >
-                  <Plus className="w-3 h-3 mr-2 text-accent/50" />
-                  {template.title}
-                </Button>
-              ))}
             </div>
           </div>
         </div>
