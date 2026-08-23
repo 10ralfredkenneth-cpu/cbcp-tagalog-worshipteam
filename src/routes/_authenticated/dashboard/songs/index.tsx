@@ -8,7 +8,9 @@ import {
   Edit,
   Archive,
   Eye,
-  ArrowUpDown
+  ArrowUpDown,
+  Trash2,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,10 +31,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSongs, archiveSong } from '@/lib/db-songs.functions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { getSongs, archiveSong, deleteSong } from '@/lib/db-songs.functions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
+import { useState, useMemo } from 'react';
+import { WorshipSong } from '@/types/songs';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs/')({
   component: SongManagementPage,
@@ -40,24 +54,85 @@ export const Route = createFileRoute('/_authenticated/dashboard/songs/')({
 
 function SongManagementPage() {
   const queryClient = useQueryClient();
+  const [search, setSearch] = useState('');
+  const [themeFilter, setThemeFilter] = useState('All');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
   const { data: songs = [], isLoading } = useQuery({
     queryKey: ['songs'],
     queryFn: () => getSongs(),
   });
 
+  const allThemes = useMemo(() => {
+    const themes = new Set<string>();
+    songs.forEach(song => song.themes?.forEach(t => themes.add(t)));
+    return ['All', ...Array.from(themes).sort()];
+  }, [songs]);
+
+  const filteredSongs = useMemo(() => {
+    return songs.filter(song => {
+      const matchesSearch = 
+        song.title.toLowerCase().includes(search.toLowerCase()) ||
+        (song.artist || '').toLowerCase().includes(search.toLowerCase());
+      const matchesTheme = themeFilter === 'All' || song.themes?.includes(themeFilter);
+      return matchesSearch && matchesTheme;
+    });
+  }, [songs, search, themeFilter]);
+
   const archiveMutation = useMutation({
     mutationFn: archiveSong,
+    onMutate: async (id: string | { data: string }) => {
+      const songId = typeof id === 'string' ? id : id.data;
+      await queryClient.cancelQueries({ queryKey: ['songs'] });
+      const previousSongs = queryClient.getQueryData(['songs']);
+      queryClient.setQueryData(['songs'], (old: WorshipSong[]) => 
+        old?.map(s => s.id === songId ? { ...s, status: 'Archived' } : s)
+      );
+      return { previousSongs };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
       toast.success('Song archived');
     },
-    onError: (error: any) => {
-      toast.error('Failed to archive song: ' + error.message);
+    onError: (err, id, context: any) => {
+      queryClient.setQueryData(['songs'], context.previousSongs);
+      toast.error('Failed to archive song');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteSong,
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['songs'] });
+      const previousSongs = queryClient.getQueryData(['songs']);
+      queryClient.setQueryData(['songs'], (old: WorshipSong[]) => 
+        old?.filter(s => s.id !== id)
+      );
+      return { previousSongs };
+    },
+    onSuccess: () => {
+      toast.success('Song deleted successfully');
+    },
+    onError: (err, id, context: any) => {
+      queryClient.setQueryData(['songs'], context.previousSongs);
+      toast.error('Failed to delete song');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
     }
   });
 
   const handleArchive = (id: string) => {
-    archiveMutation.mutate({ data: id });
+    archiveMutation.mutate(id);
+  };
+
+  const handleDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
+    }
   };
 
   return (
@@ -84,17 +159,41 @@ function SongManagementPage() {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
-            placeholder="Search by title, artist, or scripture..." 
+            placeholder="Search by title, artist..." 
             className="pl-10 rounded-none border-accent/10 focus-visible:ring-accent bg-background text-[11px] uppercase tracking-wider"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex gap-4">
-          <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
-            <Filter className="w-3 h-3 mr-2" /> Filters
-          </Button>
-          <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
-            <ArrowUpDown className="w-3 h-3 mr-2" /> Sort
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
+                <Filter className="w-3 h-3 mr-2" /> {themeFilter === 'All' ? 'Themes' : themeFilter}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="rounded-none border-accent/10 bg-primary text-primary-foreground">
+              {allThemes.map(theme => (
+                <DropdownMenuItem 
+                  key={theme} 
+                  onClick={() => setThemeFilter(theme)}
+                  className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer"
+                >
+                  {theme}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {(search || themeFilter !== 'All') && (
+            <Button 
+              variant="ghost" 
+              onClick={() => { setSearch(''); setThemeFilter('All'); }}
+              className="rounded-none px-4 font-bold text-[10px] uppercase tracking-widest text-accent"
+            >
+              <X className="w-3 h-3 mr-2" /> Reset
+            </Button>
+          )}
         </div>
       </div>
 
@@ -118,13 +217,13 @@ function SongManagementPage() {
                   Loading repertoire...
                 </TableCell>
               </TableRow>
-            ) : (songs || []).length === 0 ? (
+            ) : (filteredSongs || []).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
-                  No songs found in the library.
+                  No songs matching your search criteria.
                 </TableCell>
               </TableRow>
-            ) : (songs || []).map((song: any) => (
+            ) : (filteredSongs || []).map((song: any) => (
               <TableRow key={song.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">
@@ -190,7 +289,7 @@ function SongManagementPage() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/dashboard/songs/new">
+                        <Link to="/dashboard/songs/$id" params={{ id: song.id }}>
                           <Edit className="w-3 h-3 mr-2" /> Edit Song
                         </Link>
                       </DropdownMenuItem>
@@ -198,9 +297,15 @@ function SongManagementPage() {
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
                         onClick={() => handleArchive(song.id)}
-                        className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
+                        className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer"
                       >
                         <Archive className="w-3 h-3 mr-2" /> Archive Song
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setDeleteId(song.id)}
+                        className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3 mr-2" /> Delete Permanently
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -210,6 +315,26 @@ function SongManagementPage() {
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent className="rounded-none border-accent/10 bg-primary text-primary-foreground">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif text-2xl uppercase tracking-widest">Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground text-[10px] uppercase tracking-widest">
+              This will permanently remove the song from the library and all setlists. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-none border-accent/10 text-[10px] uppercase tracking-widest">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="rounded-none bg-red-600 hover:bg-red-700 text-white text-[10px] uppercase tracking-widest font-bold"
+            >
+              Delete Song
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

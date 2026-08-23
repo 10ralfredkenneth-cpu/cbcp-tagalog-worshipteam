@@ -509,12 +509,14 @@ export type Database = {
         Row: {
           artist: string
           artwork_url: string | null
+          audio_url: string | null
           bpm: number | null
           ccli_number: string | null
           copyright_owner: string | null
           copyright_year: number | null
           created_at: string | null
           default_key: string
+          external_resources: Json | null
           featured: boolean | null
           flow: string[] | null
           id: string
@@ -523,6 +525,7 @@ export type Database = {
           public_domain: boolean | null
           scripture_references: Json | null
           sections: Json | null
+          sheet_music_url: string | null
           song_type: Database["public"]["Enums"]["song_type"]
           songwriter: string | null
           status: Database["public"]["Enums"]["song_status"]
@@ -535,12 +538,14 @@ export type Database = {
         Insert: {
           artist: string
           artwork_url?: string | null
+          audio_url?: string | null
           bpm?: number | null
           ccli_number?: string | null
           copyright_owner?: string | null
           copyright_year?: number | null
           created_at?: string | null
           default_key: string
+          external_resources?: Json | null
           featured?: boolean | null
           flow?: string[] | null
           id?: string
@@ -549,6 +554,7 @@ export type Database = {
           public_domain?: boolean | null
           scripture_references?: Json | null
           sections?: Json | null
+          sheet_music_url?: string | null
           song_type?: Database["public"]["Enums"]["song_type"]
           songwriter?: string | null
           status?: Database["public"]["Enums"]["song_status"]
@@ -561,12 +567,14 @@ export type Database = {
         Update: {
           artist?: string
           artwork_url?: string | null
+          audio_url?: string | null
           bpm?: number | null
           ccli_number?: string | null
           copyright_owner?: string | null
           copyright_year?: number | null
           created_at?: string | null
           default_key?: string
+          external_resources?: Json | null
           featured?: boolean | null
           flow?: string[] | null
           id?: string
@@ -575,6 +583,7 @@ export type Database = {
           public_domain?: boolean | null
           scripture_references?: Json | null
           sections?: Json | null
+          sheet_music_url?: string | null
           song_type?: Database["public"]["Enums"]["song_type"]
           songwriter?: string | null
           status?: Database["public"]["Enums"]["song_status"]

@@ -38,13 +38,31 @@ function AddSchedulePage() {
 
   const mutation = useMutation({
     mutationFn: createAssignment,
+    onMutate: async (newAssignment: any) => {
+      await queryClient.cancelQueries({ queryKey: ['service-assignments'] });
+      const previousAssignments = queryClient.getQueryData(['service-assignments']);
+      
+      const optimisticAssignment = {
+        id: crypto.randomUUID(),
+        ...newAssignment,
+        status: newAssignment.status || 'Pending',
+        created_at: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(['service-assignments'], (old: any[]) => [optimisticAssignment, ...(old || [])]);
+      
+      return { previousAssignments };
+    },
     onSuccess: () => {
       toast.success('Assignment created successfully');
-      queryClient.invalidateQueries({ queryKey: ['service-assignments'] });
       navigate({ to: '/dashboard/schedule' });
     },
-    onError: (error) => {
-      toast.error('Failed to create assignment: ' + (error as Error).message);
+    onError: (error: any, newAssignment, context: any) => {
+      queryClient.setQueryData(['service-assignments'], context.previousAssignments);
+      toast.error('Failed to create assignment: ' + error.message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['service-assignments'] });
     }
   });
 

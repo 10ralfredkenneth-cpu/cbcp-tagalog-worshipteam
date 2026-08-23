@@ -29,13 +29,30 @@ function UploadMediaPage() {
 
   const mutation = useMutation({
     mutationFn: createMediaItem,
+    onMutate: async (newItem: any) => {
+      await queryClient.cancelQueries({ queryKey: ['media-items'] });
+      const previousMedia = queryClient.getQueryData(['media-items']);
+      
+      const optimisticItem = {
+        id: crypto.randomUUID(),
+        ...newItem,
+        created_at: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(['media-items'], (old: any[]) => [optimisticItem, ...(old || [])]);
+      
+      return { previousMedia };
+    },
     onSuccess: () => {
       toast.success('Media uploaded successfully');
-      queryClient.invalidateQueries({ queryKey: ['media-items'] });
       navigate({ to: '/dashboard/media' });
     },
-    onError: (error) => {
-      toast.error('Failed to upload media: ' + (error as Error).message);
+    onError: (error: any, newItem, context: any) => {
+      queryClient.setQueryData(['media-items'], context.previousMedia);
+      toast.error('Failed to upload media: ' + error.message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['media-items'] });
     }
   });
 

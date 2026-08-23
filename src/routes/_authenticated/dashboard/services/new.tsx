@@ -49,14 +49,33 @@ function CreateServicePage() {
 
   const mutation = useMutation({
     mutationFn: createService,
+    onMutate: async (newService: Partial<WorshipSetlist>) => {
+      await queryClient.cancelQueries({ queryKey: ['services'] });
+      const previousServices = queryClient.getQueryData(['services']);
+      
+      const optimisticService = {
+        id: crypto.randomUUID(),
+        ...newService,
+        status: newService.status || 'Draft',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(['services'], (old: WorshipSetlist[]) => [optimisticService as WorshipSetlist, ...(old || [])]);
+      
+      return { previousServices };
+    },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['services'] });
       toast.success('Service created successfully');
       navigate({ to: '/dashboard/setlists' });
     },
-    onError: (error: any) => {
+    onError: (error: any, newService, context: any) => {
+      queryClient.setQueryData(['services'], context.previousServices);
       toast.error('Failed to create service: ' + error.message);
       setIsSaving(false);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
     }
   });
 
