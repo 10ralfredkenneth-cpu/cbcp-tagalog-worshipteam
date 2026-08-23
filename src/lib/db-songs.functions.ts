@@ -167,27 +167,35 @@ export async function restoreSongVersion(songId: string, version: Partial<SongVe
 export function enhanceChordParsing(text: string): string {
   if (!text) return '';
 
-  const chordPattern = '\\b([A-G][#b]?(m|min|maj|dim|aug|sus|add)?[0-9]*(/[A-G][#b]?)?)\\b';
+  const chordPattern = '\\b[A-G][#b]?(?:m|min|maj|dim|aug|sus|add|M|Δ)?[0-9]*(?:/[A-G][#b]?)?\\b';
   const chordRegex = new RegExp(chordPattern, 'g');
 
   return text.split('\n').map(line => {
     const trimmed = line.trim();
     if (!trimmed) return line;
 
-    const words = trimmed.split(/\s+/);
+    const words = trimmed.split(/\s+/).filter(w => w.length > 0);
     const chordMatches = trimmed.match(chordRegex);
     
     if (!chordMatches) return line;
 
-    const isChordLine = chordMatches.length / words.length > 0.5;
+    const chordWordCount = words.filter(word => {
+      const cleanWord = word.replace(/[.,]$/, '');
+      return new RegExp('^' + chordPattern + '$').test(cleanWord);
+    }).length;
+
+    const isChordLine = chordWordCount / words.length > 0.4 || (words.length <= 3 && chordWordCount >= 1);
 
     if (isChordLine) {
-      return line.split(/\s+/).map(word => {
-        if (new RegExp('^' + chordPattern + '$').test(word)) {
-          return `[${word}]`;
-        }
-        return word;
-      }).join(' ');
+      let result = line;
+      const sortedMatches = [...new Set(chordMatches)].sort((a, b) => b.length - a.length);
+      
+      for (const match of sortedMatches) {
+        const escapeMatch = match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const replaceRegex = new RegExp('(?<=^|\\s)' + escapeMatch + '(?=\\s|$|[.,])', 'g');
+        result = result.replace(replaceRegex, `[${match}]`);
+      }
+      return result;
     }
 
     return line;
