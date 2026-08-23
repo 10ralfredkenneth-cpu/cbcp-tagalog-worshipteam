@@ -30,8 +30,6 @@ import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardSongsRouteImport } from './routes/_authenticated/dashboard/songs'
 import { Route as AuthenticatedDashboardTeamRouteImport } from './routes/_authenticated/dashboard/team'
 import { Route as AuthenticatedDashboardUsersRouteImport } from './routes/_authenticated/dashboard/users'
-import { Route as AuthenticatedMediaUploadRouteImport } from './routes/_authenticated/media/upload'
-import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team/index'
 import { Route as PublicResourcesIdRouteImport } from './routes/_public/resources.$id'
 import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlists/index'
 import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/$id'
@@ -151,17 +149,6 @@ const AuthenticatedDashboardUsersRoute =
     path: '/users',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const AuthenticatedMediaUploadRoute =
-  AuthenticatedMediaUploadRouteImport.update({
-    id: '/media/upload',
-    path: '/media/upload',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedTeamIndexRoute = AuthenticatedTeamIndexRouteImport.update({
-  id: '/team/',
-  path: '/team/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const PublicResourcesIdRoute = PublicResourcesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -213,12 +200,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
   '/team/$id': typeof PublicTeamIdRoute
-  '/team/': typeof AuthenticatedTeamIndexRoute
   '/setlists/': typeof PublicSetlistsIndexRoute
   '/songs/': typeof PublicSongsIndexRoute
 }
@@ -230,7 +215,7 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/media': typeof PublicMediaRoute
   '/resources': typeof PublicResourcesRouteWithChildren
-  '/team': typeof AuthenticatedTeamIndexRoute
+  '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
   '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
   '/dashboard/media': typeof AuthenticatedDashboardMediaRoute
@@ -241,7 +226,6 @@ export interface FileRoutesByTo {
   '/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
   '/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
@@ -272,12 +256,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/songs': typeof AuthenticatedDashboardSongsRoute
   '/_authenticated/dashboard/team': typeof AuthenticatedDashboardTeamRoute
   '/_authenticated/dashboard/users': typeof AuthenticatedDashboardUsersRoute
-  '/_authenticated/media/upload': typeof AuthenticatedMediaUploadRoute
   '/_public/resources/$id': typeof PublicResourcesIdRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
   '/_public/team/$id': typeof PublicTeamIdRoute
-  '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_public/setlists/': typeof PublicSetlistsIndexRoute
   '/_public/songs/': typeof PublicSongsIndexRoute
 }
@@ -303,12 +285,10 @@ export interface FileRouteTypes {
     | '/dashboard/songs'
     | '/dashboard/team'
     | '/dashboard/users'
-    | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
     | '/songs/$id'
     | '/team/$id'
-    | '/team/'
     | '/setlists/'
     | '/songs/'
   fileRoutesByTo: FileRoutesByTo
@@ -331,7 +311,6 @@ export interface FileRouteTypes {
     | '/dashboard/songs'
     | '/dashboard/team'
     | '/dashboard/users'
-    | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
     | '/songs/$id'
@@ -361,12 +340,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/songs'
     | '/_authenticated/dashboard/team'
     | '/_authenticated/dashboard/users'
-    | '/_authenticated/media/upload'
     | '/_public/resources/$id'
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
     | '/_public/team/$id'
-    | '/_authenticated/team/'
     | '/_public/setlists/'
     | '/_public/songs/'
   fileRoutesById: FileRoutesById
@@ -526,20 +503,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardUsersRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/media/upload': {
-      id: '/_authenticated/media/upload'
-      path: '/media/upload'
-      fullPath: '/media/upload'
-      preLoaderRoute: typeof AuthenticatedMediaUploadRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/team/': {
-      id: '/_authenticated/team/'
-      path: '/team'
-      fullPath: '/team/'
-      preLoaderRoute: typeof AuthenticatedTeamIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_public/resources/$id': {
       id: '/_public/resources/$id'
       path: '/$id'
@@ -617,14 +580,10 @@ const AuthenticatedDashboardRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
-  AuthenticatedMediaUploadRoute: typeof AuthenticatedMediaUploadRoute
-  AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
-  AuthenticatedMediaUploadRoute: AuthenticatedMediaUploadRoute,
-  AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
