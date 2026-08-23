@@ -6,13 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Music, Hash, Type, Link2, Languages, Tags, BookOpen, Shield, Star, Info, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createSong } from '@/lib/db-songs.functions';
 import { toast } from 'sonner';
-import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from '@/types/songs';
+import { WorshipSong } from '@/types/songs';
 import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs/new')({
   component: AddSongPage,
@@ -23,6 +24,10 @@ function AddSongPage() {
   const queryClient = useQueryClient();
   const { loading, isPending } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+  const [tempId] = useState(() => crypto.randomUUID());
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+  const tempId = useMemo(() => crypto.randomUUID(), []);
   
   const [formData, setFormData] = useState<Partial<WorshipSong>>({
     title: '',
@@ -44,14 +49,33 @@ function AddSongPage() {
 
   const mutation = useMutation({
     mutationFn: createSong,
+    onMutate: async (newSong: Partial<WorshipSong>) => {
+      await queryClient.cancelQueries({ queryKey: ['songs'] });
+      const previousSongs = queryClient.getQueryData(['songs']);
+      
+      const optimisticSong = {
+        id: tempId,
+        ...newSong,
+        status: newSong.status || 'Active',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(['songs'], (old: WorshipSong[]) => [optimisticSong, ...(old || [])]);
+      
+      return { previousSongs };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
       toast.success('Song added to library');
       navigate({ to: '/dashboard/songs' });
     },
-    onError: (error: any) => {
+    onError: (error: any, newSong, context: any) => {
+      queryClient.setQueryData(['songs'], context.previousSongs);
       toast.error('Failed to save song: ' + error.message);
       setIsSaving(false);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
     }
   });
 
@@ -68,6 +92,39 @@ function AddSongPage() {
 
   const updateField = (field: keyof WorshipSong, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'audio' | 'sheet') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(type);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${tempId}-${type}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    try {
+      const { error } = await supabase.storage
+        .from('song-resources')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('song-resources')
+        .getPublicUrl(filePath);
+
+      if (type === 'audio') {
+        updateField('audioUrl' as any, publicUrl);
+      } else {
+        updateField('sheetMusicUrl' as any, publicUrl);
+      }
+      toast.success(`${type === 'audio' ? 'Audio' : 'Sheet music'} uploaded`);
+    } catch (error: any) {
+      toast.error('Upload failed: ' + error.message);
+    } finally {
+      setIsUploading(null);
+    }
   };
 
   if (loading || isPending) {
@@ -288,20 +345,88 @@ function AddSongPage() {
             
             <div className="space-y-4">
               <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Audio Recording</Label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    type="file" 
+                    accept="audio/*"
+                    className="hidden" 
+                    id="audio-upload"
+                    onChange={(e) => handleFileUpload(e, 'audio')}
+                  />
+                  <Button 
+                    asChild 
+                    variant="outline" 
+                    className="flex-1 rounded-none border-accent/10 text-[10px] uppercase tracking-widest font-bold"
+                  >
+                    <label htmlFor="audio-upload" className="cursor-pointer">
+                      {isUploading === 'audio' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                      Upload Audio
+                    </label>
+                  </Button>
+                  {(formData as any).audioUrl && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-none text-red-400" 
+                      onClick={() => updateField('audioUrl' as any, null)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+                {(formData as any).audioUrl && (
+                  <p className="text-[9px] text-accent flex items-center gap-1">
+                    <Music className="w-3 h-3" /> Audio attached
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sheet Music (PDF)</Label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    type="file" 
+                    accept=".pdf"
+                    className="hidden" 
+                    id="sheet-upload"
+                    onChange={(e) => handleFileUpload(e, 'sheet')}
+                  />
+                  <Button 
+                    asChild 
+                    variant="outline" 
+                    className="flex-1 rounded-none border-accent/10 text-[10px] uppercase tracking-widest font-bold"
+                  >
+                    <label htmlFor="sheet-upload" className="cursor-pointer">
+                      {isUploading === 'sheet' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                      Upload PDF
+                    </label>
+                  </Button>
+                  {(formData as any).sheetMusicUrl && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-none text-red-400" 
+                      onClick={() => updateField('sheetMusicUrl' as any, null)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+                {(formData as any).sheetMusicUrl && (
+                  <p className="text-[9px] text-accent flex items-center gap-1">
+                    <FileText className="w-3 h-3" /> PDF attached
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">CCLI Number</Label>
                 <Input 
                   placeholder="CCLI #" 
                   className="rounded-none border-accent/10 bg-background" 
-                  value={formData.ccliNumber}
+                  value={formData.ccliNumber || ''}
                   onChange={(e) => updateField('ccliNumber', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Copyright Info</Label>
-                <Textarea 
-                  placeholder="Licensing details..." 
-                  className="rounded-none border-accent/10 bg-background text-[11px]" 
-                  onChange={(e) => updateField('copyrightNotes', e.target.value)}
                 />
               </div>
             </div>
