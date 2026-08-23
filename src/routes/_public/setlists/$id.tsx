@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MOCK_SETLISTS, SETLIST_TEMPLATES } from '@/lib/mock-setlists';
 import { MOCK_SONGS } from '@/lib/mock-songs';
+import { MOCK_TEAM } from '@/lib/mock-team';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,11 +26,26 @@ import {
   AlertCircle,
   Maximize2,
   Mic2,
-  Headphones
+  Headphones,
+  Users,
+  MapPin,
+  Mail,
+  Phone,
+  Settings,
+  UserPlus
 } from 'lucide-react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { SetlistStatus, SetlistSong, ServiceItem, ServiceItemType } from '@/types/setlists';
+import { SetlistStatus, SetlistSong, ServiceItem, ServiceItemType, AssignmentStatus } from '@/types/setlists';
+import { TeamRole } from '@/types/team';
 import { cn } from '@/lib/utils';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute('/_public/setlists/$id')({
   component: SetlistDetailPage,
