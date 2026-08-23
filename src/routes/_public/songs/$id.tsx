@@ -353,13 +353,21 @@ function SongDetailPage() {
 
             <TabsContent value="lyrics" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="max-w-2xl mx-auto space-y-12 py-8">
-                {(initialSong.sections as any || []).map((section: any, idx: number) => (
-                  <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
-                ))}
-                {!initialSong.sections && (
-                  <p className="text-muted-foreground italic text-center py-12">
-                    Lyrics for this song are currently unavailable.
-                  </p>
+                {initialSong.lyrics ? (
+                  <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap text-foreground/80">
+                    {initialSong.lyrics}
+                  </div>
+                ) : (
+                  <>
+                    {(initialSong.sections as any || []).map((section: any, idx: number) => (
+                      <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
+                    ))}
+                    {!initialSong.sections?.length && (
+                      <p className="text-muted-foreground italic text-center py-12">
+                        Lyrics for this song are currently unavailable.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </TabsContent>
