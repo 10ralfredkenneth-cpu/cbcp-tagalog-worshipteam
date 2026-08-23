@@ -55,7 +55,7 @@ function SongDetailPage() {
   const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
   const [viewMode, setViewMode] = useState<ViewMode>('Standard');
   const [showChords, setShowChords] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(initialSong?.isFavorite || false);
+  const [isFavorite, setIsFavorite] = useState((initialSong as any)?.isFavorite || false);
 
   if (!initialSong) {
     return (
