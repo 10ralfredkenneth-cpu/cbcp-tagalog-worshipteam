@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
-export const Route = createFileRoute('/_authenticated/dashboard/activity/index')({
+export const Route = createFileRoute('/_authenticated/dashboard/activity')({
   component: ActivityLogPage,
 });
 
