@@ -308,43 +308,43 @@ export type Database = {
           call_time: string | null
           created_at: string | null
           id: string
-          member_id: string | null
           notes: string | null
           role: Database["public"]["Enums"]["app_role"] | null
           service_id: string | null
           status: Database["public"]["Enums"]["assignment_status"]
+          user_id: string | null
         }
         Insert: {
           call_time?: string | null
           created_at?: string | null
           id?: string
-          member_id?: string | null
           notes?: string | null
           role?: Database["public"]["Enums"]["app_role"] | null
           service_id?: string | null
           status?: Database["public"]["Enums"]["assignment_status"]
+          user_id?: string | null
         }
         Update: {
           call_time?: string | null
           created_at?: string | null
           id?: string
-          member_id?: string | null
           notes?: string | null
           role?: Database["public"]["Enums"]["app_role"] | null
           service_id?: string | null
           status?: Database["public"]["Enums"]["assignment_status"]
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "service_assignments_member_id_fkey"
-            columns: ["member_id"]
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profile_directory"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "service_assignments_member_id_fkey"
-            columns: ["member_id"]
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
