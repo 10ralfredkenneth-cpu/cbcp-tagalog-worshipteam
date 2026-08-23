@@ -50,7 +50,10 @@ function SongLibraryPage() {
 
   const allKeys = useMemo(() => {
     const keys = new Set<string>();
-    songs.forEach((song: any) => keys.add(song.default_key || song.defaultKey));
+    songs.forEach((song: any) => {
+      const key = song.defaultKey;
+      if (key) keys.add(key);
+    });
     return ['All', ...Array.from(keys).sort()];
   }, [songs]);
 
