@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { MOCK_SETLISTS, SETLIST_TEMPLATES } from '@/lib/mock-setlists';
 import { MOCK_SONGS } from '@/lib/mock-songs';
+import { MOCK_TEAM } from '@/lib/mock-team';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,11 +26,27 @@ import {
   AlertCircle,
   Maximize2,
   Mic2,
-  Headphones
+  Headphones,
+  Users,
+  MapPin,
+  Mail,
+  Phone,
+  Settings,
+  UserPlus,
+  ChevronRight
 } from 'lucide-react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { SetlistStatus, SetlistSong, ServiceItem, ServiceItemType } from '@/types/setlists';
+import { SetlistStatus, SetlistSong, ServiceItem, ServiceItemType, AssignmentStatus } from '@/types/setlists';
+import { TeamRole } from '@/types/team';
 import { cn } from '@/lib/utils';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute('/_public/setlists/$id')({
   component: SetlistDetailPage,
@@ -43,6 +60,8 @@ function SetlistDetailPage() {
   const [setlist, setSetlist] = useState(initialSetlist);
   const [viewMode, setViewMode] = useState<'Standard' | 'Rehearsal' | 'Musician' | 'Vocalist' | 'Presentation'>('Standard');
   const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<TeamRole | null>(null);
 
   if (!setlist) {
     return (
@@ -56,6 +75,7 @@ function SetlistDetailPage() {
   }
 
   const getSongById = (songId: string) => MOCK_SONGS.find(s => s.id === songId);
+  const getMemberById = (memberId: string) => MOCK_TEAM.find(m => m.id === memberId);
 
   const totalDuration = setlist.items.reduce((acc, item) => acc + (item.duration || 0), 0);
   const itemsWithNoDuration = setlist.items.filter(item => !item.duration).length;
@@ -351,23 +371,36 @@ function SetlistDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
-          {/* Order of Service / Timeline */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between border-b border-accent/10 pb-4 print:hidden">
-              <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Order of Service</h2>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => setViewMode('Rehearsal')}
-                  variant="outline" 
-                  className="bg-accent/5 text-accent border-accent/20 rounded-none text-[10px] font-bold tracking-widest uppercase hover:bg-accent hover:text-primary transition-all"
-                >
-                  <Play className="w-3 h-3 mr-2" /> Rehearsal Mode
-                </Button>
-                <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
-                  <Plus className="w-3 h-3 mr-2" /> Add Item
-                </Button>
-              </div>
-            </div>
+          <Tabs defaultValue="order" className="w-full">
+            <TabsList className="bg-transparent border-b border-accent/10 w-full justify-start rounded-none h-auto p-0 mb-8 space-x-8">
+              <TabsTrigger value="order" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Order of Service
+              </TabsTrigger>
+              <TabsTrigger value="team" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Team Roster
+              </TabsTrigger>
+              <TabsTrigger value="rehearsal" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Rehearsal & Setup
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="order" className="space-y-12 mt-0 focus-visible:outline-none">
+              <section className="space-y-6">
+                <div className="flex items-center justify-between border-b border-accent/10 pb-4 print:hidden">
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Service Timeline</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => setViewMode('Rehearsal')}
+                      variant="outline" 
+                      className="bg-accent/5 text-accent border-accent/20 rounded-none text-[10px] font-bold tracking-widest uppercase hover:bg-accent hover:text-primary transition-all"
+                    >
+                      <Play className="w-3 h-3 mr-2" /> Rehearsal Mode
+                    </Button>
+                    <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
+                      <Plus className="w-3 h-3 mr-2" /> Add Item
+                    </Button>
+                  </div>
+                </div>
 
             <div className="space-y-4">
               {timeline.map((item, idx) => {
@@ -478,7 +511,234 @@ function SetlistDetailPage() {
                 </div>
               ))}
             </div>
-          </section>
+            </section>
+          </TabsContent>
+            
+            <TabsContent value="team" className="space-y-12 mt-0 focus-visible:outline-none">
+              <section className="space-y-8">
+                <div className="flex items-center justify-between border-b border-accent/10 pb-4">
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Team Roster</h2>
+                  <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
+                        <UserPlus className="w-3 h-3 mr-2" /> Assign Member
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px] rounded-none border-accent/20 bg-background">
+                      <DialogHeader>
+                        <DialogTitle className="font-serif text-2xl">Assign Team Member</DialogTitle>
+                        <DialogDescription className="text-[10px] uppercase tracking-widest">
+                          Select a member and role for this service
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-6 space-y-6">
+                        <div className="space-y-4">
+                          <label className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase block">Select Role</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {(['Worship Leader', 'Vocalist', 'Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard', 'Drums', 'Sound Engineer'] as TeamRole[]).map(role => (
+                              <button
+                                key={role}
+                                onClick={() => setSelectedRole(role)}
+                                className={cn(
+                                  "text-[9px] font-bold tracking-widest uppercase px-3 py-2 border text-left transition-all",
+                                  selectedRole === role 
+                                    ? "bg-accent text-primary border-accent" 
+                                    : "bg-transparent border-accent/10 text-muted-foreground hover:border-accent/30"
+                                )}
+                              >
+                                {role}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {selectedRole && (
+                          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <label className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase block">Available Members</label>
+                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                              {MOCK_TEAM.filter(m => 
+                                m.primaryRole === selectedRole || 
+                                m.secondaryRoles.includes(selectedRole as any) ||
+                                m.skills.includes(selectedRole as any)
+                              ).map(member => {
+                                const isUnavailable = member.availability?.some(a => a.date === setlist.serviceDate && a.status === 'Unavailable');
+                                const isAlreadyAssigned = setlist.assignments.some(a => a.memberId === member.id);
+                                
+                                return (
+                                  <button
+                                    key={member.id}
+                                    disabled={isUnavailable || isAlreadyAssigned}
+                                    className={cn(
+                                      "w-full flex items-center justify-between p-3 border text-left transition-all group",
+                                      isUnavailable || isAlreadyAssigned 
+                                        ? "opacity-40 cursor-not-allowed border-transparent bg-muted/10" 
+                                        : "border-accent/5 bg-muted/20 hover:border-accent/20"
+                                    )}
+                                    onClick={() => {
+                                      alert(`Assigned ${member.fullName} as ${selectedRole}`);
+                                      setIsAssignDialogOpen(false);
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-full overflow-hidden border border-accent/20">
+                                        <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover" />
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-serif">{member.fullName}</p>
+                                        {isUnavailable && <p className="text-[8px] text-red-500 uppercase font-bold">Unavailable</p>}
+                                        {isAlreadyAssigned && <p className="text-[8px] text-accent uppercase font-bold">Already Assigned</p>}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {member.primaryRole === selectedRole && (
+                                        <Badge variant="outline" className="text-[7px] uppercase tracking-tighter border-accent/20 text-accent">Primary</Badge>
+                                      )}
+                                      <ChevronRight className="w-3 h-3 text-accent/30 group-hover:text-accent transition-colors" />
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Worship Leaders */}
+                  <div className="space-y-4">
+                    <h3 className="text-[9px] font-bold tracking-[0.2em] text-muted-foreground uppercase px-2">Worship Leaders</h3>
+                    <div className="space-y-2">
+                      {setlist.assignments
+                        .filter(a => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader')
+                        .map(assignment => {
+                          const member = getMemberById(assignment.memberId);
+                          return (
+                            <div key={assignment.id} className="group flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-accent/20">
+                                  <img src={member?.photoUrl} alt={member?.fullName} className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-serif">{member?.fullName}</p>
+                                  <p className="text-[9px] text-accent uppercase tracking-widest">{assignment.role}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className={cn(
+                                  "rounded-none text-[8px] uppercase tracking-widest",
+                                  assignment.status === 'Confirmed' ? "text-green-600 border-green-500/20 bg-green-500/5" : "text-amber-600 border-amber-500/20 bg-amber-500/5"
+                                )}>
+                                  {assignment.status}
+                                </Badge>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Settings className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      {setlist.assignments.filter(a => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader').length === 0 && (
+                        <p className="text-[10px] text-muted-foreground italic px-2">No leaders assigned</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Musicians */}
+                  <div className="space-y-4">
+                    <h3 className="text-[9px] font-bold tracking-[0.2em] text-muted-foreground uppercase px-2">Band</h3>
+                    <div className="space-y-2">
+                      {setlist.assignments
+                        .filter(a => ['Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard', 'Piano', 'Drums', 'Percussion'].includes(a.role))
+                        .map(assignment => {
+                          const member = getMemberById(assignment.memberId);
+                          return (
+                            <div key={assignment.id} className="group flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-accent/20">
+                                  <img src={member?.photoUrl} alt={member?.fullName} className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-serif">{member?.fullName}</p>
+                                  <p className="text-[9px] text-accent uppercase tracking-widest">{assignment.role}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className={cn(
+                                  "rounded-none text-[8px] uppercase tracking-widest",
+                                  assignment.status === 'Confirmed' ? "text-green-600 border-green-500/20 bg-green-500/5" : "text-amber-600 border-amber-500/20 bg-amber-500/5"
+                                )}>
+                                  {assignment.status}
+                                </Badge>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Settings className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </TabsContent>
+
+            <TabsContent value="rehearsal" className="space-y-12 mt-0 focus-visible:outline-none">
+              <section className="space-y-8">
+                <div className="flex items-center justify-between border-b border-accent/10 pb-4">
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Rehearsal & Call Times</h2>
+                  <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
+                    <Settings className="w-3 h-3 mr-2" /> Edit Times
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <div className="p-8 bg-primary/5 border border-accent/10">
+                      <h3 className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase mb-6">Rehearsal Details</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <Calendar className="w-4 h-4 text-accent/50" />
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Date</p>
+                            <p className="text-sm">{setlist.rehearsalDate ? new Date(setlist.rehearsalDate).toLocaleDateString() : 'TBD'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Clock className="w-4 h-4 text-accent/50" />
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Time</p>
+                            <p className="text-sm">{setlist.rehearsalTime || 'TBD'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <MapPin className="w-4 h-4 text-accent/50" />
+                          <div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Location</p>
+                            <p className="text-sm">{setlist.rehearsalLocation || 'TBD'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase px-2">Service Day Call Times</h3>
+                    <div className="space-y-2">
+                      {setlist.callTimes && Object.entries(setlist.callTimes).map(([role, time]) => (
+                        <div key={role} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
+                          <span className="text-[10px] font-bold uppercase tracking-widest">{role}</span>
+                          <span className="text-sm font-serif text-accent">{time}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Sidebar: Service Info & Notes */}

@@ -1,8 +1,20 @@
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { MOCK_TEAM } from '@/lib/mock-team';
-import { TeamMemberStatus } from '@/types/team';
-import { LayoutGrid, List, Search } from 'lucide-react';
+import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { TeamRole, TeamMemberStatus } from '@/types/team';
+import { 
+  LayoutGrid, 
+  List, 
+  Search, 
+  Filter, 
+  ChevronRight, 
+  Mic2, 
+  Music, 
+  Headphones, 
+  Plus,
+  Calendar
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_public/team')({
   component: TeamDirectoryLayout,
@@ -48,90 +61,103 @@ function TeamDirectoryLayout() {
     }
   };
 
+  const getUpcomingAssignmentsCount = (memberId: string) => {
+    return MOCK_SETLISTS.reduce((count, service) => {
+      const isAssigned = service.assignments?.some(a => a.memberId === memberId);
+      return isAssigned ? count + 1 : count;
+    }, 0);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <section className="pt-32 pb-16 px-6 border-b border-muted/20">
-        <div className="mx-auto max-w-7xl">
+    <div className="container mx-auto px-6 py-20 animate-in fade-in duration-700">
+      <div className="max-w-7xl mx-auto space-y-16">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
-            <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Ministry Members</span>
-            <h1 className="text-5xl md:text-6xl font-serif text-primary leading-tight">Worship Team</h1>
-            <p className="max-w-2xl text-lg text-muted-foreground leading-relaxed italic">
-              Serving together with humility, faithfulness, and excellence for the glory of God.
+            <Badge variant="outline" className="rounded-none uppercase text-[10px] tracking-widest border-accent/20 text-accent">
+              Ministry Personnel
+            </Badge>
+            <h1 className="font-serif text-5xl lg:text-7xl text-foreground">Worship Team</h1>
+            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
+              Directory of those serving in the house of the Lord
             </p>
           </div>
-        </div>
-      </section>
+          <div className="flex gap-3">
+            <Button asChild variant="outline" className="rounded-none h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase border-accent/20 hover:bg-accent hover:text-primary transition-all">
+              <Link to="/team">
+                <Plus className="w-3 h-3 mr-2" /> Add Member
+              </Link>
+            </Button>
+          </div>
+        </header>
 
-      {/* Toolbar */}
-      <div className="sticky top-20 z-30 bg-background/80 backdrop-blur-md border-b border-muted/20 py-4 px-6">
-        <div className="mx-auto max-w-7xl flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-1 items-center gap-4 w-full md:w-auto">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search by name or role..." 
-                className="pl-10 h-10 border-muted focus-visible:ring-accent"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pb-12 border-b border-accent/10">
+          <div className="md:col-span-5 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search by name or role..." 
+              className="pl-12 h-14 bg-muted/20 border-accent/10 rounded-none focus-visible:ring-accent"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className="md:col-span-3">
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[180px] h-10 border-muted">
+              <SelectTrigger className="h-14 bg-muted/20 border-accent/10 rounded-none focus:ring-accent uppercase text-[10px] tracking-widest font-bold">
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
+              <SelectContent className="rounded-none border-accent/10">
+                <SelectItem value="all" className="uppercase text-[10px] tracking-widest">All Roles</SelectItem>
                 {roles.map(role => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] h-10 border-muted">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                {statuses.map(status => (
-                  <SelectItem key={status} value={status}>{status}</SelectItem>
+                  <SelectItem key={role} value={role} className="uppercase text-[10px] tracking-widest">{role}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center gap-2 border-l border-muted/20 pl-4 h-10">
+          <div className="md:col-span-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-14 bg-muted/20 border-accent/10 rounded-none focus:ring-accent uppercase text-[10px] tracking-widest font-bold">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-none border-accent/10">
+                <SelectItem value="all" className="uppercase text-[10px] tracking-widest">All Status</SelectItem>
+                {statuses.map(status => (
+                  <SelectItem key={status} value={status} className="uppercase text-[10px] tracking-widest">{status}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-2 flex justify-end gap-2">
             <Button 
-              variant={viewMode === 'grid' ? 'accent' : 'ghost'} 
+              variant="outline" 
               size="icon" 
-              className="h-8 w-8"
+              className={cn("h-14 w-14 rounded-none border-accent/10 transition-all", viewMode === 'grid' ? "bg-accent text-primary" : "text-accent")}
               onClick={() => setViewMode('grid')}
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="w-4 h-4" />
             </Button>
             <Button 
-              variant={viewMode === 'list' ? 'accent' : 'ghost'} 
+              variant="outline" 
               size="icon" 
-              className="h-8 w-8"
+              className={cn("h-14 w-14 rounded-none border-accent/10 transition-all", viewMode === 'list' ? "bg-accent text-primary" : "text-accent")}
               onClick={() => setViewMode('list')}
             >
-              <List className="h-4 w-4" />
+              <List className="w-4 h-4" />
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Directory Content */}
-      <main className="py-16 px-6">
-        <div className="mx-auto max-w-7xl">
+        {/* Results */}
+        <div>
           {filteredMembers.length === 0 ? (
-            <div className="text-center py-20 border-2 border-dashed border-muted rounded-lg">
-              <p className="text-muted-foreground font-serif text-xl">No team members found matching your criteria.</p>
+            <div className="text-center py-20 bg-muted/10 border border-dashed border-accent/10">
+              <p className="font-serif italic text-muted-foreground text-xl">No team members match your filters.</p>
               <Button 
                 variant="link" 
-                className="text-accent mt-2"
+                className="mt-4 text-accent uppercase tracking-widest text-[10px] font-bold"
                 onClick={() => {
                   setSearchQuery('');
                   setRoleFilter('all');
@@ -157,75 +183,68 @@ function TeamDirectoryLayout() {
                       className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                     />
                     <div className="absolute top-4 right-4">
-                      <Badge className={`${getStatusColor(member.status)} border backdrop-blur-sm shadow-sm`}>
+                      <Badge className={cn(getStatusColor(member.status), "border backdrop-blur-sm shadow-sm rounded-none text-[8px] uppercase tracking-widest")}>
                         {member.status}
                       </Badge>
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-serif text-primary group-hover:text-accent transition-colors">
-                      {member.fullName}
-                    </h3>
-                    <p className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase">
-                      {member.primaryRole}
-                    </p>
-                    {member.instrument && (
-                      <p className="text-xs text-muted-foreground italic">
-                        {member.instrument}
-                      </p>
-                    )}
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors">{member.fullName}</h3>
+                      <p className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase">{member.primaryRole}</p>
+                    </div>
+                    <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-muted-foreground border-t border-accent/5 pt-4">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3 h-3 text-accent/40" />
+                        <span>{getUpcomingAssignmentsCount(member.id)} Upcoming</span>
+                      </div>
+                      <span className="text-accent/60 group-hover:text-accent transition-colors flex items-center gap-1 font-bold">
+                        View Profile <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="border border-muted/20 rounded-lg overflow-hidden">
-              <table className="w-full text-left">
-                <thead className="bg-muted/30 border-b border-muted/20">
-                  <tr>
-                    <th className="px-6 py-4 text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Member</th>
-                    <th className="px-6 py-4 text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Primary Role</th>
-                    <th className="px-6 py-4 text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Instrument/Voice</th>
-                    <th className="px-6 py-4 text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Status</th>
-                    <th className="px-6 py-4 text-[10px] font-bold tracking-[0.2em] text-primary uppercase text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-muted/10">
-                  {filteredMembers.map(member => (
-                    <tr key={member.id} className="hover:bg-muted/5 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 overflow-hidden bg-muted rounded-full">
-                            <img src={member.photoUrl} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0" />
-                          </div>
-                          <span className="font-serif text-primary font-medium">{member.fullName}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{member.primaryRole}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{member.instrument || member.vocalRange || '-'}</td>
-                      <td className="px-6 py-4">
-                        <Badge variant="outline" className={`${getStatusColor(member.status)} border-none`}>
-                          {member.status}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link 
-                          to="/team/$id" 
-                          params={{ id: member.id }}
-                          className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase hover:underline"
-                        >
-                          View Profile
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              {filteredMembers.map(member => (
+                <Link 
+                  key={member.id} 
+                  to="/team/$id" 
+                  params={{ id: member.id }}
+                  className="group flex flex-col sm:flex-row sm:items-center gap-6 p-6 bg-muted/20 border border-accent/5 hover:border-accent/10 transition-all"
+                >
+                  <div className="h-16 w-16 overflow-hidden bg-muted flex-shrink-0">
+                    <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors truncate">{member.fullName}</h3>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-1">
+                      <span className="text-[10px] font-bold tracking-widest text-accent uppercase">{member.primaryRole}</span>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{member.email}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-8">
+                    <div className="text-right hidden md:block">
+                      <p className="text-[9px] font-bold text-accent uppercase tracking-widest">{getUpcomingAssignmentsCount(member.id)} Upcoming</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Services Scheduled</p>
+                    </div>
+                    <Badge className={cn(getStatusColor(member.status), "rounded-none text-[8px] uppercase tracking-widest")}>
+                      {member.status}
+                    </Badge>
+                    <ChevronRight className="w-5 h-5 text-accent/20 group-hover:text-accent transition-colors" />
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </div>
-      </main>
-      <Outlet />
+      </div>
+      
+      <div className="mt-20 print:hidden">
+        <Outlet />
+      </div>
     </div>
   );
 }
