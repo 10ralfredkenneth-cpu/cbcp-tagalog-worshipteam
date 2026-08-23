@@ -505,6 +505,50 @@ export type Database = {
           },
         ]
       }
+      song_versions: {
+        Row: {
+          chords: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          lyrics: string | null
+          metadata: Json | null
+          song_id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          chords?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lyrics?: string | null
+          metadata?: Json | null
+          song_id: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          chords?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lyrics?: string | null
+          metadata?: Json | null
+          song_id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "song_versions_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       songs: {
         Row: {
           artist: string
