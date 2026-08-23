@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export function ScriptureBlock({
   verse,
   reference,
