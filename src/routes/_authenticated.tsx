@@ -21,7 +21,8 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 function AuthenticatedLayout() {
-  const { loading } = useAuth();
+  const { loading, isPending } = useAuth();
+  const location = window.location.pathname;
 
   if (loading) {
     return (
@@ -30,6 +31,14 @@ function AuthenticatedLayout() {
       </div>
     );
   }
+
+  // Redirect pending users to awaiting-approval if they are not already there
+  if (isPending && location !== '/awaiting-approval') {
+    return redirect({ to: '/awaiting-approval' }) as any;
+  }
+
+  // If active user is on awaiting-approval, let them through (the component handles its own redirect)
+
 
   return (
     <div className="flex min-h-screen bg-background">
