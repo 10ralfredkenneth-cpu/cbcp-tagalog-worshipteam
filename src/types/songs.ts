@@ -1,6 +1,7 @@
-export type SongStatus = 'Active' | 'Learning' | 'Archived';
-export type SongType = 'Opening' | 'Praise' | 'Worship' | 'Response' | 'Communion' | 'Offering' | 'Closing';
+export type SongStatus = 'Active' | 'Learning' | 'Inactive' | 'Archived';
+export type SongType = 'Opening' | 'Praise' | 'Worship' | 'Response' | 'Communion' | 'Offering' | 'Closing' | 'Special Number';
 export type SongLanguage = 'English' | 'Filipino/Tagalog' | 'Cebuano/Bisaya' | 'Other';
+export type SongVisibility = 'Public' | 'Team Only' | 'Private';
 
 export interface ChordLine {
   type: 'chords' | 'lyrics' | 'both';
@@ -31,6 +32,12 @@ export interface WorshipSong {
   scriptureReferences: (ScriptureReference | string)[];
   songType: SongType;
   status: SongStatus;
+  visibility: SongVisibility;
+  isPublic: boolean;
+  featured: boolean;
+  lyrics?: string;
+  chords?: string;
+  copyrightNotes?: string;
   artworkUrl?: string;
   sections?: SongSection[];
   flow?: string[];

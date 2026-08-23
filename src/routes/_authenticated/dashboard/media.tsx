@@ -1,53 +1,37 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { 
-  FileVideo, 
-  Search, 
-  Plus, 
-  Filter, 
-  MoreVertical,
-  Edit,
-  Archive,
-  Eye,
-  Settings,
-  ArrowRight
-} from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { getMediaItems } from '@/lib/db-resources.functions';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useQuery } from '@tanstack/react-query';
-import { getMedia } from '@/lib/db-resources.functions';
-import { toast } from 'sonner';
+  Play, 
+  Image as ImageIcon, 
+  FileText, 
+  Download, 
+  Search, 
+  Filter, 
+  Plus, 
+  MoreHorizontal,
+  FolderOpen
+} from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authenticated/dashboard/media')({
-  component: MediaManagementPage,
+  component: MediaLibraryPage,
 });
 
-function MediaManagementPage() {
-  const { data: media = [], isLoading } = useQuery({
-    queryKey: ['media'],
-    queryFn: getMedia,
+function MediaLibraryPage() {
+  const { data: mediaItems = [], isLoading } = useQuery({
+    queryKey: ['media-items'],
+    queryFn: () => getMediaItems(),
   });
 
-  const handleArchive = (id: string) => {
-    toast.success('Media archived', {
-      description: `Media item ${id} moved to archive.`
-    });
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'Video': return <Play className="w-5 h-5" />;
+      case 'Photo': return <ImageIcon className="w-5 h-5" />;
+      default: return <FileText className="w-5 h-5" />;
+    }
   };
 
   return (
@@ -55,124 +39,105 @@ function MediaManagementPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-4">
           <Badge variant="outline" className="rounded-none uppercase text-[10px] tracking-widest border-accent/20 text-accent">
-            Media & Storage
+            Digital Assets
           </Badge>
-          <h1 className="font-serif text-5xl text-foreground">Media Management</h1>
+          <h1 className="font-serif text-5xl text-foreground">Media Library</h1>
           <p className="text-muted-foreground text-sm max-w-2xl">
-            Manage media assets, update metadata, and organize ministry collections.
+            Central repository for worship backgrounds, sermon recordings, song demos, and ministry documentation.
           </p>
         </div>
-        <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Link to="/dashboard/media">
-            <Plus className="w-4 h-4 mr-2" /> Upload New Media
-          </Link>
-        </Button>
+        <div className="flex gap-4">
+          <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
+            <FolderOpen className="w-4 h-4 mr-2" /> Albums
+          </Button>
+          <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+            <Link to="/dashboard/media/new">
+              <Plus className="w-4 h-4 mr-2" /> Upload Media
+            </Link>
+          </Button>
+        </div>
       </header>
 
-      {/* Controls */}
-      <div className="flex flex-col md:flex-row gap-4 bg-muted/20 p-6 border border-accent/5">
-        <div className="flex-1 relative">
+      {/* Filter Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-muted/20 border border-accent/5">
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search media by title or tags..." 
-            className="pl-10 rounded-none border-accent/10 focus-visible:ring-accent bg-background text-[11px] uppercase tracking-wider"
+          <input 
+            type="text" 
+            placeholder="SEARCH ASSETS..." 
+            className="w-full bg-background border border-accent/10 py-2 pl-10 pr-4 text-[10px] uppercase tracking-widest focus:outline-none focus:border-accent/30"
           />
         </div>
-        <div className="flex gap-4">
-          <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
-            <Filter className="w-3 h-3 mr-2" /> Filters
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <select className="bg-background border border-accent/10 py-2 px-4 text-[10px] uppercase tracking-widest focus:outline-none w-full md:w-40">
+            <option>All Types</option>
+            <option>Video</option>
+            <option>Photo</option>
+            <option>Audio</option>
+            <option>Document</option>
+          </select>
+          <Button variant="outline" size="icon" className="h-10 w-10 border-accent/10 rounded-none shrink-0">
+            <Filter className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* Media Table */}
-      <div className="border border-accent/5 bg-background overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-accent/5">
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Media Asset</TableHead>
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 text-center">Type</TableHead>
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Visibility</TableHead>
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Uploaded</TableHead>
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
-                  Loading media...
-                </TableCell>
-              </TableRow>
-            ) : media.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
-                  No media found.
-                </TableCell>
-              </TableRow>
-            ) : media.map((item: any) => (
-              <TableRow key={item.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
-                <TableCell className="py-6 px-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-accent/5 flex items-center justify-center border border-accent/10 overflow-hidden">
-                      {item.thumbnailUrl ? (
-                        <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <FileVideo className="w-4 h-4 text-accent/40" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg leading-tight">{item.title}</h3>
-                      <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{item.category}</p>
-                    </div>
+      {isLoading ? (
+        <div className="p-24 text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-accent animate-pulse">Loading Library...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {mediaItems.map((item: any) => (
+            <div key={item.id} className="group bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex flex-col">
+              <div className="aspect-video relative overflow-hidden bg-muted/20">
+                {item.thumbnail_url ? (
+                  <img 
+                    src={item.thumbnail_url} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-accent/20">
+                    {getIcon(item.media_type)}
                   </div>
-                </TableCell>
-                <TableCell className="py-6 px-6 text-center">
-                   <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest border-accent/10">
-                     {item.mediaType}
-                   </Badge>
-                </TableCell>
-                <TableCell className="py-6 px-6">
-                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-accent">
-                    <Settings className="w-3 h-3" /> {item.visibility}
-                  </div>
-                </TableCell>
-                <TableCell className="py-6 px-6 text-[9px] uppercase tracking-widest text-muted-foreground">
-                  {new Date(item.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell className="py-6 px-6 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-accent/40 hover:text-accent rounded-none">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-accent/10 bg-primary text-primary-foreground">
-                      <DropdownMenuLabel className="text-[9px] uppercase tracking-widest text-accent/50 font-bold">Options</DropdownMenuLabel>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Eye className="w-3 h-3 mr-2" /> View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/dashboard/media">
-                          <Edit className="w-3 h-3 mr-2" /> Edit Metadata
-                        </Link>
-                      </DropdownMenuItem>
+                )}
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-background/80 text-foreground border-none rounded-none text-[8px] uppercase backdrop-blur-sm">
+                    {item.media_type}
+                  </Badge>
+                </div>
+                <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                  <Button variant="outline" size="icon" className="rounded-full border-white text-white hover:bg-white/20 h-10 w-10">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-full border-white text-white hover:bg-white/20 h-10 w-10">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[8px] uppercase tracking-widest text-accent font-bold">{item.category}</span>
+                  <span className="text-[8px] text-muted-foreground uppercase">{item.file_size || 'N/A'}</span>
+                </div>
+                <h3 className="font-serif text-xl group-hover:text-accent transition-colors">{item.title}</h3>
+                <p className="text-[10px] text-muted-foreground line-clamp-2 italic leading-relaxed">
+                  {item.description || 'No description provided.'}
+                </p>
+              </div>
+            </div>
+          ))}
 
-                      <DropdownMenuSeparator className="bg-accent/10" />
-                      <DropdownMenuItem 
-                        onClick={() => handleArchive(item.id)}
-                        className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
-                      >
-                        <Archive className="w-3 h-3 mr-2" /> Archive Media
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          {mediaItems.length === 0 && (
+            <div className="col-span-full p-24 text-center border border-dashed border-accent/10">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground italic">
+                Your media library is currently empty.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

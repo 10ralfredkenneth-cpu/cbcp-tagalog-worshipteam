@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from "@/lib/utils";
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/schedule')({
@@ -28,7 +28,7 @@ function ScheduleManagementPage() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const { data: team = [] } = useQuery({
@@ -190,7 +190,17 @@ function ScheduleManagementPage() {
                     No service scheduled
                   </div>
                 )}
+                {service && (
+                  <div className="mt-2">
+                    <Button asChild variant="link" className="h-auto p-0 text-[7px] text-accent uppercase tracking-widest font-bold">
+                      <Link to="/dashboard/schedule/$id" params={{ id: service.assignments?.[0]?.id || '' }}>
+                        Manage Team
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
+
             );
           })}
 
