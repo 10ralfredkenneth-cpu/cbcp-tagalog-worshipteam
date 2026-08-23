@@ -11,10 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, X } from 'lucide-react';
-import { TeamRole, TeamMemberStatus, TeamSkill } from '@/types/team';
+import { ArrowLeft, Save } from 'lucide-react';
+import { TeamRole, TeamMemberStatus } from '@/types/team';
 
-export const Route = createFileRoute('/_authenticated/team/')({
+export const Route = createFileRoute('/_authenticated/team/add')({
   component: AddTeamMemberPage,
 });
 
@@ -24,12 +24,6 @@ const ROLES: TeamRole[] = [
   'Keyboard', 'Piano', 'Drums', 'Percussion', 
   'Sound Engineer', 'Multimedia', 'Livestream', 
   'Stage Manager', 'Technical Team'
-];
-
-const SKILLS: TeamSkill[] = [
-  'Lead Vocal', 'Backing Vocal', 'Soprano', 'Alto', 'Tenor',
-  'Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard',
-  'Drums', 'Sound', 'Multimedia'
 ];
 
 function AddTeamMemberPage() {
@@ -50,7 +44,6 @@ function AddTeamMemberPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Saving member:', formData);
-    // In a real app, this would be a server action/mutation
     navigate({ to: '/team' });
   };
 
@@ -90,7 +83,6 @@ function AddTeamMemberPage() {
                 <Label htmlFor="photoUrl" className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Photo URL</Label>
                 <Input 
                   id="photoUrl" 
-                  placeholder="https://images.unsplash.com/..." 
                   className="border-muted bg-background"
                   value={formData.photoUrl}
                   onChange={(e) => setFormData({...formData, photoUrl: e.target.value})}
@@ -145,32 +137,9 @@ function AddTeamMemberPage() {
                 <Label htmlFor="vocalRange" className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Vocal Range</Label>
                 <Input 
                   id="vocalRange" 
-                  placeholder="e.g. Soprano, Alto" 
                   className="border-muted bg-background"
                   value={formData.vocalRange}
                   onChange={(e) => setFormData({...formData, vocalRange: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Private Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  className="border-muted bg-background"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dateJoined" className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Date Joined</Label>
-                <Input 
-                  id="dateJoined" 
-                  type="date" 
-                  className="border-muted bg-background"
-                  value={formData.dateJoined}
-                  onChange={(e) => setFormData({...formData, dateJoined: e.target.value})}
                 />
               </div>
             </div>
@@ -190,14 +159,6 @@ function AddTeamMemberPage() {
               <Button type="submit" variant="accent" className="h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase">
                 <Save className="h-4 w-4 mr-2" />
                 Save Profile
-              </Button>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                onClick={() => navigate({ to: '/team' })}
-                className="h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase"
-              >
-                Cancel
               </Button>
             </div>
           </form>
