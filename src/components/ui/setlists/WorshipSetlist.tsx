@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { getServices } from "@/lib/db-services";
-import { getSongsPublic } from "@/lib/db-public.functions";
+import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
+import { useMemo } from "react";
 
 export function WorshipSetlist() {
   const { data: services = [] } = useQuery({
