@@ -46,7 +46,6 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     language: song.language || 'English',
     song_type: song.songType || 'Worship',
     status: song.status || 'Active',
-    visibility: song.visibility || 'Public',
     is_public: song.visibility === 'Public',
     featured: song.featured || false,
     themes: song.themes || null,
@@ -82,7 +81,6 @@ export async function updateSong(input: { data: { id: string; song: Partial<Wors
   if (song.songType !== undefined) updateData.song_type = song.songType;
   if (song.status !== undefined) updateData.status = song.status;
   if (song.visibility !== undefined) {
-    updateData.visibility = song.visibility;
     updateData.is_public = song.visibility === 'Public';
   }
   if (song.featured !== undefined) updateData.featured = song.featured;
