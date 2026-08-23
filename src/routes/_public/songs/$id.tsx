@@ -36,6 +36,7 @@ function SongDetailPage() {
     queryFn: getSongsPublic,
   });
 
+  const { id } = Route.useParams();
   const initialSong = songs.find((s: any) => s.id === (id as string));
   
   const [currentKey, setCurrentKey] = useState(initialSong?.default_key || initialSong?.defaultKey || 'C');

@@ -170,7 +170,7 @@ function TeamManagementPage() {
                 </TableCell>
                 <TableCell className="py-6 px-6 max-w-[200px]">
                   <div className="flex flex-wrap gap-1">
-                    {(member.skills || []).slice(0, 2).map(skill => (
+                    {(member.skills || []).slice(0, 2).map((skill: any) => (
                       <Badge key={skill} variant="outline" className="rounded-none text-[7px] uppercase tracking-tighter border-accent/10 text-muted-foreground">
                         {skill}
                       </Badge>

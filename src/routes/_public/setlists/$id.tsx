@@ -132,7 +132,7 @@ function SetlistDetailPage() {
   };
 
   const removeItem = (id: string) => {
-    const newItems = setlist.items.filter(item => item.id !== id).map((item, idx) => ({ ...item, order: idx + 1 }));
+    const newItems = (setlist.items || []).filter((item: any) => item.id !== id).map((item: any, idx: number) => ({ ...item, order: idx + 1 }));
     setSetlist({ ...setlist, items: newItems });
   };
 

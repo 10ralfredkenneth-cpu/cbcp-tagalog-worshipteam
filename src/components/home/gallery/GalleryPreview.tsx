@@ -10,7 +10,7 @@ export function GalleryPreview() {
   });
 
   const displayMedia = useMemo(() => {
-    const photos = media.filter((m: any) => m.media_type === 'Photo' || m.mediaType === 'Photo');
+    const photos = (media || []).filter((m: any) => m.media_type === 'Photo' || m.mediaType === 'Photo');
     const featured = photos.filter((m: any) => m.featured);
     const base = featured.length >= 4 ? featured : photos;
     return base.slice(0, 4);
