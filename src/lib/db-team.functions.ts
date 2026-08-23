@@ -45,10 +45,10 @@ export const createMember = createServerFn({ method: "POST" })
       id: data.id,
       full_name: data.full_name,
       email: data.email,
-      primary_role: data.primary_role,
-      bio: data.bio,
-      avatar_url: data.avatar_url,
-      status: data.status as any,
+      primary_role: data.primary_role ?? null,
+      bio: data.bio ?? null,
+      avatar_url: data.avatar_url ?? null,
+      status: (data.status as any) ?? null,
     };
 
     const { data: member, error } = await supabase
@@ -100,9 +100,9 @@ export const createAssignment = createServerFn({ method: "POST" })
     const insertData: AssignmentInsert = {
       service_id: data.service_id,
       member_id: data.member_id,
-      role: data.role as any,
-      status: data.status as any,
-      notes: data.notes,
+      role: (data.role as any) ?? null,
+      status: (data.status as any) ?? 'Pending',
+      notes: data.notes ?? null,
     };
 
     const { data: assignment, error } = await supabase
