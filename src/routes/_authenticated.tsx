@@ -48,8 +48,14 @@ function AuthenticatedLayout() {
   return (
     <div className="flex min-h-screen bg-background">
       {location.pathname !== '/awaiting-approval' && <AdminSidebar />}
-      <main className={`flex-1 ${location.pathname !== '/awaiting-approval' ? 'lg:pl-64' : ''} transition-all duration-500`}>
-        <div className={`min-h-screen ${location.pathname !== '/awaiting-approval' ? 'pt-20 lg:pt-0' : ''}`}>
+      <main className={cn(
+        "flex-1 transition-all duration-500",
+        location.pathname !== '/awaiting-approval' ? "lg:pl-64" : ""
+      )}>
+        <div className={cn(
+          "min-h-screen",
+          location.pathname !== '/awaiting-approval' ? "pt-20 lg:pt-0" : ""
+        )}>
           <Outlet />
         </div>
       </main>
