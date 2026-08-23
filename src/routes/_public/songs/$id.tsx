@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +7,13 @@ import {
   Music, FileText, Star, Printer, Layout, 
   Minus, Plus, ChevronUp, ChevronDown, Share2, 
   Split, Maximize2, Hash, ArrowLeft,
-  Volume2, Play, Pause, Settings, RefreshCw
+  Volume2, Play, Pause, Settings, RefreshCw,
+  Clock, Repeat
 } from 'lucide-react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { KEYS, transposeChord, getSemitoneDifference, chordToNumber } from '@/utils/transposition';
 import { WorshipSong } from '@/types/songs';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_public/songs/$id')({
   head: () => ({
@@ -33,34 +35,63 @@ function SongDetailPage() {
   const rawSong = (songs || []).find((s: any) => s.id === (id as string));
   const song = useMemo(() => rawSong as unknown as WorshipSong, [rawSong]);
   
-  const [currentKey, setCurrentKey] = useState(song?.defaultKey || 'C');
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  
+  const [currentKey, setCurrentKey] = useState(searchParams.get('key') || song?.defaultKey || 'C');
   const [showChords, setShowChords] = useState(() => {
+    const fromUrl = searchParams.get('chords');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-showChords-${id}`);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [showLyrics, setShowLyrics] = useState(() => {
+    const fromUrl = searchParams.get('lyrics');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-showLyrics-${id}`);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [numberNotation, setNumberNotation] = useState(false);
   const [isSplit, setIsSplit] = useState(() => {
+    const fromUrl = searchParams.get('split');
+    if (fromUrl !== null) return fromUrl === 'true';
     const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
     return saved !== null ? JSON.parse(saved) : false;
   });
   const [fontSize, setFontSize] = useState(16);
   const [chordColor, setChordColor] = useState(() => {
+    const fromUrl = searchParams.get('color');
+    if (fromUrl !== null) return `text-${fromUrl}`;
     return localStorage.getItem(`song-pref-chordColor-${id}`) || 'text-accent';
   });
   
   // Metronome state
   const [metronomePlaying, setMetronomePlaying] = useState(false);
-  const [bpm, setBpm] = useState(song?.bpm || 72);
-  const [metronomeVolume, setMetronomeVolume] = useState(0.5);
-  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>('beep');
+  const [isCountingIn, setIsCountingIn] = useState(false);
+  const [countInBeats, setCountInBeats] = useState(4);
+  const [currentCount, setCurrentCount] = useState(0);
+  const [bpm, setBpm] = useState(() => {
+    const fromUrl = searchParams.get('bpm');
+    return fromUrl ? parseInt(fromUrl) : (song?.bpm || 72);
+  });
+  const [metronomeVolume, setMetronomeVolume] = useState(() => {
+    return song?.externalResources?.metronomeDefaultVolume ?? 0.5;
+  });
+  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>(() => {
+    const fromUrl = searchParams.get('sound');
+    if (fromUrl === 'beep' || fromUrl === 'woodblock' || fromUrl === 'click') return fromUrl;
+    return song?.externalResources?.metronomeDefaultSound ?? 'beep';
+  });
   const [autoScroll, setAutoScroll] = useState(false);
+  const [latency, setLatency] = useState(0); // in ms
+  const [loopMode, setLoopMode] = useState(false);
+  const [loopStart, setLoopStart] = useState<number | null>(null);
+  const [loopEnd, setLoopEnd] = useState<number | null>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const nextTickTimeRef = useRef<number>(0);
+  const beatCountRef = useRef<number>(0);
+
 
   // Persistence effects
   useEffect(() => {
@@ -103,7 +134,7 @@ function SongDetailPage() {
     if (song?.bpm) setBpm(song.bpm);
   }, [song?.bpm]);
 
-  const playClick = () => {
+  const playClick = useCallback((time: number, isAccent: boolean = false) => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -111,47 +142,127 @@ function SongDetailPage() {
     const envelope = audioCtxRef.current.createGain();
 
     if (metronomeSound === 'beep') {
-      osc.frequency.value = 880;
+      osc.frequency.value = isAccent ? 880 : 440;
     } else if (metronomeSound === 'woodblock') {
-      osc.frequency.value = 600;
+      osc.frequency.value = isAccent ? 600 : 300;
     } else {
-      osc.frequency.value = 1200;
+      osc.frequency.value = isAccent ? 1200 : 600;
     }
     
     envelope.gain.value = metronomeVolume;
-    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, audioCtxRef.current.currentTime + 0.001);
-    envelope.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, time + 0.001);
+    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
 
     osc.connect(envelope);
     envelope.connect(audioCtxRef.current.destination);
 
-    osc.start(audioCtxRef.current.currentTime);
-    osc.stop(audioCtxRef.current.currentTime + 0.03);
-  };
+    osc.start(time);
+    osc.stop(time + 0.03);
+  }, [metronomeSound, metronomeVolume]);
+
+  const scheduler = useCallback(() => {
+    if (!audioCtxRef.current) return;
+    
+    while (nextTickTimeRef.current < audioCtxRef.current.currentTime + 0.1) {
+      const time = nextTickTimeRef.current;
+      
+      if (isCountingIn) {
+        if (beatCountRef.current < countInBeats) {
+          playClick(time, beatCountRef.current === 0);
+          const nextBeat = beatCountRef.current + 1;
+          setCurrentCount(nextBeat);
+          beatCountRef.current = nextBeat;
+        } else {
+          setIsCountingIn(false);
+          beatCountRef.current = 0;
+          setCurrentCount(0);
+          playClick(time, true);
+          beatCountRef.current = 1;
+        }
+      } else {
+        playClick(time, beatCountRef.current === 0);
+        beatCountRef.current = (beatCountRef.current + 1) % 4;
+      }
+      
+      nextTickTimeRef.current += 60.0 / bpm;
+    }
+  }, [bpm, isCountingIn, countInBeats, playClick]);
 
   useEffect(() => {
     if (metronomePlaying) {
-      const interval = (60 / bpm) * 1000;
-      playClick();
-      timerRef.current = setInterval(playClick, interval);
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      nextTickTimeRef.current = audioCtxRef.current.currentTime;
+      beatCountRef.current = 0;
+      
+      if (countInBeats > 0) {
+        setIsCountingIn(true);
+        setCurrentCount(0);
+      }
+      
+      timerRef.current = setInterval(scheduler, 25);
     } else {
+      setIsCountingIn(false);
+      setCurrentCount(0);
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [metronomePlaying, bpm, metronomeSound, metronomeVolume]);
+  }, [metronomePlaying, scheduler, countInBeats]);
+
+  const handleShare = () => {
+    const params = new URLSearchParams();
+    params.set('bpm', bpm.toString());
+    params.set('key', currentKey);
+    params.set('chords', showChords.toString());
+    params.set('lyrics', showLyrics.toString());
+    params.set('split', isSplit.toString());
+    params.set('sound', metronomeSound);
+    params.set('color', chordColor.replace('text-', ''));
+    
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Practice link copied to clipboard!');
+  };
+
 
   // Auto-scroll logic
   useEffect(() => {
     let scrollInterval: NodeJS.Timeout;
-    if (autoScroll && metronomePlaying) {
+    if (autoScroll && metronomePlaying && !isCountingIn) {
       scrollInterval = setInterval(() => {
         window.scrollBy({ top: 1, behavior: 'auto' });
-      }, 50);
+      }, 50 + latency);
     }
     return () => clearInterval(scrollInterval);
-  }, [autoScroll, metronomePlaying]);
+  }, [autoScroll, metronomePlaying, isCountingIn, latency]);
+
+  const sections = useMemo(() => song.lyrics?.split('\n\n') || [], [song.lyrics]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loopMode && loopStart !== null && metronomePlaying && !isCountingIn) {
+      const loopStartEl = document.getElementById(`section-${loopStart}`);
+      const loopEndEl = document.getElementById(`section-${loopEnd !== null ? loopEnd : loopStart}`);
+      
+      if (loopStartEl && loopEndEl) {
+        const checkScroll = () => {
+          const rect = loopEndEl.getBoundingClientRect();
+          if (rect.bottom < 100) {
+            loopStartEl.scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+        interval = setInterval(checkScroll, 100);
+      }
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loopMode, loopStart, loopEnd, metronomePlaying, isCountingIn]);
+
 
   if (!song) {
     return (
@@ -192,7 +303,7 @@ function SongDetailPage() {
     return showLyrics ? content : '';
   };
 
-  const sections = song.lyrics?.split('\n\n') || [];
+  
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#1A1A1A] pb-20">
@@ -214,8 +325,10 @@ function SongDetailPage() {
             <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`rounded-none border-gray-200 h-9 ${isSplit ? 'bg-accent/10 text-accent border-accent/20' : ''}`}>
               <Split className="w-4 h-4 mr-2" /> Split
             </Button>
-            <Button variant="default" size="sm" className="rounded-none bg-primary text-white h-9">
-              <Share2 className="w-4 h-4 mr-2" /> Share
+            <Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
+              <span className="relative z-10 flex items-center">
+                <Share2 className="w-4 h-4 mr-2" /> Share Practice Link
+              </span>
             </Button>
           </div>
         </div>
@@ -381,6 +494,56 @@ function SongDetailPage() {
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Auto-Scroll</span>
                   </div>
+                  {/* Count-in */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Count-in</span>
+                      <div className="flex items-center gap-2">
+                        {[0, 4, 8].map(c => (
+                          <button 
+                            key={c}
+                            onClick={() => setCountInBeats(c)}
+                            className={`px-2 py-0.5 border ${countInBeats === c ? 'bg-accent text-primary border-accent' : 'bg-white text-gray-400 border-gray-100'}`}
+                          >
+                            {c || 'Off'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {isCountingIn && (
+                      <div className="text-center font-serif text-2xl text-accent animate-pulse">
+                        {currentCount}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Latency Calibration */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span>Latency ({latency}ms)</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="200" 
+                      step="5"
+                      value={latency} 
+                      onChange={(e) => setLatency(parseInt(e.target.value))}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                  </div>
+
+                  {/* A-B Loop */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setLoopMode(!loopMode)}>
+                      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${loopMode ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                        {loopMode && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1">
+                        <Repeat className="w-3 h-3" /> A-B Loop Mode
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -432,9 +595,29 @@ function SongDetailPage() {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
                 const displayLines = header ? lines.slice(1) : lines;
+                const isLooped = loopMode && (loopStart === sIdx || (loopStart !== null && loopEnd !== null && sIdx >= loopStart && sIdx <= loopEnd));
 
                 return (
-                  <div key={sIdx} className="break-inside-avoid-column space-y-2">
+                  <div 
+                    key={sIdx} 
+                    id={`section-${sIdx}`}
+                    onClick={() => {
+                      if (loopMode) {
+                        if (loopStart === null || (loopStart !== null && loopEnd !== null)) {
+                          setLoopStart(sIdx);
+                          setLoopEnd(null);
+                        } else {
+                          if (sIdx < loopStart) {
+                            setLoopEnd(loopStart);
+                            setLoopStart(sIdx);
+                          } else {
+                            setLoopEnd(sIdx);
+                          }
+                        }
+                      }
+                    }}
+                    className={`break-inside-avoid-column space-y-2 p-2 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
+                  >
                     {header && (
                       <div className="inline-block bg-accent text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm mb-2">
                         {header[1]}
