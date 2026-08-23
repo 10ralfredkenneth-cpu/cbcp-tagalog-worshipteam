@@ -335,7 +335,7 @@ function TeamManagementPage() {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Link to="/dashboard/team/edit/$id" params={{ id: member.id }}>
-                          <Edit className="w-3 h-3 mr-2" /> allow me to edit the member in the worship team management.
+                          <Edit className="w-3 h-3 mr-2" /> Edit Member
                         </Link>
                       </DropdownMenuItem>
 
