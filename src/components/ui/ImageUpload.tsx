@@ -29,11 +29,20 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
     const filePath = fileName;
 
     try {
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
+      // Check if file is valid
+      if (!file.name) throw new Error('Invalid file name');
 
-      if (uploadError) throw uploadError;
+      const { data, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
@@ -42,8 +51,9 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
       onChange(publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image: ' + error.message);
+      console.error('Upload error details:', error);
+      const errorMessage = error.message || error.error_description || 'Unknown upload error';
+      toast.error('Failed to upload image: ' + errorMessage);
     } finally {
       setIsUploading(false);
     }
