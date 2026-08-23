@@ -39,19 +39,7 @@ function SongDetailPage() {
   const { id } = Route.useParams();
   const rawSong = (songs || []).find((s: any) => s.id === (id as string));
   const initialSong = useMemo(() => {
-    if (!rawSong) return null;
-    return {
-      ...rawSong,
-      defaultKey: (rawSong as any).default_key || (rawSong as any).defaultKey,
-      timeSignature: (rawSong as any).time_signature || (rawSong as any).timeSignature,
-      createdAt: (rawSong as any).created_at || (rawSong as any).createdAt,
-      updatedAt: (rawSong as any).updated_at || (rawSong as any).updatedAt,
-      scriptureReferences: (rawSong as any).scripture_references || (rawSong as any).scriptureReferences || [],
-      sections: rawSong.sections || [],
-      flow: rawSong.flow || [],
-      lyrics: (rawSong as any).lyrics,
-      chords: (rawSong as any).chords
-    } as unknown as WorshipSong;
+    return rawSong as unknown as WorshipSong;
   }, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
