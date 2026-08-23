@@ -517,9 +517,92 @@ function SetlistDetailPage() {
               <section className="space-y-8">
                 <div className="flex items-center justify-between border-b border-accent/10 pb-4">
                   <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Team Roster</h2>
-                  <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
-                    <UserPlus className="w-3 h-3 mr-2" /> Assign Member
-                  </Button>
+                  <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
+                        <UserPlus className="w-3 h-3 mr-2" /> Assign Member
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px] rounded-none border-accent/20 bg-background">
+                      <DialogHeader>
+                        <DialogTitle className="font-serif text-2xl">Assign Team Member</DialogTitle>
+                        <DialogDescription className="text-[10px] uppercase tracking-widest">
+                          Select a member and role for this service
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-6 space-y-6">
+                        <div className="space-y-4">
+                          <label className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase block">Select Role</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {(['Worship Leader', 'Vocalist', 'Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard', 'Drums', 'Sound Engineer'] as TeamRole[]).map(role => (
+                              <button
+                                key={role}
+                                onClick={() => setSelectedRole(role)}
+                                className={cn(
+                                  "text-[9px] font-bold tracking-widest uppercase px-3 py-2 border text-left transition-all",
+                                  selectedRole === role 
+                                    ? "bg-accent text-primary border-accent" 
+                                    : "bg-transparent border-accent/10 text-muted-foreground hover:border-accent/30"
+                                )}
+                              >
+                                {role}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {selectedRole && (
+                          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <label className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase block">Available Members</label>
+                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                              {MOCK_TEAM.filter(m => 
+                                m.primaryRole === selectedRole || 
+                                m.secondaryRoles.includes(selectedRole as any) ||
+                                m.skills.includes(selectedRole as any)
+                              ).map(member => {
+                                const isUnavailable = member.availability?.some(a => a.date === setlist.serviceDate && a.status === 'Unavailable');
+                                const isAlreadyAssigned = setlist.assignments.some(a => a.memberId === member.id);
+                                
+                                return (
+                                  <button
+                                    key={member.id}
+                                    disabled={isUnavailable || isAlreadyAssigned}
+                                    className={cn(
+                                      "w-full flex items-center justify-between p-3 border text-left transition-all group",
+                                      isUnavailable || isAlreadyAssigned 
+                                        ? "opacity-40 cursor-not-allowed border-transparent bg-muted/10" 
+                                        : "border-accent/5 bg-muted/20 hover:border-accent/20"
+                                    )}
+                                    onClick={() => {
+                                      alert(`Assigned ${member.fullName} as ${selectedRole}`);
+                                      setIsAssignDialogOpen(false);
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-full overflow-hidden border border-accent/20">
+                                        <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover" />
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-serif">{member.fullName}</p>
+                                        {isUnavailable && <p className="text-[8px] text-red-500 uppercase font-bold">Unavailable</p>}
+                                        {isAlreadyAssigned && <p className="text-[8px] text-accent uppercase font-bold">Already Assigned</p>}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {member.primaryRole === selectedRole && (
+                                        <Badge variant="outline" className="text-[7px] uppercase tracking-tighter border-accent/20 text-accent">Primary</Badge>
+                                      )}
+                                      <ChevronRight className="w-3 h-3 text-accent/30 group-hover:text-accent transition-colors" />
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
