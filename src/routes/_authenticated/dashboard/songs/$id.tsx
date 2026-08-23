@@ -278,16 +278,7 @@ function EditSongPage() {
                   className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
                 >
                   <Wand2 className="w-3 h-3 mr-1" />
-                  '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
-                                        
-                                            
-                                            Implement an easy way for me to manually adjust or fix detected chords and spacing when the smart detection is wrong.
-
-Add a toggle to switch between compact and standard spacing for song lyrics and chords.
-
-
-
-
+                  Format Chords
                 </Button>
               </div>
             </div>
