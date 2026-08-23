@@ -157,13 +157,13 @@ function SetlistDetailPage() {
                         <p className="text-2xl font-serif">{song.bpm}</p>
                       </div>
                     )}
-                    {song.flow && (
+                    {song.flow && song.flow.length > 0 && (
                       <div className="w-full space-y-2 mt-4">
                         <p className="text-[10px] font-bold tracking-widest text-accent uppercase">Song Flow</p>
                         <div className="flex flex-wrap gap-2">
                           {song.flow.map((part, i) => (
                             <span key={i} className="text-sm px-3 py-1 bg-white/5 border border-white/10 rounded-full">
-                              {part}{i < song.flow.length - 1 && ' >'}
+                              {part}{i < (song.flow?.length ?? 0) - 1 && ' >'}
                             </span>
                           ))}
                         </div>
