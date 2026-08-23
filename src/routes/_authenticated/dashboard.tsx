@@ -188,11 +188,11 @@ function DashboardPage() {
                 <Button variant="outline" className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6">
                   Update My Availability
                 </Button>
-                <Button variant="outline" className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6">
-                  Request Time Off
+                <Button variant="outline" className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6" asChild>
+                  <Link to="/media/upload">Upload Media</Link>
                 </Button>
-                <Button variant="outline" className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6">
-                  Team Directory
+                <Button variant="outline" className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6" asChild>
+                  <Link to="/team">Team Directory</Link>
                 </Button>
               </div>
             </section>
