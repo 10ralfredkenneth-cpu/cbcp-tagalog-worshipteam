@@ -190,7 +190,17 @@ function ScheduleManagementPage() {
                     No service scheduled
                   </div>
                 )}
+                {service && (
+                  <div className="mt-2">
+                    <Button asChild variant="link" className="h-auto p-0 text-[7px] text-accent uppercase tracking-widest font-bold">
+                      <Link to="/dashboard/schedule/$id" params={{ id: service.assignments?.[0]?.id || '' }}>
+                        Manage Team
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
+
             );
           })}
 
