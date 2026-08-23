@@ -579,9 +579,29 @@ function SongDetailPage() {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
                 const displayLines = header ? lines.slice(1) : lines;
+                const isLooped = loopMode && (loopStart === sIdx || (loopStart !== null && loopEnd !== null && sIdx >= loopStart && sIdx <= loopEnd));
 
                 return (
-                  <div key={sIdx} className="break-inside-avoid-column space-y-2">
+                  <div 
+                    key={sIdx} 
+                    id={`section-${sIdx}`}
+                    onClick={() => {
+                      if (loopMode) {
+                        if (loopStart === null || (loopStart !== null && loopEnd !== null)) {
+                          setLoopStart(sIdx);
+                          setLoopEnd(null);
+                        } else {
+                          if (sIdx < loopStart) {
+                            setLoopEnd(loopStart);
+                            setLoopStart(sIdx);
+                          } else {
+                            setLoopEnd(sIdx);
+                          }
+                        }
+                      }
+                    }}
+                    className={`break-inside-avoid-column space-y-2 p-2 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
+                  >
                     {header && (
                       <div className="inline-block bg-accent text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm mb-2">
                         {header[1]}
