@@ -26,7 +26,7 @@ import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlis
 import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/$id'
 import { Route as PublicSongsIndexRouteImport } from './routes/_public/songs/index'
 import { Route as PublicSongsIdRouteImport } from './routes/_public/songs/$id'
-import { Route as PublicTeamIdRouteImport } from './routes/_public/team.$id'
+import { Route as PublicTeamIdRouteImport } from './routes/_public/team/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
