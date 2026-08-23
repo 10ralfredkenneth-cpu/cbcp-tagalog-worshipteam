@@ -17,11 +17,15 @@ export function ResourcePreview() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {resources.map((r) => (
-            <div key={r.title} className="p-8 border border-accent/10 hover:border-accent/30 transition-all group">
+            <Link 
+              key={r.title} 
+              to="/resources" 
+              className="p-8 border border-accent/10 hover:border-accent/30 transition-all group block"
+            >
               <h4 className="font-serif text-2xl mb-4 group-hover:text-accent transition-colors">{r.title}</h4>
               <p className="text-sm text-muted-foreground leading-relaxed mb-8">{r.desc}</p>
-              <Link to="/resources" className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent border-b border-accent/30 pb-0.5">Explore</Link>
-            </div>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent border-b border-accent/30 pb-0.5">Explore</span>
+            </Link>
           ))}
         </div>
       </div>
