@@ -100,6 +100,7 @@ function SongLibraryPage() {
                 size="icon" 
                 className="h-10 w-10 rounded-none"
                 onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
               >
                 <LayoutGrid className="w-4 h-4" />
               </Button>
@@ -108,6 +109,7 @@ function SongLibraryPage() {
                 size="icon" 
                 className="h-10 w-10 rounded-none"
                 onClick={() => setViewMode('list')}
+                aria-label="List view"
               >
                 <List className="w-4 h-4" />
               </Button>
