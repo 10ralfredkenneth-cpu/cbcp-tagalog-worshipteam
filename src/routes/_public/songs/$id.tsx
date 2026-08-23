@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { 
   Music, FileText, Star, Printer, Layout, 
   Minus, Plus, ChevronUp, ChevronDown, Share2, 
-  Split, Maximize2, Hash, ArrowLeft
+  Split, Maximize2, Hash, ArrowLeft,
+  Volume2, Play, Pause, Settings, RefreshCw
 } from 'lucide-react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { KEYS, transposeChord, getSemitoneDifference, chordToNumber } from '@/utils/transposition';
@@ -38,6 +39,49 @@ function SongDetailPage() {
   const [numberNotation, setNumberNotation] = useState(false);
   const [isSplit, setIsSplit] = useState(false);
   const [fontSize, setFontSize] = useState(16);
+  const [chordColor, setChordColor] = useState('text-accent');
+  
+  // Metronome state
+  const [metronomePlaying, setMetronomePlaying] = useState(false);
+  const [bpm, setBpm] = useState(song?.bpm || 72);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    if (song?.bpm) setBpm(song.bpm);
+  }, [song?.bpm]);
+
+  const playClick = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const osc = audioCtxRef.current.createOscillator();
+    const envelope = audioCtxRef.current.createGain();
+
+    osc.frequency.value = 880;
+    envelope.gain.value = 1;
+    envelope.gain.exponentialRampToValueAtTime(1, audioCtxRef.current.currentTime + 0.001);
+    envelope.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.02);
+
+    osc.connect(envelope);
+    envelope.connect(audioCtxRef.current.destination);
+
+    osc.start(audioCtxRef.current.currentTime);
+    osc.stop(audioCtxRef.current.currentTime + 0.03);
+  };
+
+  useEffect(() => {
+    if (metronomePlaying) {
+      const interval = (60 / bpm) * 1000;
+      playClick(); // Initial click
+      timerRef.current = setInterval(playClick, interval);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [metronomePlaying, bpm]);
 
   if (!song) {
     return (
@@ -71,7 +115,7 @@ function SongDetailPage() {
       return content.replace(/\[([^\]]+)\]/g, (_, chord) => {
         const transposed = transposeChord(chord, semitones);
         const finalChord = numberNotation ? chordToNumber(transposed, currentKey) : transposed;
-        return showChords ? `<span class="text-accent font-bold">${finalChord}</span>` : '';
+        return showChords ? `<span class="${chordColor} font-bold">${finalChord}</span>` : '';
       });
     }
     
@@ -140,25 +184,84 @@ function SongDetailPage() {
                 </div>
               </div>
 
-              {/* Toggles */}
+              {/* Chord Visibility Choices */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setShowChords(!showChords)}>
-                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${showChords ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
-                    {showChords && <div className="w-2 h-2 bg-primary rotate-45" />}
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Visibility Options:</h3>
+                
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setShowChords(!showChords)}>
+                    <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${showChords ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                      {showChords && <div className="w-2 h-2 bg-primary rotate-45" />}
+                    </div>
+                    <span className="text-sm font-medium">Show chords</span>
                   </div>
-                  <span className="text-sm font-medium">Show chords</span>
+
+                  {showChords && (
+                    <div className="ml-8 space-y-3 pt-1 border-l border-accent/10 pl-4">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Chord Colour:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { name: 'Gold', class: 'text-accent', bg: 'bg-accent' },
+                          { name: 'Navy', class: 'text-primary', bg: 'bg-primary' },
+                          { name: 'Red', class: 'text-red-600', bg: 'bg-red-600' },
+                          { name: 'Blue', class: 'text-blue-600', bg: 'bg-blue-600' },
+                          { name: 'Black', class: 'text-black', bg: 'bg-black' }
+                        ].map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => setChordColor(c.class)}
+                            className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${c.bg} ${chordColor === c.class ? 'border-primary scale-110 shadow-sm' : 'border-transparent'}`}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setShowLyrics(!showLyrics)}>
+                    <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${showLyrics ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                      {showLyrics && <div className="w-2 h-2 bg-primary rotate-45" />}
+                    </div>
+                    <span className="text-sm font-medium">Show lyrics</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setNumberNotation(!numberNotation)}>
+                    <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${numberNotation ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                      {numberNotation && <div className="w-2 h-2 bg-primary rotate-45" />}
+                    </div>
+                    <span className="text-sm font-medium">Number notation</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setShowLyrics(!showLyrics)}>
-                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${showLyrics ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
-                    {showLyrics && <div className="w-2 h-2 bg-primary rotate-45" />}
+              </div>
+
+              {/* Metronome Tool */}
+              <div className="space-y-4 pt-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Metronome:</h3>
+                <div className="bg-gray-50 p-4 border border-gray-100 rounded-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">BPM</span>
+                      <span className="text-2xl font-serif font-bold text-primary">{bpm}</span>
+                    </div>
+                    <Button 
+                      onClick={() => setMetronomePlaying(!metronomePlaying)}
+                      className={`h-12 w-12 rounded-full ${metronomePlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-accent hover:bg-accent/90'} text-primary p-0 flex items-center justify-center shadow-lg transition-all`}
+                    >
+                      {metronomePlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
+                    </Button>
                   </div>
-                  <span className="text-sm font-medium">Show lyrics</span>
-                </div>
-                <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setNumberNotation(!numberNotation)}>
-                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${numberNotation ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
-                    {numberNotation && <div className="w-2 h-2 bg-primary rotate-45" />}
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setBpm(Math.max(40, bpm - 1))} className="text-gray-400 hover:text-accent p-1"><Minus className="w-4 h-4" /></button>
+                    <input 
+                      type="range" 
+                      min="40" 
+                      max="220" 
+                      value={bpm} 
+                      onChange={(e) => setBpm(parseInt(e.target.value))}
+                      className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                    <button onClick={() => setBpm(Math.min(220, bpm + 1))} className="text-gray-400 hover:text-accent p-1"><Plus className="w-4 h-4" /></button>
                   </div>
-                  <span className="text-sm font-medium">Number notation</span>
                 </div>
               </div>
 
@@ -212,17 +315,17 @@ function SongDetailPage() {
                 const displayLines = header ? lines.slice(1) : lines;
 
                 return (
-                  <div key={sIdx} className="break-inside-avoid-column space-y-4">
+                  <div key={sIdx} className="break-inside-avoid-column space-y-2">
                     {header && (
-                      <div className="inline-block bg-accent text-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm mb-4">
+                      <div className="inline-block bg-accent text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm mb-2">
                         {header[1]}
                       </div>
                     )}
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {displayLines.map((line, lIdx) => (
                         <div 
                           key={lIdx} 
-                          className="font-mono leading-relaxed whitespace-pre-wrap"
+                          className="font-mono leading-tight whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: processLine(line) }}
                         />
                       ))}
