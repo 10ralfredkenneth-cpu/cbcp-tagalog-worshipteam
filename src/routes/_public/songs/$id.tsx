@@ -85,12 +85,12 @@ function SongDetailPage() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       
       switch (e.key.toLowerCase()) {
-        case 'c': setShowChords(prev => !prev); break;
-        case 'l': setShowLyrics(prev => !prev); break;
-        case 's': setIsSplit(prev => !prev); break;
+        case 'c': setShowChords((prev: boolean) => !prev); break;
+        case 'l': setShowLyrics((prev: boolean) => !prev); break;
+        case 's': setIsSplit((prev: boolean) => !prev); break;
         case ' ': 
           e.preventDefault();
-          setMetronomePlaying(prev => !prev); 
+          setMetronomePlaying((prev: boolean) => !prev); 
           break;
         case 'r': setBpm(song?.bpm || 72); break;
       }
