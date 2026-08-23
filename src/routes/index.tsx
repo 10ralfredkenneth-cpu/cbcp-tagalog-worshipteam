@@ -35,11 +35,6 @@ function Index() {
     queryFn: getSongsPublic
   });
 
-  const { data: songs = [] } = useQuery({
-    queryKey: ['songs-public'],
-    queryFn: getSongsPublic
-  });
-
   const sampleEvent = {
     title: "Sunday Worship Service",
     date: "Sunday",

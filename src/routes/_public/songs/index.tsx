@@ -205,8 +205,15 @@ function SongLibraryPage() {
       {/* Song List */}
       {filteredSongs.length > 0 ? (
         <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16" : "space-y-1"}>
-          {filteredSongs.map((song) => (
-            <SongCard key={song.id} song={song} viewMode={viewMode} />
+          {(filteredSongs || []).map((song: any) => (
+            <SongCard key={song.id} song={{
+              ...song,
+              defaultKey: song.default_key || song.defaultKey,
+              scriptureReferences: song.scripture_references || song.scriptureReferences || [],
+              songType: song.song_type || song.songType,
+              createdAt: song.created_at || song.createdAt,
+              updatedAt: song.updated_at || song.updatedAt
+            }} viewMode={viewMode} />
           ))}
         </div>
       ) : (

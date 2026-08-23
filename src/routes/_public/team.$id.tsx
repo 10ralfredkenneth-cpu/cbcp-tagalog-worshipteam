@@ -26,11 +26,6 @@ import { AssignmentStatus } from '@/types/setlists';
 
 export const Route = createFileRoute('/_public/team/$id')({
   component: MemberProfilePage,
-  loader: ({ params }) => {
-    const member = MOCK_TEAM.find(m => m.id === params.id);
-    if (!member) throw notFound();
-    return { member };
-  }
 });
 
 function MemberProfilePage() {
