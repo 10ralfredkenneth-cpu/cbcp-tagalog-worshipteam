@@ -13,7 +13,10 @@ export type ServiceType =
   | 'Communion' 
   | 'Special Event' 
   | 'Conference' 
-  | 'Fellowship';
+  | 'Fellowship'
+  | 'Other';
+
+export type ServiceVisibility = 'Public' | 'Team Only' | 'Private';
 
 export type WorshipFlowCategory = 
   | 'Call to Worship'
@@ -74,6 +77,8 @@ export interface WorshipSetlist {
   scriptureReference?: string;
   notes?: string;
   status: SetlistStatus;
+  visibility: ServiceVisibility;
+  isPublic: boolean;
   songs: SetlistSong[];
   items: ServiceItem[];
   assignments: ServiceAssignment[];
