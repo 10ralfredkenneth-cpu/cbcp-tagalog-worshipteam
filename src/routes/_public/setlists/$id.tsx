@@ -32,7 +32,8 @@ import {
   Mail,
   Phone,
   Settings,
-  UserPlus
+  UserPlus,
+  ChevronRight
 } from 'lucide-react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { SetlistStatus, SetlistSong, ServiceItem, ServiceItemType, AssignmentStatus } from '@/types/setlists';
