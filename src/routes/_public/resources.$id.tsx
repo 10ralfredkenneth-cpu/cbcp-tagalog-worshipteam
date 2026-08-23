@@ -155,7 +155,7 @@ function ResourceDetailPage() {
                   <ScriptureBlock 
                     key={idx}
                     reference={typeof ref === 'string' ? ref : ref.reference}
-                    verse={typeof ref === 'object' && ref.notes ? ref.notes : "Thy word is a lamp unto my feet, and a light unto my path."}
+                    verse={typeof ref === 'object' && ref.notes ? ref.notes : (typeof ref === 'string' ? "Scripture reference for study and reflection." : "Scripture reference for study and reflection.")}
                   />
                 ))}
               </div>
