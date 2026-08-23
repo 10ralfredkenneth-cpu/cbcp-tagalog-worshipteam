@@ -238,6 +238,7 @@ export type Database = {
           bio: string | null
           created_at: string | null
           date_joined: string | null
+          display_order: number | null
           email: string
           emergency_contact: string | null
           featured: boolean | null
@@ -261,6 +262,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           date_joined?: string | null
+          display_order?: number | null
           email: string
           emergency_contact?: string | null
           featured?: boolean | null
@@ -284,6 +286,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           date_joined?: string | null
+          display_order?: number | null
           email?: string
           emergency_contact?: string | null
           featured?: boolean | null
