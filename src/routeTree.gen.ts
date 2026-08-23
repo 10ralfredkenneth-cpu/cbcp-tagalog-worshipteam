@@ -18,7 +18,6 @@ import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicMediaRouteImport } from './routes/_public/media'
 import { Route as PublicResourcesRouteImport } from './routes/_public/resources'
-import { Route as PublicSetlistsRouteImport } from './routes/_public/setlists'
 import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
@@ -68,11 +67,6 @@ const PublicResourcesRoute = PublicResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicSetlistsRoute = PublicSetlistsRouteImport.update({
-  id: '/setlists',
-  path: '/setlists',
-  getParentRoute: () => PublicRoute,
-} as any)
 const PublicSongsRoute = PublicSongsRouteImport.update({
   id: '/songs',
   path: '/songs',
@@ -107,7 +101,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof PublicLoginRoute
   '/media': typeof PublicMediaRoute
   '/resources': typeof PublicResourcesRoute
-  '/setlists': typeof PublicSetlistsRoute
   '/songs': typeof PublicSongsRouteWithChildren
   '/team': typeof PublicTeamRoute
   '/worship': typeof PublicWorshipRoute
@@ -122,7 +115,6 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/media': typeof PublicMediaRoute
   '/resources': typeof PublicResourcesRoute
-  '/setlists': typeof PublicSetlistsRoute
   '/team': typeof PublicTeamRoute
   '/worship': typeof PublicWorshipRoute
   '/songs/$id': typeof PublicSongsIdRoute
@@ -139,7 +131,6 @@ export interface FileRoutesById {
   '/_public/login': typeof PublicLoginRoute
   '/_public/media': typeof PublicMediaRoute
   '/_public/resources': typeof PublicResourcesRoute
-  '/_public/setlists': typeof PublicSetlistsRoute
   '/_public/songs': typeof PublicSongsRouteWithChildren
   '/_public/team': typeof PublicTeamRoute
   '/_public/worship': typeof PublicWorshipRoute
@@ -156,7 +147,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/media'
     | '/resources'
-    | '/setlists'
     | '/songs'
     | '/team'
     | '/worship'
@@ -171,7 +161,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/media'
     | '/resources'
-    | '/setlists'
     | '/team'
     | '/worship'
     | '/songs/$id'
@@ -187,7 +176,6 @@ export interface FileRouteTypes {
     | '/_public/login'
     | '/_public/media'
     | '/_public/resources'
-    | '/_public/setlists'
     | '/_public/songs'
     | '/_public/team'
     | '/_public/worship'
@@ -266,13 +254,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicResourcesRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/setlists': {
-      id: '/_public/setlists'
-      path: '/setlists'
-      fullPath: '/setlists'
-      preLoaderRoute: typeof PublicSetlistsRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_public/songs': {
       id: '/_public/songs'
       path: '/songs'
@@ -343,7 +324,6 @@ interface PublicRouteChildren {
   PublicLoginRoute: typeof PublicLoginRoute
   PublicMediaRoute: typeof PublicMediaRoute
   PublicResourcesRoute: typeof PublicResourcesRoute
-  PublicSetlistsRoute: typeof PublicSetlistsRoute
   PublicSongsRoute: typeof PublicSongsRouteWithChildren
   PublicTeamRoute: typeof PublicTeamRoute
   PublicWorshipRoute: typeof PublicWorshipRoute
@@ -355,7 +335,6 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicLoginRoute: PublicLoginRoute,
   PublicMediaRoute: PublicMediaRoute,
   PublicResourcesRoute: PublicResourcesRoute,
-  PublicSetlistsRoute: PublicSetlistsRoute,
   PublicSongsRoute: PublicSongsRouteWithChildren,
   PublicTeamRoute: PublicTeamRoute,
   PublicWorshipRoute: PublicWorshipRoute,
