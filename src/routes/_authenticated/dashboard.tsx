@@ -117,8 +117,8 @@ function AdminDashboardOverview() {
                 { label: "New Resource", icon: BookOpen, path: "/dashboard/resources/new", color: "text-purple-400" },
                 { label: "Upload Media", icon: FileVideo, path: "/dashboard/media/new", color: "text-orange-400" },
                 { label: "Settings", icon: Settings, path: "/dashboard/settings", color: "text-muted-foreground" },
-
               ].map((action) => (
+
                 <Link 
                   key={action.label}
                   to={action.path}
