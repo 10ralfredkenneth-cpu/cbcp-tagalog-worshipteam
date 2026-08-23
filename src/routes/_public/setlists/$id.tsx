@@ -466,13 +466,13 @@ function SetlistDetailPage() {
           <section className="print:hidden">
             <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase mb-8 border-b border-accent/10 pb-4">Worship Flow Overview</h2>
             <div className="flex flex-wrap items-center gap-4 py-8 px-12 bg-primary/5 border border-accent/10">
-              {setlist.items.map((item, idx) => (
+              {timeline.map((item, idx) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="text-center">
                     <p className="text-[9px] font-bold text-accent uppercase mb-1">{item.startTime}</p>
-                    <p className="text-sm font-serif">{item.title.split(' ')[0].toUpperCase()}</p>
+                    <p className="text-sm font-serif">{item.title?.split(' ')[0].toUpperCase()}</p>
                   </div>
-                  {idx < setlist.items.length - 1 && (
+                  {idx < timeline.length - 1 && (
                     <div className="h-px w-8 bg-accent/20" />
                   )}
                 </div>
