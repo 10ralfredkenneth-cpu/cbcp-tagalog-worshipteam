@@ -7,7 +7,7 @@ export const MOCK_SETLISTS: WorshipSetlist[] = [
     serviceDate: '2026-08-30',
     serviceTime: '09:00 AM',
     serviceType: 'Sunday Worship',
-    worshipLeader: 'David Chen',
+    worshipLeader: '1', // Sarah Jenkins
     theme: 'The Holiness of God',
     scriptureReference: 'Isaiah 6:1-8',
     notes: 'Focus on reverence and awe. Start with a quiet piano intro.',
@@ -51,6 +51,22 @@ export const MOCK_SETLISTS: WorshipSetlist[] = [
       { id: 'item-8', order: 8, type: 'Custom', title: 'Sermon', duration: 30, assignedPerson: 'Pastor John' },
       { id: 'item-9', order: 9, type: 'Custom', title: 'Benediction', duration: 2 }
     ],
+    assignments: [
+      { id: 'as-1', serviceId: '1', memberId: '1', role: 'Worship Leader', status: 'Confirmed', callTime: '07:15 AM' },
+      { id: 'as-2', serviceId: '1', memberId: '2', role: 'Keyboard', status: 'Confirmed', callTime: '07:30 AM' },
+      { id: 'as-3', serviceId: '1', memberId: '3', role: 'Electric Guitar', status: 'Confirmed', callTime: '07:30 AM' },
+      { id: 'as-4', serviceId: '1', memberId: '4', role: 'Vocalist', status: 'Pending', callTime: '07:45 AM' },
+      { id: 'as-5', serviceId: '1', memberId: '6', role: 'Sound Engineer', status: 'Confirmed', callTime: '07:00 AM' }
+    ],
+    rehearsalDate: '2026-08-27',
+    rehearsalTime: '07:00 PM',
+    rehearsalLocation: 'Main Sanctuary',
+    callTimes: {
+      'Worship Leader': '07:15 AM',
+      'Musicians': '07:30 AM',
+      'Vocals': '07:45 AM',
+      'Technical Team': '07:00 AM'
+    },
     estimatedDuration: 63,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -61,7 +77,7 @@ export const MOCK_SETLISTS: WorshipSetlist[] = [
     serviceDate: '2026-09-02',
     serviceTime: '07:00 PM',
     serviceType: 'Midweek Service',
-    worshipLeader: 'Sarah Jenkins',
+    worshipLeader: '1',
     theme: 'Faithfulness',
     status: 'Draft',
     songs: [
@@ -78,6 +94,7 @@ export const MOCK_SETLISTS: WorshipSetlist[] = [
       { id: 'item-10', order: 1, type: 'Custom', title: 'Opening Song', duration: 5, songId: '4' },
       { id: 'item-11', order: 2, type: 'Custom', title: 'Prayer Sharing', duration: 15 }
     ],
+    assignments: [],
     estimatedDuration: 20,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

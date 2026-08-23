@@ -1,6 +1,9 @@
 import { SongLanguage, SongType, SongStatus, ScriptureReference, SongSection } from './songs';
+import { TeamRole } from './team';
 
 export type SetlistStatus = 'Draft' | 'Preparing' | 'Ready' | 'Completed' | 'Archived';
+
+export type AssignmentStatus = 'Pending' | 'Confirmed' | 'Declined' | 'Needs Replacement';
 
 export type ServiceType = 
   | 'Sunday Worship' 
@@ -50,20 +53,36 @@ export interface ServiceItem {
   songId?: string; // Only if type is 'Song'
 }
 
+export interface ServiceAssignment {
+  id: string;
+  serviceId: string;
+  memberId: string;
+  role: TeamRole;
+  status: AssignmentStatus;
+  callTime?: string;
+  notes?: string;
+}
+
 export interface WorshipSetlist {
   id: string;
   title: string;
   serviceDate: string;
   serviceTime: string;
   serviceType: ServiceType;
-  worshipLeader: string;
+  worshipLeader: string; // Member ID
   theme?: string;
   scriptureReference?: string;
   notes?: string;
   status: SetlistStatus;
-  songs: SetlistSong[]; // Keep for compatibility with existing code during transition
-  items: ServiceItem[]; // The complete order of service
-  estimatedDuration?: number; // Calculated field
+  songs: SetlistSong[];
+  items: ServiceItem[];
+  assignments: ServiceAssignment[];
+  rehearsalDate?: string;
+  rehearsalTime?: string;
+  rehearsalLocation?: string;
+  rehearsalNotes?: string;
+  callTimes?: Record<string, string>; // Role to call time
+  estimatedDuration?: number;
   createdAt: string;
   updatedAt: string;
 }
