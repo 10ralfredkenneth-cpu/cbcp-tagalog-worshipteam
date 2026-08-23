@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
   value?: string;
@@ -140,9 +141,4 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
       </div>
     </div>
   );
-}
-
-// Helper for cn if not available in this file scope (though ImageUpload uses it above)
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }
