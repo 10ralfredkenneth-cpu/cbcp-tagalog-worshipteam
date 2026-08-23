@@ -36,6 +36,8 @@ export function MinistryIntro() {
                 src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop" 
                 alt="Worship Ministry" 
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="absolute -bottom-6 -right-6 w-32 h-32 border border-accent/30 -z-10" />

@@ -30,7 +30,7 @@ export function TeamPreview() {
             {members.map((member) => (
               <div key={member.name} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-muted mb-4">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" />
+                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" loading="lazy" decoding="async" />
                 </div>
                 <h4 className="font-serif text-lg">{member.name}</h4>
                 <p className="text-[10px] tracking-[0.2em] text-accent uppercase">{member.role}</p>

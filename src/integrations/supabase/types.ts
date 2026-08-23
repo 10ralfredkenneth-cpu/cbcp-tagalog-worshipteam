@@ -154,7 +154,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profile_directory: {
+        Row: {
+          avatar_url: string | null
+          date_joined: string | null
+          email: string | null
+          full_name: string | null
+          groups: string[] | null
+          id: string | null
+          instrument: string | null
+          primary_role: string | null
+          skills: string[] | null
+          status: Database["public"]["Enums"]["member_status"] | null
+          vocal_range: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          date_joined?: string | null
+          email?: string | null
+          full_name?: string | null
+          groups?: string[] | null
+          id?: string | null
+          instrument?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          vocal_range?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          date_joined?: string | null
+          email?: string | null
+          full_name?: string | null
+          groups?: string[] | null
+          id?: string | null
+          instrument?: string | null
+          primary_role?: string | null
+          skills?: string[] | null
+          status?: Database["public"]["Enums"]["member_status"] | null
+          vocal_range?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

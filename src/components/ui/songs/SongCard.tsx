@@ -45,6 +45,8 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
               src={song.artworkUrl} 
               alt={song.title} 
               className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" 
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-colors duration-700">
