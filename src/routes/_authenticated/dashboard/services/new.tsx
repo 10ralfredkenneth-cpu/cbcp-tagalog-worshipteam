@@ -66,7 +66,7 @@ function CreateServicePage() {
       return;
     }
     setIsSaving(true);
-    mutation.mutate(formData);
+    mutation.mutate({ data: formData });
   };
 
   const updateField = (field: keyof WorshipSetlist, value: any) => {
