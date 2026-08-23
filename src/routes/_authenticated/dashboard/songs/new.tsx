@@ -6,12 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Music, Hash, Type, Link2, Languages, Tags, BookOpen, Shield, Star, Info } from 'lucide-react';
+import { ArrowLeft, Save, Music, Hash, Type, Link2, Languages, Tags, BookOpen, Shield, Star, Info, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createSong } from '@/lib/db-songs.functions';
 import { toast } from 'sonner';
 import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from '@/types/songs';
+import { useAuth } from '@/hooks/use-auth';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs/new')({
   component: AddSongPage,
@@ -20,6 +21,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/songs/new')({
 function AddSongPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { loading, isPending } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   
   const [formData, setFormData] = useState<Partial<WorshipSong>>({
@@ -65,6 +67,15 @@ function AddSongPage() {
   const updateField = (field: keyof WorshipSong, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  if (loading || isPending) {
+    return (
+      <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+        <p className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Verifying Credentials...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
