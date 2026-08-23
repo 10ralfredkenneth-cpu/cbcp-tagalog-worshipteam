@@ -287,7 +287,7 @@ function SongDetailPage() {
     return showLyrics ? content : '';
   };
 
-  const sections = song.lyrics?.split('\n\n') || [];
+  
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#1A1A1A] pb-20">
