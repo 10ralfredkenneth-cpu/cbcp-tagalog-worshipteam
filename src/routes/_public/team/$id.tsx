@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { TeamMemberStatus } from '@/types/team';
 
-export const Route = createFileRoute('/_public/team/$id')({
+export const Route = createFileRoute('/_public/team/profile')({
   component: MemberProfilePage,
   loader: ({ params }) => {
     const member = MOCK_TEAM.find(m => m.id === params.id);
