@@ -37,10 +37,13 @@ export function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-[11px] font-bold tracking-[0.15em] text-muted-foreground transition-colors hover:text-foreground [&.active]:text-accent"
+                className="text-[11px] font-bold tracking-[0.15em] text-muted-foreground transition-all duration-300 hover:text-foreground relative group py-2"
+                activeProps={{ className: "text-foreground active-nav" }}
               >
                 {link.label}
+                <span className="absolute bottom-0 left-0 w-0 h-px bg-accent transition-all duration-300 group-hover:w-full [.active-nav_&]:w-full" />
               </Link>
+
             ))}
           </div>
           <div className="h-4 w-px bg-border" />
