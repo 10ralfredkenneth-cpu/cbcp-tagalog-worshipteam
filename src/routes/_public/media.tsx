@@ -10,8 +10,15 @@ import { Search, Filter, Camera, Video, Music, FileText, LayoutGrid } from 'luci
 import { Input } from '@/components/ui/input';
 
 export const Route = createFileRoute('/_public/media')({
+  head: () => ({
+    meta: [
+      { title: "Media Library | Radiant Worship" },
+      { name: "description", content: "Browse photos, videos, and ministry moments that reflect the life and worship of our church community." },
+    ],
+  }),
   component: MediaPage,
 });
+
 
 function MediaPage() {
   const [activeTab, setActiveTab] = useState<string>('all');

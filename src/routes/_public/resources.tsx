@@ -10,8 +10,16 @@ import { Separator } from '@/components/ui/separator';
 import { BookOpen, GraduationCap, Heart, Info } from 'lucide-react';
 
 export const Route = createFileRoute('/_public/resources')({
+  head: () => ({
+    meta: [
+      { title: "Ministry Resources | Radiant Worship" },
+      { name: "description", content: "Access biblical devotionals, worship leader training, and technical resources to equip your ministry team." },
+      { property: "og:title", content: "Ministry Resources & Training" },
+    ],
+  }),
   component: ResourcesLibrary,
 });
+
 
 function ResourcesLibrary() {
   const [searchQuery, setSearchQuery] = useState('');

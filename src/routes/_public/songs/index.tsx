@@ -16,8 +16,17 @@ type SortOption = 'title-asc' | 'title-desc' | 'recent' | 'updated' | 'most-used
 type ViewMode = 'grid' | 'list';
 
 export const Route = createFileRoute('/_public/songs/')({
+  head: () => ({
+    meta: [
+      { title: "Worship Song Library | Radiant Worship" },
+      { name: "description", content: "Explore our collection of worship songs, chord charts, and lyrics focused on biblical, Christ-centered worship." },
+      { property: "og:title", content: "Worship Song Library" },
+      { property: "og:description", content: "Prepare for worship with our curated song collection." },
+    ],
+  }),
   component: SongLibraryPage,
 });
+
 
 function SongLibraryPage() {
   const [search, setSearch] = useState('');
