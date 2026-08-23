@@ -22,7 +22,7 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
             <span className="h-1 w-1 rounded-full bg-accent/30" />
             <span>{song.bpm} BPM</span>
             <span className="hidden sm:inline-flex h-1 w-1 rounded-full bg-accent/30" />
-            <span className="hidden sm:inline text-[10px] uppercase tracking-wider">{song.themes[0]}</span>
+            <span className="hidden sm:inline text-[10px] uppercase tracking-wider">{(song.themes ?? [])[0]}</span>
           </div>
         </div>
         <Link 
@@ -77,7 +77,7 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
             <p className="text-xs text-muted-foreground tracking-wide mt-1 truncate">{song.artist}</p>
           </div>
           <span className="shrink-0 text-[9px] font-bold tracking-wider text-accent uppercase border-b border-accent/30 pb-0.5">
-            {song.themes[0]}
+            {(song.themes ?? [])[0]}
           </span>
         </div>
         <div className="flex items-center gap-2">
