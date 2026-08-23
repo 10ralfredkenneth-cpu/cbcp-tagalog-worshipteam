@@ -1,25 +1,44 @@
-### Worship Team Assignments Implementation Plan
+# Worship Resources & Training Library Plan
 
-1.  **Data Infrastructure Extension (Done)**
-    *   Update `TeamMember` type with `availability`.
-    *   Update `WorshipSetlist` type with `assignments`, `rehearsalInfo`, and `callTimes`.
-    *   Update mock data for testing.
+Build a comprehensive library of biblical teaching, devotionals, and training materials for the worship team and congregation.
 
-2.  **Service Planner Integration (`src/routes/_public/setlists.$id.tsx`)**
-    *   Add "Team" tab to the service detail page.
-    *   Implement role slot definition UI.
-    *   Create assignment interface with member picker.
-    *   Implement role matching (skills) and conflict detection (availability/overlap).
-    *   Group roster by category (Worship Leaders, Vocals, Musicians, Technical).
+## 1. Data Model (`src/types/resources.ts`)
+- Define `WorshipResource` interface with fields for:
+  - ID, slug, title, content (HTML/Markdown support)
+  - Category (Devotional, Leadership, Musicianship, etc.)
+  - Resource Type (Article, Video, PDF, Lesson)
+  - Metadata: Author, date, reading time, scripture references, tags
+  - Ministry Roles (Worship Leader, Vocalist, Tech, etc.)
+  - Status (Draft, Published, Archived) and Featured flag
 
-3.  **Availability & Scheduling Views**
-    *   Create `/dashboard/availability` (Team Member view).
-    *   Create `/team/schedule` (Leader view - Calendar/List).
-    *   Implement "My Schedule" on member profiles and dashboard.
+## 2. Mock Data & Content (`src/lib/mock-resources.ts`)
+- Populate with diverse placeholder content:
+  - Devotionals (e.g., "The Heart of a Worshipper")
+  - Training Lessons (Vocal care, sound basics, lead transitions)
+  - Leadership Articles (Biblical foundations)
+- Include Scripture connections (Col 3:16, Psalm 95) and tags.
 
-4.  **Rehearsal & Print Tools**
-    *   Add rehearsal metadata fields to service settings.
-    *   Implement clean print stylesheet for the roster.
+## 3. Library Views (`/resources`)
+- **Main Gallery**: Responsive grid with search and category filtering.
+- **Featured Section**: Prominent display for high-value resources.
+- **Filtering System**: Multi-select filters by Category, Type, and Ministry Role.
+- **Resource Cards**: Elegant cards showing metadata (time, type, category).
 
-5.  **Mobile Optimization**
-    *   Ensure all new assignment and schedule views are responsive.
+## 4. Resource Details (`/resources/$id`)
+- **Long-form Reader**: Optimized typography for comfortable reading.
+- **Scripture Integration**: Display biblical references prominently.
+- **Related Content**: Section showing similar resources based on tags/categories.
+- **Save/Favorite UI**: Interaction for authenticated members.
+
+## 5. Technical Improvements
+- Update `src/routes/_public/resources.tsx` to include the library logic.
+- Create `src/routes/_public/resources.$id.tsx` for detail views.
+- Add components in `src/components/resources/`:
+  - `ResourceCard.tsx`
+  - `ResourceFilters.tsx`
+  - `ResourceSearch.tsx`
+  - `DevotionalContent.tsx` (Specialized layout for devotionals)
+
+## User Review Required
+> [!IMPORTANT]
+> This load focuses on the **Training & Devotional** content. The full Media Library (Photo/Video/Audio galleries) is reserved for the next phase.
