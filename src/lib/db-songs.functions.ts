@@ -55,6 +55,10 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     sections: (song as any).sections || [],
     flow: (song as any).flow || [],
     ccli_number: song.ccliNumber || null,
+    audio_url: (song as any).audioUrl || null,
+    sheet_music_url: (song as any).sheetMusicUrl || null,
+    external_resources: (song as any).externalResources || [],
+  };
   };
 
   const { data, error } = await supabase
@@ -89,6 +93,9 @@ export async function updateSong(input: { data: { id: string; song: Partial<Wors
   if ((song as any).sections !== undefined) updateData.sections = (song as any).sections;
   if ((song as any).flow !== undefined) updateData.flow = (song as any).flow;
   if (song.ccliNumber !== undefined) updateData.ccli_number = song.ccliNumber || null;
+  if ((song as any).audioUrl !== undefined) updateData.audio_url = (song as any).audioUrl || null;
+  if ((song as any).sheetMusicUrl !== undefined) updateData.sheet_music_url = (song as any).sheetMusicUrl || null;
+  if ((song as any).externalResources !== undefined) updateData.external_resources = (song as any).externalResources || [];
 
   const { data, error } = await supabase
     .from('songs')
@@ -99,4 +106,13 @@ export async function updateSong(input: { data: { id: string; song: Partial<Wors
 
   if (error) throw error;
   return data;
+}
+
+export async function deleteSong(id: string) {
+  const { error } = await supabase
+    .from('songs')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
 }
