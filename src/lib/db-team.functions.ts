@@ -81,7 +81,7 @@ export async function createAssignment(input: { data: any } | any) {
 
   const insertData: any = {
     service_id: payload.service_id,
-    member_id: payload.member_id,
+    user_id: payload.user_id || payload.member_id,
     role: payload.role ?? null,
     status: payload.status ?? 'Pending',
     notes: payload.notes ?? null,

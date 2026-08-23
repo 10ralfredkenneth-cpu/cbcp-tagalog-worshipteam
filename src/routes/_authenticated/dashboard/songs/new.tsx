@@ -59,7 +59,7 @@ function AddSongPage() {
       return;
     }
     setIsSaving(true);
-    mutation.mutate({ data: formData });
+    mutation.mutate(formData);
   };
 
   const updateField = (field: keyof WorshipSong, value: any) => {

@@ -20,7 +20,7 @@ function AddSchedulePage() {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     service_id: '',
-    user_id: '',
+    member_id: '',
     role: '',
     status: 'Pending',
     notes: ''
@@ -49,11 +49,11 @@ function AddSchedulePage() {
   });
 
   const handleSubmit = () => {
-    if (!formData.service_id || !formData.user_id || !formData.role) {
+    if (!formData.service_id || !formData.member_id || !formData.role) {
       toast.error('Service, member, and role are required');
       return;
     }
-    mutation.mutate({ data: formData });
+    mutation.mutate(formData);
   };
 
   return (
@@ -116,7 +116,7 @@ function AddSchedulePage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Team Member</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                <Select value={formData.user_id} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v }))}>
+                <Select value={formData.member_id} onValueChange={(v) => setFormData(prev => ({ ...prev, member_id: v }))}>
                   <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Search Member..." />
                   </SelectTrigger>
