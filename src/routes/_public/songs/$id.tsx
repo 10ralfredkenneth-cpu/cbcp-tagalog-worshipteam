@@ -478,6 +478,56 @@ function SongDetailPage() {
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Auto-Scroll</span>
                   </div>
+                  {/* Count-in */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Count-in</span>
+                      <div className="flex items-center gap-2">
+                        {[0, 4, 8].map(c => (
+                          <button 
+                            key={c}
+                            onClick={() => setCountInBeats(c)}
+                            className={`px-2 py-0.5 border ${countInBeats === c ? 'bg-accent text-primary border-accent' : 'bg-white text-gray-400 border-gray-100'}`}
+                          >
+                            {c || 'Off'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {isCountingIn && (
+                      <div className="text-center font-serif text-2xl text-accent animate-pulse">
+                        {currentCount}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Latency Calibration */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <span>Latency ({latency}ms)</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="200" 
+                      step="5"
+                      value={latency} 
+                      onChange={(e) => setLatency(parseInt(e.target.value))}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                  </div>
+
+                  {/* A-B Loop */}
+                  <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+                    <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setLoopMode(!loopMode)}>
+                      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${loopMode ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                        {loopMode && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1">
+                        <Repeat className="w-3 h-3" /> A-B Loop Mode
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
