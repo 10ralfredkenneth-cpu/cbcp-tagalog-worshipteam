@@ -98,9 +98,15 @@ function TeamDirectoryLayout() {
             </Badge>
             <h1 className="font-serif text-5xl lg:text-7xl text-foreground">Worship Team</h1>
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
-              Verify that team member avatar uploads now work end to end on both admin and the public Team page across multiple image sizes and formats.
+              Verify avatar uploads end to end for PNG, JPG, WEBP, and HEIC files, including very small and very large images, and ensure the correct avatar shows on the public Team page.
 
-Add a way for me to remove or replace a team member’s avatar, and ensure the public Team page updates instantly afterward.
+Add an upload progress indicator and clear success/failure messages when I upload or remove a team member avatar.
+
+Implement a default placeholder avatar when a team member has no image and ensure it displays consistently on both admin and the public Team page.
+
+Add drag-and-drop support to the avatar upload component so I can quickly replace a team member’s photo.
+
+Add a preview step that shows the new avatar before I save, and let me cancel without changing the current avatar.
             </p>
           </div>
           <div className="flex gap-3">
