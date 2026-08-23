@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/team_new')({
 function AddTeamMemberPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -32,22 +34,32 @@ function AddTeamMemberPage() {
     mutationFn: createMember,
     onSuccess: () => {
       toast.success('Personnel profile created successfully.');
+      queryClient.invalidateQueries({ queryKey: ['team'] });
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       queryClient.invalidateQueries({ queryKey: ['team-public'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       navigate({ to: '/dashboard/team' });
     },
     onError: (error: any) => {
-      toast.error('Failed to add member: ' + error.message);
+      const message = error.message || 'Failed to add member';
+      toast.error(message);
+      setErrors({ root: message });
     }
   });
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.full_name) newErrors['full_name'] = 'Full name is required';
+    if (!formData.email) newErrors['email'] = 'Email address is required';
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors['email'] = 'Invalid email format';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!formData.full_name || !formData.email) {
-      toast.error('Name and email are required');
-      return;
-    }
+    if (!validate()) return;
     mutation.mutate({ data: formData });
   };
 
@@ -104,10 +116,11 @@ function AddTeamMemberPage() {
                   value={formData.full_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                   placeholder="John Doe" 
-                  className="pl-10 rounded-none border-accent/10 bg-background" 
+                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors['full_name'] && "border-red-500")}
                   autoComplete="off"
                 />
               </div>
+              {errors['full_name'] && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors['full_name']}</p>}
             </div>
 
             <div className="space-y-2">
@@ -121,10 +134,11 @@ function AddTeamMemberPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="john@example.com" 
-                  className="pl-10 rounded-none border-accent/10 bg-background" 
+                  className={cn("pl-10 rounded-none border-accent/10 bg-background", errors['email'] && "border-red-500")}
                   autoComplete="off"
                 />
               </div>
+              {errors['email'] && <p className="text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors['email']}</p>}
             </div>
           </section>
         </div>
