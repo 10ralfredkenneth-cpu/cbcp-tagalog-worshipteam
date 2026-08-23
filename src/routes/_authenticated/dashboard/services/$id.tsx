@@ -49,10 +49,8 @@ function ServiceDetailsPage() {
           </div>
         </div>
         <div className="flex gap-4">
-          <Button asChild variant="outline" className="rounded-none border-accent/20 text-[10px] uppercase font-bold tracking-widest px-8 py-6">
-            <Link to="/dashboard/services/$id" params={{ id: service.id }}>
-              <Edit className="w-4 h-4 mr-2" /> Edit Details
-            </Link>
+          <Button variant="outline" className="rounded-none border-accent/20 text-[10px] uppercase font-bold tracking-widest px-8 py-6">
+            <Edit className="w-4 h-4 mr-2" /> Edit Details
           </Button>
           <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
             <Link to="/dashboard/setlists" search={{ serviceId: service.id }}>

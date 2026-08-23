@@ -90,8 +90,8 @@ function ServiceManagementPage() {
           </p>
         </div>
         <div className="flex gap-4">
-          <Button asChild variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
-            <Link to="/dashboard/services">Service Planner</Link>
+          <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
+            Templates
           </Button>
           <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
             <Link to="/dashboard/services/new">
@@ -211,10 +211,8 @@ function ServiceManagementPage() {
                           <ListMusic className="w-3 h-3 mr-2" /> Manage Setlist
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/dashboard/services/$id" params={{ id: service.id }}>
-                          <Edit className="w-3 h-3 mr-2" /> Edit Service
-                        </Link>
+                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Edit className="w-3 h-3 mr-2" /> Edit Service
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
