@@ -9,7 +9,16 @@ export async function getSongsPublic() {
     .order("title");
 
   if (error) throw error;
-  return data || [];
+  
+  return (data || []).map((song: any) => ({
+    ...song,
+    defaultKey: song.default_key,
+    timeSignature: song.time_signature,
+    createdAt: song.created_at,
+    updatedAt: song.updated_at,
+    scriptureReferences: song.scripture_references || [],
+    songType: song.song_type,
+  }));
 }
 
 export async function getResourcesPublic() {
