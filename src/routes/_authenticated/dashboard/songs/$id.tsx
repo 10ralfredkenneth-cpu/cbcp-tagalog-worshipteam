@@ -42,6 +42,8 @@ function EditSongPage() {
         sheetMusicUrl: data.sheet_music_url,
         externalResources: data.external_resources,
         scriptureReferences: data.scripture_references || [],
+        lyrics: data.lyrics,
+        chords: data.chords,
         isPublic: data.is_public,
         createdAt: data.created_at,
         updatedAt: data.updated_at
