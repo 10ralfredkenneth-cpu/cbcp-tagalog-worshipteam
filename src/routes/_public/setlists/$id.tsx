@@ -470,7 +470,7 @@ function SetlistDetailPage() {
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="text-center">
                     <p className="text-[9px] font-bold text-accent uppercase mb-1">{item.startTime}</p>
-                    <p className="text-sm font-serif">{item.title?.split(' ')[0].toUpperCase()}</p>
+                    <p className="text-sm font-serif">{item.title?.split(' ')[0]?.toUpperCase() ?? 'ITEM'}</p>
                   </div>
                   {idx < timeline.length - 1 && (
                     <div className="h-px w-8 bg-accent/20" />
