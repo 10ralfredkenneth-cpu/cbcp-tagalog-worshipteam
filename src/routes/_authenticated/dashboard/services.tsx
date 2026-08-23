@@ -9,10 +9,10 @@ import {
   Copy, 
   Archive, 
   Eye, 
-  ArrowRight, 
   Clock, 
   User, 
-  CheckCircle2 
+  CheckCircle2,
+  ListMusic
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,24 +34,47 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getServices } from '@/lib/db-services';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/services')({
   component: ServiceManagementPage,
 });
 
 function ServiceManagementPage() {
+  const queryClient = useQueryClient();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
     queryFn: getServices,
   });
 
+  const archiveMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('services')
+        .update({ status: 'Archived' })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      toast.success('Service archived');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to archive: ' + error.message);
+    }
+  });
+
+  const handleArchive = (id: string) => {
+    if (confirm('Archive this service?')) {
+      archiveMutation.mutate(id);
+    }
+  };
+
   const handleDuplicate = (id: string) => {
-    toast.info('Duplicate feature coming soon', {
-      description: `Service ${id} will be clonable soon.`
-    });
+    toast.info('Duplicate feature coming soon');
   };
 
   return (
@@ -68,7 +91,7 @@ function ServiceManagementPage() {
         </div>
         <div className="flex gap-4">
           <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
-            Service Templates
+            Templates
           </Button>
           <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
             <Link to="/dashboard/services/new">
@@ -83,15 +106,15 @@ function ServiceManagementPage() {
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Upcoming</p>
-            <p className="font-serif text-3xl">{services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length} Services</p>
+            <p className="font-serif text-3xl">{services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length}</p>
           </div>
           <Calendar className="w-8 h-8 text-accent/20" />
         </div>
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Unconfirmed</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Pending Roles</p>
             <p className="font-serif text-3xl text-amber-600">
-              {services.reduce((acc, s) => acc + s.assignments.filter(a => a.status === 'Pending').length, 0)} Roles
+              {services.reduce((acc, s) => acc + s.assignments.filter(a => a.status === 'Pending').length, 0)}
             </p>
           </div>
           <User className="w-8 h-8 text-amber-600/20" />
@@ -99,13 +122,12 @@ function ServiceManagementPage() {
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Completed</p>
-            <p className="font-serif text-3xl">{services.filter(s => s.status === 'Completed').length} Total</p>
+            <p className="font-serif text-3xl">{services.filter(s => s.status === 'Completed').length}</p>
           </div>
           <CheckCircle2 className="w-8 h-8 text-green-600/20" />
         </div>
       </div>
 
-      {/* Services Table */}
       <div className="border border-accent/5 bg-background overflow-x-auto">
         <Table>
           <TableHeader>
@@ -120,13 +142,13 @@ function ServiceManagementPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                <TableCell colSpan={5} className="py-12 text-center text-[10px] uppercase tracking-widest italic">
                   Loading services...
                 </TableCell>
               </TableRow>
             ) : services.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                <TableCell colSpan={5} className="py-12 text-center text-[10px] uppercase tracking-widest italic">
                   No services scheduled.
                 </TableCell>
               </TableRow>
@@ -145,14 +167,7 @@ function ServiceManagementPage() {
                 </TableCell>
                 <TableCell className="py-6 px-6">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-accent/10 flex items-center justify-center text-[8px] font-bold text-accent">
-                        L
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        Assigned
-                      </span>
-                    </div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest">Worship Leader</div>
                     <div className="text-[8px] text-muted-foreground uppercase tracking-widest">
                       {service.assignments.filter(a => a.status === 'Confirmed').length}/{service.assignments.length} Confirmed
                     </div>
@@ -187,26 +202,24 @@ function ServiceManagementPage() {
                     <DropdownMenuContent align="end" className="rounded-none border-accent/10 bg-primary text-primary-foreground">
                       <DropdownMenuLabel className="text-[9px] uppercase tracking-widest text-accent/50 font-bold">Options</DropdownMenuLabel>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/setlists/$id" params={{ id: service.id }}>
-                          <Eye className="w-3 h-3 mr-2" /> View Public Page
+                        <Link to="/dashboard/services/$id" params={{ id: service.id }}>
+                          <Eye className="w-3 h-3 mr-2" /> View Details
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Link to="/dashboard/services/new">
-                          <Edit className="w-3 h-3 mr-2" /> Edit Details
+                        <Link to="/dashboard/setlists/$id" params={{ id: service.id }}>
+                          <ListMusic className="w-3 h-3 mr-2" /> Manage Setlist
                         </Link>
                       </DropdownMenuItem>
-
-
-                      <DropdownMenuItem 
-                        onClick={() => handleDuplicate(service.id)}
-                        className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer"
-                      >
-                        <Copy className="w-3 h-3 mr-2" /> Duplicate
+                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Edit className="w-3 h-3 mr-2" /> Edit Service
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-accent/10" />
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer">
-                        <Archive className="w-3 h-3 mr-2" /> Archive
+                      <DropdownMenuItem 
+                        onClick={() => handleArchive(service.id)}
+                        className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
+                      >
+                        <Archive className="w-3 h-3 mr-2" /> Archive Service
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
