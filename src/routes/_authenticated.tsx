@@ -34,8 +34,8 @@ function AuthenticatedLayout() {
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 lg:pl-20 transition-all duration-500">
-        <div className="min-h-screen">
+      <main className="flex-1 lg:pl-64 transition-all duration-500">
+        <div className="min-h-screen pt-20 lg:pt-0">
           <Outlet />
         </div>
       </main>
