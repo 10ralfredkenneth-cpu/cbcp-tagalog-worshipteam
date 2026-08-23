@@ -80,6 +80,7 @@ function EditTeamMemberPage() {
       status: formData.status,
       is_public: formData.is_public,
       avatar_url: formData.avatar_url,
+      avatarUrl: formData.avatar_url,
       instrument: instrumentArr.join(', '), // DB column is text
       skills: instrumentArr // DB column is ARRAY
     };
