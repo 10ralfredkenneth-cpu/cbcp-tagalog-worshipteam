@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setLISTS';
+import { MOCK_SETLISTS } from '@/lib/mock-setlists';
 import { MOCK_RESOURCES } from '@/lib/mock-resources';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,8 +31,8 @@ function DashboardPage() {
 
   const myAssignments = useMemo(() => {
     const assignments: any[] = [];
-    MOCK_SETLISTS.forEach(service => {
-      const myAssignment = service.assignments?.find(a => a.memberId === currentMemberId);
+    MOCK_SETLISTS.forEach((service: any) => {
+      const myAssignment = service.assignments?.find((a: any) => a.memberId === currentMemberId);
       if (myAssignment) {
         assignments.push({
           ...myAssignment,
