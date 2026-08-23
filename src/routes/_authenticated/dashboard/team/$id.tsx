@@ -69,8 +69,10 @@ function MemberDetailsPage() {
               <ArrowLeft className="w-4 h-4 mr-2" /> All Members
             </Link>
           </Button>
-          <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-            <Edit className="w-4 h-4 mr-2" /> Update Profile
+          <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl" asChild>
+            <Link to="/dashboard/team/edit/$id" params={{ id: member.id }}>
+              <Edit className="w-4 h-4 mr-2" /> Update Profile
+            </Link>
           </Button>
         </div>
       </header>

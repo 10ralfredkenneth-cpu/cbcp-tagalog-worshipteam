@@ -86,11 +86,11 @@ function TeamManagementPage() {
   });
 
   const handleMove = async (index: number, direction: 'up' | 'down') => {
-    const member = team[index];
+    const member = filteredTeam[index];
     const otherIndex = direction === 'up' ? index - 1 : index + 1;
-    const otherMember = team[otherIndex];
+    const otherMember = filteredTeam[otherIndex];
 
-    if (!otherMember) return;
+    if (!member || !otherMember) return;
 
     // Swap orders
     const memberOrder = member.display_order || 0;
@@ -242,7 +242,7 @@ function TeamManagementPage() {
                       size="icon" 
                       className="h-6 w-6 rounded-none text-accent/20 hover:text-accent hover:bg-accent/5 disabled:opacity-0"
                       onClick={() => handleMove(index, 'down')}
-                      disabled={index === team.length - 1}
+                      disabled={index === filteredTeam.length - 1}
                     >
                       <ChevronDown className="h-3 w-3" />
                     </Button>

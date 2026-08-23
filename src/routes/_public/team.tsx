@@ -56,7 +56,7 @@ function TeamDirectoryLayout() {
       
       const matchesSearch = fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           primaryRole.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRole = roleFilter === 'all' || primaryRole === roleFilter;
+      const matchesRole = roleFilter === 'all' || primaryRole.toLowerCase() === roleFilter.toLowerCase();
       const matchesStatus = statusFilter === 'all' || member.status === statusFilter;
       
       return matchesSearch && matchesRole && matchesStatus;
