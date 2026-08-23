@@ -1,89 +1,77 @@
-import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
-import { Database } from "@/integrations/supabase/types";
 
-type ResourceInsert = Database["public"]["Tables"]["worship_resources"]["Insert"];
-type MediaInsert = Database["public"]["Tables"]["media_items"]["Insert"];
+export async function getResources() {
+  const { data, error } = await supabase
+    .from("worship_resources")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-export const getResources = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
-      .from("worship_resources")
-      .select("*")
-      .order("created_at", { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
-  });
+  if (error) throw error;
+  return data || [];
+}
 
-export const createResource = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    title: z.string().min(1),
-    description: z.string().nullable().optional(),
-    category: z.string(),
-    type: z.string(),
-    content: z.string().optional(),
-    is_public: z.boolean().optional(),
-    featured: z.boolean().optional(),
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const insertData: ResourceInsert = {
-      title: data.title,
-      description: data.description ?? null,
-      category: data.category as any,
-      resource_type: data.type as any,
-      content: data.content ?? '',
-      slug: data.title.toLowerCase().replace(/\s+/g, '-'),
-      is_public: data.is_public ?? false,
-      featured: data.featured ?? false,
-      status: 'Published'
-    };
+export async function createResource(input: { data: any } | any) {
+  const payload = ((input as any)?.data ?? input) as any;
+  if (!payload?.title) throw new Error("Title is required");
 
-    const { data: resource, error } = await supabase
-      .from("worship_resources")
-      .insert([insertData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return resource;
-  });
+  const isPublic = payload.is_public ?? (payload.visibility ? payload.visibility === 'Public' : false);
 
-export const getMediaItems = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
-      .from("media_items")
-      .select("*")
-      .order("created_at", { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
-  });
+  const insertData: any = {
+    title: payload.title,
+    description: payload.description ?? null,
+    category: payload.category ?? null,
+    resource_type: payload.type ?? payload.resource_type ?? 'Article',
+    content: payload.content ?? '',
+    slug: `${String(payload.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString(36)}`,
+    tags: payload.tags ?? null,
+    external_link: payload.external_link || null,
+    is_public: isPublic,
+    visibility: payload.visibility ?? (isPublic ? 'Public' : 'Private'),
+    featured: payload.featured ?? false,
+    status: payload.status ?? 'Published',
+  };
 
-export const createMediaItem = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    title: z.string().min(1),
-    file_url: z.string().url(),
-    media_type: z.string(),
-    category: z.string(),
-    description: z.string().nullable().optional(),
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const insertData: MediaInsert = {
-      title: data.title,
-      file_url: data.file_url,
-      media_type: data.media_type as any,
-      category: data.category as any,
-      description: data.description ?? null,
-    };
+  const { data, error } = await supabase
+    .from("worship_resources")
+    .insert([insertData])
+    .select()
+    .single();
 
-    const { data: media, error } = await supabase
-      .from("media_items")
-      .insert([insertData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return media;
-  });
+  if (error) throw error;
+  return data;
+}
+
+export async function getMediaItems() {
+  const { data, error } = await supabase
+    .from("media_items")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createMediaItem(input: { data: any } | any) {
+  const payload = ((input as any)?.data ?? input) as any;
+  if (!payload?.title) throw new Error("Title is required");
+  if (!payload?.file_url) throw new Error("A file URL is required");
+
+  const insertData: any = {
+    title: payload.title,
+    file_url: payload.file_url,
+    media_type: payload.media_type ?? 'Photo',
+    category: payload.category ?? null,
+    description: payload.description ?? null,
+    thumbnail_url: payload.thumbnail_url ?? null,
+    visibility: payload.visibility ?? 'Public',
+  };
+
+  const { data, error } = await supabase
+    .from("media_items")
+    .insert([insertData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

@@ -1,137 +1,113 @@
-import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
-import { Database } from "@/integrations/supabase/types";
 
-type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
-type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
-type AssignmentInsert = Database["public"]["Tables"]["service_assignments"]["Insert"];
-type AssignmentUpdate = Database["public"]["Tables"]["service_assignments"]["Update"];
+export async function getProfiles() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("full_name");
 
-export const getProfiles = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("full_name");
-    
-    if (error) throw error;
-    return data || [];
-  });
+  if (error) throw error;
+  return data || [];
+}
 
-export const getTeamMembers = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("full_name");
-    
-    if (error) throw error;
-    return data || [];
-  });
+export async function getTeamMembers() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("full_name");
 
-export const createMember = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    id: z.string().uuid(),
-    full_name: z.string().min(1),
-    email: z.string().email(),
-    primary_role: z.string().nullable().optional(),
-    bio: z.string().nullable().optional(),
-    avatar_url: z.string().nullable().optional(),
-    status: z.string().nullable().optional(),
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const insertData: ProfileInsert = {
-      id: data.id,
-      full_name: data.full_name,
-      email: data.email,
-      primary_role: data.primary_role ?? null,
-      bio: data.bio ?? null,
-      avatar_url: data.avatar_url ?? null,
-      status: (data.status as any) ?? null,
-    };
+  if (error) throw error;
+  return data || [];
+}
 
-    const { data: member, error } = await supabase
-      .from("profiles")
-      .insert([insertData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return member;
-  });
+export async function createMember(input: { data: any } | any) {
+  const payload = ((input as any)?.data ?? input) as any;
+  if (!payload?.full_name) throw new Error("Full name is required");
+  if (!payload?.email) throw new Error("Email is required");
 
-export const updateMember = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    id: z.string().uuid(),
-    updates: z.any()
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const { data: member, error } = await supabase
-      .from("profiles")
-      .update(data.updates)
-      .eq("id", data.id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return member;
-  });
+  const insertData: any = {
+    id: payload.id ?? crypto.randomUUID(),
+    full_name: payload.full_name,
+    email: payload.email,
+    primary_role: payload.primary_role || null,
+    instruments: payload.instruments
+      ? (Array.isArray(payload.instruments)
+          ? payload.instruments
+          : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
+      : null,
+    bio: payload.bio ?? null,
+    avatar_url: payload.avatar_url ?? null,
+    status: payload.status ?? 'Active',
+    is_public: payload.is_public ?? false,
+  };
 
-export const getAssignments = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
-      .from("service_assignments")
-      .select("*");
-    
-    if (error) throw error;
-    return data || [];
-  });
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert([insertData])
+    .select()
+    .single();
 
-export const createAssignment = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    service_id: z.string().uuid(),
-    member_id: z.string().uuid(),
-    role: z.string().nullable().optional(),
-    status: z.string().optional(),
-    notes: z.string().nullable().optional(),
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const insertData: AssignmentInsert = {
-      service_id: data.service_id,
-      member_id: data.member_id,
-      role: (data.role as any) ?? null,
-      status: (data.status as any) ?? 'Pending',
-      notes: data.notes ?? null,
-    };
+  if (error) throw error;
+  return data;
+}
 
-    const { data: assignment, error } = await supabase
-      .from("service_assignments")
-      .insert([insertData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return assignment;
-  });
+export async function updateMember(input: { data: { id: string; updates: any } } | { id: string; updates: any }) {
+  const { id, updates } = ((input as any)?.data ?? input) as { id: string; updates: any };
 
-export const updateAssignmentStatus = createServerFn({ method: "POST" })
-  .inputValidator((data: any) => z.object({
-    id: z.string().uuid(),
-    status: z.string(),
-  }).parse(data.data))
-  .handler(async ({ data }) => {
-    const updateData: AssignmentUpdate = {
-      status: data.status as any
-    };
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
 
-    const { data: assignment, error } = await supabase
-      .from("service_assignments")
-      .update(updateData)
-      .eq("id", data.id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return assignment;
-  });
+  if (error) throw error;
+  return data;
+}
+
+export async function getAssignments() {
+  const { data, error } = await supabase
+    .from("service_assignments")
+    .select("*");
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createAssignment(input: { data: any } | any) {
+  const payload = ((input as any)?.data ?? input) as any;
+  if (!payload?.service_id) throw new Error("A service is required");
+  if (!payload?.member_id) throw new Error("A team member is required");
+
+  const insertData: any = {
+    service_id: payload.service_id,
+    member_id: payload.member_id,
+    role: payload.role ?? null,
+    status: payload.status ?? 'Pending',
+    notes: payload.notes ?? null,
+    call_time: payload.call_time ?? null,
+  };
+
+  const { data, error } = await supabase
+    .from("service_assignments")
+    .insert([insertData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateAssignmentStatus(input: { data: { id: string; status: string } } | { id: string; status: string }) {
+  const { id, status } = ((input as any)?.data ?? input) as { id: string; status: string };
+
+  const { data, error } = await supabase
+    .from("service_assignments")
+    .update({ status: status as any })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
