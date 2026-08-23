@@ -364,7 +364,7 @@ function SongDetailPage() {
                     {(initialSong.sections as any || []).map((section: any, idx: number) => (
                       <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
                     ))}
-                    {!initialSong.sections?.length && (
+                    {!((initialSong.sections as any)?.length) && (
                       <p className="text-muted-foreground italic text-center py-12">
                         Lyrics for this song are currently unavailable.
                       </p>
