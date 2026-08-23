@@ -61,7 +61,7 @@ function Index() {
       time: upcomingService.service_time,
       location: upcomingService.rehearsal_location || "Main Sanctuary",
       description: upcomingService.notes || "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
-      theme: upcomingService.theme
+      theme: upcomingService.theme || ""
     };
   }, [upcomingService]);
 
