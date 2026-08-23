@@ -65,8 +65,10 @@ function ServiceManagementPage() {
           <Button variant="outline" className="rounded-none border-accent/10 px-8 py-6 font-bold text-[10px] uppercase tracking-widest">
             Service Templates
           </Button>
-          <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-            <Plus className="w-4 h-4 mr-2" /> Plan New Service
+          <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+            <Link to="/setlists">
+              <Plus className="w-4 h-4 mr-2" /> Plan New Service
+            </Link>
           </Button>
         </div>
       </header>
