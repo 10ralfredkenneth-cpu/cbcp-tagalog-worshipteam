@@ -16,10 +16,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
-import { MOCK_SONGS } from '@/lib/mock-songs';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_RESOURCES } from '@/lib/mock-resources';
+import { useQuery } from '@tanstack/react-query';
+import { getSongs } from '@/lib/db-songs';
+import { getServices } from '@/lib/db-services';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: AdminDashboardOverview,
@@ -28,14 +28,43 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
 function AdminDashboardOverview() {
   const { isWorshipLeader, isMinistryAdmin } = useAuth();
 
+  const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: getSongs });
+  const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: getServices });
+  const { data: team = [] } = useQuery({ 
+    queryKey: ['team-count'], 
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'Active');
+      if (error) throw error;
+      return data;
+    } 
+  });
+  
   const stats = [
-    { label: 'Upcoming Services', value: MOCK_SETLISTS.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar, to: '/dashboard/services' },
-    { label: 'Active Songs', value: MOCK_SONGS.filter(s => s.status === 'Active').length, icon: Music, to: '/dashboard/songs' },
-    { label: 'Team Members', value: MOCK_TEAM.filter(m => m.status === 'Active').length, icon: Users, to: '/dashboard/team' },
-    { label: 'Pending Assignments', value: 0, icon: Clock, to: '/dashboard/schedule' },
+    { label: 'Upcoming Services', value: services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar, to: '/dashboard/services' },
+    { label: 'Active Songs', value: songs.filter(s => s.status === 'Active').length, icon: Music, to: '/dashboard/songs' },
+    { label: 'Team Members', value: team.length || 0, icon: Users, to: '/dashboard/team' },
+    { label: 'Pending Assignments', value: services.reduce((acc, s) => acc + s.assignments.filter(a => a.status === 'Pending').length, 0), icon: Clock, to: '/dashboard/schedule' },
   ];
 
-  const recentActivity: any[] = []; // Truthful empty state for now as no audit_logs backend is hooked up yet
+  const { data: recentActivity = [] } = useQuery({
+    queryKey: ['recent-activity'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data.map(log => ({
+        id: log.id,
+        action: log.action,
+        entity: log.entity_type,
+        time: new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        user: log.user_id || 'System'
+      }));
+    }
+  });
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
@@ -178,26 +207,26 @@ function AdminDashboardOverview() {
               Upcoming Planning
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {MOCK_SETLISTS.slice(0, 2).map((setlist) => (
-                <Card key={setlist.id} className="rounded-none border-accent/5 bg-muted/10">
+              {services.slice(0, 2).map((service: any) => (
+                <Card key={service.id} className="rounded-none border-accent/5 bg-muted/10">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start mb-2">
                       <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest border-accent/20 text-accent">
-                        {setlist.status}
+                        {service.status}
                       </Badge>
                       <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
-                        {new Date(setlist.serviceDate).toLocaleDateString()}
+                        {new Date(service.serviceDate).toLocaleDateString()}
                       </span>
                     </div>
-                    <CardTitle className="font-serif text-xl">{setlist.title}</CardTitle>
+                    <CardTitle className="font-serif text-xl">{service.title}</CardTitle>
                     <CardDescription className="text-[10px] uppercase tracking-widest">
-                      WL: {MOCK_TEAM.find(t => t.id === setlist.worshipLeader)?.fullName || 'Unassigned'}
+                      WL: Assigned
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex justify-between items-center mt-4">
                       <div className="flex -space-x-2">
-                        {setlist.assignments.slice(0, 3).map((a) => (
+                        {service.assignments.slice(0, 3).map((a: any) => (
                           <div key={a.id} className="w-6 h-6 rounded-none bg-accent/20 border border-primary flex items-center justify-center text-[8px] font-bold text-accent">
                             {a.role.substring(0, 1)}
                           </div>

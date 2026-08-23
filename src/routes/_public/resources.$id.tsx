@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { MOCK_RESOURCES } from '@/lib/mock-resources';
+import { useQuery } from '@tanstack/react-query';
+import { getResources } from '@/lib/db-resources.functions';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScriptureBlock } from '@/components/ui/ScriptureBlock';
@@ -23,20 +24,25 @@ export const Route = createFileRoute('/_public/resources/$id')({
 
 function ResourceDetailPage() {
   const { id } = Route.useParams();
+
+  const { data: resources = [] } = useQuery({
+    queryKey: ['resources'],
+    queryFn: getResources,
+  });
   
   const resource = useMemo(() => {
-    return MOCK_RESOURCES.find(r => r.id === id);
-  }, [id]);
+    return resources.find((r: any) => r.id === id);
+  }, [resources, id]);
 
   const relatedResources = useMemo(() => {
     if (!resource) return [];
-    return MOCK_RESOURCES
-      .filter(r => 
-        r.id !== resource.id && 
-        (r.category === resource.category || r.tags.some(t => resource.tags.includes(t)))
+    return resources
+      .filter((r: any) => 
+        r.id !== (resource as any).id && 
+        (r.category === (resource as any).category || (r.tags || []).some((t: string) => (resource as any).tags?.includes(t)))
       )
       .slice(0, 3);
-  }, [resource]);
+  }, [resources, resource]);
 
   if (!resource) {
     return (
@@ -82,7 +88,7 @@ function ResourceDetailPage() {
               {resource.category}
             </Badge>
             <Badge variant="secondary" className="rounded-none text-muted-foreground font-semibold tracking-wider text-[10px] uppercase">
-              {resource.resourceType}
+              {(resource as any).resource_type || (resource as any).resourceType}
             </Badge>
           </div>
           
@@ -97,11 +103,11 @@ function ResourceDetailPage() {
               </div>
               <div>
                 <span className="block text-[10px] uppercase tracking-widest font-bold text-accent/60">Author</span>
-                <span className="font-medium text-foreground">{resource.author}</span>
+                <span className="font-medium text-foreground">{(resource as any).author || 'Ministry Team'}</span>
               </div>
             </div>
             
-            {resource.publishedAt && (
+            {((resource as any).published_at || (resource as any).publishedAt) && (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                   <Calendar className="w-4 h-4" />
@@ -109,29 +115,29 @@ function ResourceDetailPage() {
                 <div>
                   <span className="block text-[10px] uppercase tracking-widest font-bold text-accent/60">Published</span>
                   <span className="font-medium text-foreground">
-                    {new Date(resource.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    {new Date((resource as any).published_at || (resource as any).publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </span>
                 </div>
               </div>
             )}
 
-            {resource.readingTime && (
+            {((resource as any).reading_time || (resource as any).readingTime) && (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="block text-[10px] uppercase tracking-widest font-bold text-accent/60">Reading Time</span>
-                  <span className="font-medium text-foreground">{resource.readingTime} minutes</span>
+                  <span className="font-medium text-foreground">{(resource as any).reading_time || (resource as any).readingTime} minutes</span>
                 </div>
               </div>
             )}
           </div>
 
-          {resource.coverImage && (
+          {((resource as any).cover_image || (resource as any).coverImage) && (
             <div className="aspect-[21/9] w-full mb-16 overflow-hidden border border-accent/10">
               <img 
-                src={resource.coverImage} 
+                src={(resource as any).cover_image || (resource as any).coverImage} 
                 alt={resource.title}
                 className="w-full h-full object-cover"
               />
@@ -144,18 +150,18 @@ function ResourceDetailPage() {
       <main className="px-6 mb-24">
         <article className="max-w-3xl mx-auto">
           {/* Scripture Foundations */}
-          {resource.scriptureReferences && resource.scriptureReferences.length > 0 && (
+          {((resource as any).scripture_references || (resource as any).scriptureReferences) && ((resource as any).scripture_references || (resource as any).scriptureReferences).length > 0 && (
             <div className="mb-12">
               <h3 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase mb-6 flex items-center gap-3">
                 Scripture Foundation
                 <Separator className="flex-1 bg-accent/10" />
               </h3>
               <div className="grid grid-cols-1 gap-4">
-                {resource.scriptureReferences.map((ref, idx) => (
+                {((resource as any).scripture_references || (resource as any).scriptureReferences).map((ref: any, idx: number) => (
                   <ScriptureBlock 
                     key={idx}
-                    reference={typeof ref === 'string' ? ref : ref.reference}
-                    verse={typeof ref === 'object' && ref.notes ? ref.notes : (typeof ref === 'string' ? "Scripture reference for study and reflection." : "Scripture reference for study and reflection.")}
+                    reference={typeof ref === 'string' ? ref : (ref.reference || '')}
+                    verse={typeof ref === 'object' && ref.notes ? ref.notes : "Scripture reference for study and reflection."}
                   />
                 ))}
               </div>
@@ -177,7 +183,7 @@ function ResourceDetailPage() {
           {/* Tags */}
           <div className="mt-16 pt-8 border-t border-accent/10 flex flex-wrap gap-2">
             <Tag className="w-4 h-4 text-accent/60 mr-2" />
-            {resource.tags.map(tag => (
+            {((resource as any).tags || []).map((tag: string) => (
               <Badge key={tag} variant="outline" className="rounded-none border-accent/10 text-muted-foreground hover:border-accent/30 cursor-pointer transition-colors">
                 #{tag}
               </Badge>

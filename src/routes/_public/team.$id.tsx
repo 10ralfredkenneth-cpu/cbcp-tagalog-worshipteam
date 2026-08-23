@@ -1,7 +1,8 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { supabase } from '@/integrations/supabase/client';
+import { getServices } from '@/lib/db-services';
 import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
@@ -76,8 +77,8 @@ function MemberProfilePage() {
           <div className="lg:col-span-4 space-y-8">
             <div className="aspect-[3/4] overflow-hidden bg-muted rounded-sm">
               <img 
-                src={member.photoUrl} 
-                alt={member.fullName} 
+                src={member.avatar_url || (member as any).photoUrl} 
+                alt={member.full_name || (member as any).fullName} 
                 className="w-full h-full object-cover grayscale"
               />
             </div>
@@ -93,7 +94,7 @@ function MemberProfilePage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4 text-accent" />
-                  <span>Joined {new Date(member.dateJoined).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+                  <span>Joined {new Date(member.created_at || '').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
                 </div>
                 {member.instrument && (
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -101,10 +102,10 @@ function MemberProfilePage() {
                     <span>Primary: {member.instrument}</span>
                   </div>
                 )}
-                {member.vocalRange && (
+                {member.vocal_range && (
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Mic2 className="h-4 w-4 text-accent" />
-                    <span>Range: {member.vocalRange}</span>
+                    <span>Range: {member.vocal_range}</span>
                   </div>
                 )}
               </div>
@@ -112,7 +113,7 @@ function MemberProfilePage() {
               <div className="pt-6 border-t border-muted/20 space-y-4">
                 <h4 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Ministry Groups</h4>
                 <div className="flex flex-wrap gap-2">
-                  {member.groups.map((group: string) => (
+                  {(member.groups || []).map((group: string) => (
                     <Badge key={group} variant="outline" className="text-[10px] tracking-wide border-muted">
                       {group}
                     </Badge>
@@ -125,17 +126,17 @@ function MemberProfilePage() {
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-12">
             <div className="space-y-4">
-              <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">{member.primaryRole}</span>
-              <h1 className="text-5xl md:text-7xl font-serif text-primary leading-tight">{member.fullName}</h1>
-              {member.secondaryRoles.length > 0 && (
+              <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">{member.primary_role || (member as any).primaryRole}</span>
+              <h1 className="text-5xl md:text-7xl font-serif text-primary leading-tight">{member.full_name || (member as any).fullName}</h1>
+              {((member as any).secondary_roles || (member as any).secondaryRoles || []).length > 0 && (
                 <div className="flex flex-wrap gap-2 text-sm text-muted-foreground italic">
-                  Also serving as: {member.secondaryRoles.join(', ')}
+                  Also serving as: {((member as any).secondary_roles || (member as any).secondaryRoles || []).join(', ')}
                 </div>
               )}
             </div>
 
             <div className="prose prose-slate max-w-none">
-              <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-4">About {member.fullName.split(' ')[0]}</h3>
+              <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-4">About {(member.full_name || (member as any).fullName).split(' ')[0]}</h3>
               <p className="text-lg text-muted-foreground leading-relaxed font-serif">
                 {member.bio || "No biography provided."}
               </p>
@@ -145,7 +146,7 @@ function MemberProfilePage() {
               <div className="space-y-6">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Skills & Capabilities</h3>
                 <div className="flex flex-wrap gap-3">
-                  {member.skills.map((skill: string) => (
+                  {(member.skills || []).map((skill: string) => (
                     <div key={skill} className="flex items-center gap-2 bg-muted/30 px-4 py-2 rounded-full border border-muted/20">
                       <Star className="h-3 w-3 text-accent fill-accent" />
                       <span className="text-sm font-medium">{skill}</span>
@@ -168,11 +169,11 @@ function MemberProfilePage() {
                     <Clock className="h-4 w-4 text-accent/60" />
                     <span className="text-muted-foreground italic">Preferred Service: Sunday Morning</span>
                   </div>
-                  {member.internalNotes && (
+                  {(member as any).internal_notes && (
                     <div className="pt-4 mt-4 border-t border-accent/10">
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         <span className="font-bold text-primary mr-2 uppercase tracking-tighter">Leader Notes:</span>
-                        {member.internalNotes}
+                        {(member as any).internal_notes}
                       </p>
                     </div>
                   )}
@@ -205,7 +206,7 @@ function MemberProfilePage() {
               <div className="space-y-8">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Availability</h3>
                 <div className="space-y-4">
-                  {member.availability?.map((av: any) => (
+                  {((member as any).availability || []).map((av: any) => (
                     <div key={av.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
                       <div>
                         <p className="text-[10px] font-bold text-accent uppercase">{new Date(av.date).toLocaleDateString()}</p>
@@ -219,7 +220,7 @@ function MemberProfilePage() {
                       </Badge>
                     </div>
                   ))}
-                  {(!member.availability || member.availability.length === 0) && (
+                  {(!(member as any).availability || (member as any).availability.length === 0) && (
                     <p className="text-sm text-muted-foreground italic">No availability data set.</p>
                   )}
                 </div>

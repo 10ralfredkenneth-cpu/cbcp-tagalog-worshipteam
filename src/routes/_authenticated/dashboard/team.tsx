@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { cn } from "@/lib/utils";
 import { 
   Users, 
   Search, 
@@ -31,8 +32,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/team')({
@@ -40,10 +42,39 @@ export const Route = createFileRoute('/_authenticated/dashboard/team')({
 });
 
 function TeamManagementPage() {
+  const queryClient = useQueryClient();
+  const { data: team = [], isLoading } = useQuery({
+    queryKey: ['team'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('full_name');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string, status: any }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      toast.success('Member status updated');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to update status: ' + error.message);
+    }
+  });
+
   const handleStatusChange = (id: string, status: string) => {
-    toast.success(`Member status updated to ${status}`, {
-      description: `Member ID: ${id} updated.`
-    });
+    updateStatusMutation.mutate({ id, status: status as any });
   };
 
   return (
@@ -106,15 +137,27 @@ function TeamManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_TEAM.map((member) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  Loading team members...
+                </TableCell>
+              </TableRow>
+            ) : team.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  No team members found.
+                </TableCell>
+              </TableRow>
+            ) : team.map((member) => (
               <TableRow key={member.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-none overflow-hidden border border-accent/10">
-                      <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                      <img src={member.avatar_url || 'https://via.placeholder.com/150'} alt={member.full_name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                     </div>
                     <div>
-                      <h3 className="font-serif text-lg leading-tight">{member.fullName}</h3>
+                      <h3 className="font-serif text-lg leading-tight">{member.full_name}</h3>
                       <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{member.email || 'No email linked'}</p>
                     </div>
                   </div>
@@ -122,17 +165,17 @@ function TeamManagementPage() {
                 <TableCell className="py-6 px-6">
                    <div className="flex items-center gap-2">
                     <Shield className="w-3 h-3 text-accent/40" />
-                    <span className="text-[11px] font-bold uppercase tracking-widest">{member.primaryRole}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-widest">{member.primary_role}</span>
                   </div>
                 </TableCell>
                 <TableCell className="py-6 px-6 max-w-[200px]">
                   <div className="flex flex-wrap gap-1">
-                    {member.skills.slice(0, 2).map(skill => (
+                    {(member.skills || []).slice(0, 2).map(skill => (
                       <Badge key={skill} variant="outline" className="rounded-none text-[7px] uppercase tracking-tighter border-accent/10 text-muted-foreground">
                         {skill}
                       </Badge>
                     ))}
-                    {member.skills.length > 2 && <span className="text-[8px] text-accent">+{member.skills.length - 2}</span>}
+                    {(member.skills || []).length > 2 && <span className="text-[8px] text-accent">+{(member.skills || []).length - 2}</span>}
                   </div>
                 </TableCell>
                 <TableCell className="py-6 px-6">
@@ -196,5 +239,3 @@ function TeamManagementPage() {
   );
 }
 
-// Import select if not available
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

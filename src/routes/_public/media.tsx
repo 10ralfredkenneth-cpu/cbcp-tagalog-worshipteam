@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
-import { MOCK_MEDIA, MOCK_ALBUMS } from '@/lib/mock-media';
+import { useQuery } from '@tanstack/react-query';
+import { getMedia } from '@/lib/db-resources.functions';
+import { supabase } from '@/integrations/supabase/client';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaCard } from '@/components/media/MediaCard';
 import { MediaItem, MediaType, MediaCategory } from '@/types/media';
@@ -24,21 +26,38 @@ function MediaPage() {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const { data: media = [] } = useQuery({
+    queryKey: ['media'],
+    queryFn: getMedia,
+  });
+
+  const { data: albums = [] } = useQuery({
+    queryKey: ['media-albums'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('media_albums' as any).select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const filteredItems = useMemo(() => {
-    return MOCK_MEDIA.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    return media.filter((item: any) => {
+      const title = item.title || '';
+      const tags = item.tags || [];
+      const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
       
+      const mediaType = item.media_type || item.mediaType;
       if (activeTab === 'all') return matchesSearch;
-      if (activeTab === 'photos') return matchesSearch && item.mediaType === 'Photo';
-      if (activeTab === 'videos') return matchesSearch && item.mediaType === 'Video';
-      if (activeTab === 'audio') return matchesSearch && item.mediaType === 'Audio';
-      if (activeTab === 'files') return matchesSearch && item.mediaType === 'Document';
+      if (activeTab === 'photos') return matchesSearch && mediaType === 'Photo';
+      if (activeTab === 'videos') return matchesSearch && mediaType === 'Video';
+      if (activeTab === 'audio') return matchesSearch && mediaType === 'Audio';
+      if (activeTab === 'files') return matchesSearch && mediaType === 'Document';
       return matchesSearch;
     });
-  }, [activeTab, searchQuery]);
+  }, [media, activeTab, searchQuery]);
 
-  const featuredAlbums = MOCK_ALBUMS.filter(a => a.featured);
+  const featuredAlbums = albums.filter((a: any) => (a as any).featured);
 
   return (
     <div className="min-h-screen bg-background">

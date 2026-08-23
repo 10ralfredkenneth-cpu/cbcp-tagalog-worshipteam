@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { MOCK_SONGS } from '@/lib/mock-songs';
+import { useQuery } from '@tanstack/react-query';
+import { getSongsPublic } from '@/lib/db-public.functions';
 import { SongCard } from '@/components/ui/songs/SongCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -36,41 +37,51 @@ function SongLibraryPage() {
   const [keyFilter, setKeyFilter] = useState<string>('All');
   const [showFilters, setShowFilters] = useState(false);
 
+  const { data: songs = [], isLoading } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic,
+  });
+
   const allThemes = useMemo(() => {
     const themes = new Set<string>();
-    MOCK_SONGS.forEach(song => song.themes.forEach(t => themes.add(t)));
+    songs.forEach((song: any) => song.themes?.forEach((t: string) => themes.add(t)));
     return ['All', ...Array.from(themes).sort()];
-  }, []);
+  }, [songs]);
 
   const allKeys = useMemo(() => {
     const keys = new Set<string>();
-    MOCK_SONGS.forEach(song => keys.add(song.defaultKey));
+    songs.forEach((song: any) => keys.add(song.default_key || song.defaultKey));
     return ['All', ...Array.from(keys).sort()];
-  }, []);
+  }, [songs]);
 
   const filteredSongs = useMemo(() => {
-    return MOCK_SONGS.filter(song => {
+    return songs.filter((song: any) => {
+      const title = song.title || '';
+      const artist = song.artist || '';
+      const themes = song.themes || [];
+      const scripture = Array.isArray(song.scripture_references) ? song.scripture_references : [];
+
       const matchesSearch = 
-        song.title.toLowerCase().includes(search.toLowerCase()) ||
-        song.artist.toLowerCase().includes(search.toLowerCase()) ||
-        song.themes.some(t => t.toLowerCase().includes(search.toLowerCase())) ||
-        song.scriptureReferences.some(r => (typeof r === 'string' ? r : r.reference).toLowerCase().includes(search.toLowerCase()));
+        title.toLowerCase().includes(search.toLowerCase()) ||
+        artist.toLowerCase().includes(search.toLowerCase()) ||
+        themes.some((t: string) => t.toLowerCase().includes(search.toLowerCase())) ||
+        scripture.some((r: any) => (typeof r === 'string' ? r : (r.reference || '')).toLowerCase().includes(search.toLowerCase()));
       
-      const matchesTheme = themeFilter === 'All' || song.themes.includes(themeFilter);
-      const matchesKey = keyFilter === 'All' || song.defaultKey === keyFilter;
+      const matchesTheme = themeFilter === 'All' || themes.includes(themeFilter);
+      const songKey = song.default_key || song.defaultKey;
+      const matchesKey = keyFilter === 'All' || songKey === keyFilter;
 
       return matchesSearch && matchesTheme && matchesKey;
-    }).sort((a, b) => {
+    }).sort((a: any, b: any) => {
       switch (sortBy) {
-        case 'title-asc': return a.title.localeCompare(b.title);
-        case 'title-desc': return b.title.localeCompare(a.title);
-        case 'recent': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case 'updated': return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        case 'most-used': return (b.usageCount || 0) - (a.usageCount || 0);
+        case 'title-asc': return (a.title || '').localeCompare(b.title || '');
+        case 'title-desc': return (b.title || '').localeCompare(a.title || '');
+        case 'recent': return new Date(b.created_at || b.createdAt).getTime() - new Date(a.created_at || a.createdAt).getTime();
+        case 'most-used': return (b.usage_count || b.usageCount || 0) - (a.usage_count || a.usageCount || 0);
         default: return 0;
       }
     });
-  }, [search, themeFilter, keyFilter, sortBy]);
+  }, [songs, search, themeFilter, keyFilter, sortBy]);
 
   return (
     <div className="container mx-auto px-6 py-20 animate-in fade-in duration-700">

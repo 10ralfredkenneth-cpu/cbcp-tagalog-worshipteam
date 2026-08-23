@@ -29,7 +29,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_SONGS } from '@/lib/mock-songs';
+import { getSongs, archiveSong } from '@/lib/db-songs';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs')({
@@ -37,10 +38,25 @@ export const Route = createFileRoute('/_authenticated/dashboard/songs')({
 });
 
 function SongManagementPage() {
+  const queryClient = useQueryClient();
+  const { data: songs = [], isLoading } = useQuery({
+    queryKey: ['songs'],
+    queryFn: getSongs,
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: archiveSong,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
+      toast.success('Song archived');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to archive song: ' + error.message);
+    }
+  });
+
   const handleArchive = (id: string) => {
-    toast.success('Song archived', {
-      description: `Song ID: ${id} has been moved to archives.`
-    });
+    archiveMutation.mutate(id);
   };
 
   return (
@@ -95,7 +111,19 @@ function SongManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_SONGS.map((song) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  Loading repertoire...
+                </TableCell>
+              </TableRow>
+            ) : songs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  No songs found in the library.
+                </TableCell>
+              </TableRow>
+            ) : songs.map((song) => (
               <TableRow key={song.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">

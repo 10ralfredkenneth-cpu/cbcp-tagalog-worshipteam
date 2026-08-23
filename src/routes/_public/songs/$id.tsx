@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { MOCK_SONGS } from '@/lib/mock-songs';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getSongsPublic } from '@/lib/db-public.functions';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -30,10 +31,14 @@ export const Route = createFileRoute('/_public/songs/$id')({
 type ViewMode = 'Standard' | 'Musician' | 'Vocalist' | 'Presentation';
 
 function SongDetailPage() {
-  const { id } = Route.useParams();
-  const initialSong = MOCK_SONGS.find(s => s.id === id);
+  const { data: songs = [], isLoading } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic,
+  });
+
+  const initialSong = songs.find((s: any) => s.id === (id as string));
   
-  const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
+  const [currentKey, setCurrentKey] = useState(initialSong?.default_key || initialSong?.defaultKey || 'C');
   const [viewMode, setViewMode] = useState<ViewMode>('Standard');
   const [showChords, setShowChords] = useState(true);
   const [isFavorite, setIsFavorite] = useState(initialSong?.isFavorite || false);
@@ -49,7 +54,7 @@ function SongDetailPage() {
     );
   }
 
-  const semitones = getSemitoneDifference(initialSong.defaultKey, currentKey);
+  const semitones = getSemitoneDifference(initialSong.default_key || initialSong.defaultKey, currentKey);
 
   const handleKeyChange = (direction: number) => {
     const isMinor = currentKey.endsWith('m');
@@ -110,9 +115,9 @@ function SongDetailPage() {
         </Button>
         <div className="max-w-4xl w-full text-center space-y-16 py-20">
           <h1 className="font-serif text-6xl text-foreground mb-12 opacity-50">{initialSong.title}</h1>
-          {initialSong.sections?.map((section, idx) => (
+          {initialSong.sections?.map((section: any, idx: number) => (
             <div key={idx} className="space-y-8 animate-in fade-in duration-1000">
-              {section.lines.filter(l => l.type === 'lyrics').map((line, lIdx) => (
+              {section.lines.filter((l: any) => l.type === 'lyrics').map((line: any, lIdx: number) => (
                 <p key={lIdx} className="text-4xl lg:text-5xl font-serif text-foreground leading-tight">
                   {line.content}
                 </p>
@@ -214,7 +219,7 @@ function SongDetailPage() {
               </div>
               <div className="p-4 bg-muted/30 border border-accent/5 rounded-sm">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Original Key</p>
-                <p className="font-serif text-xl">{initialSong.defaultKey}</p>
+                <p className="font-serif text-xl">{initialSong.default_key || initialSong.defaultKey}</p>
               </div>
               <div className="p-4 bg-muted/30 border border-accent/5 rounded-sm">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Status</p>
@@ -228,7 +233,7 @@ function SongDetailPage() {
               <div className="p-6 bg-primary text-background rounded-sm">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Song Flow</h3>
                 <div className="flex flex-wrap gap-2">
-                  {initialSong.flow.map((step, idx) => (
+                  {initialSong.flow.map((step: any, idx: number) => (
                     <span key={idx} className="text-[10px] font-medium px-2 py-1 bg-background/10 rounded-sm">
                       {step}
                     </span>
@@ -307,7 +312,7 @@ function SongDetailPage() {
                   <BookOpen className="w-4 h-4 mr-2 text-accent" /> Biblical Foundation
                 </h3>
                 <div className="space-y-4">
-                  {initialSong.scriptureReferences.map((ref, idx) => (
+                  {initialSong.scriptureReferences.map((ref: any, idx: number) => (
                     <div key={idx}>
                       <p className="font-serif italic text-foreground text-xl">
                         "{typeof ref === 'string' ? ref : ref.reference}"
@@ -324,7 +329,7 @@ function SongDetailPage() {
                 <div className="bg-accent/5 p-8 border-l-4 border-accent/20">
                   <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Worship Leader Notes</h3>
                   <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                    {initialSong.worshipLeaderNotes.map((note, idx) => (
+                    {initialSong.worshipLeaderNotes.map((note: any, idx: number) => (
                       <li key={idx} className="italic">{note}</li>
                     ))}
                   </ul>
@@ -334,7 +339,7 @@ function SongDetailPage() {
 
             <TabsContent value="lyrics" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="max-w-2xl mx-auto space-y-12 py-8">
-                {initialSong.sections?.map((section, idx) => (
+                {initialSong.sections?.map((section: any, idx: number) => (
                   <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
                 ))}
                 {!initialSong.sections && (
