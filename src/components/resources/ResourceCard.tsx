@@ -53,12 +53,13 @@ export function ResourceCard({ resource }: ResourceCardProps) {
               <span>{resource.readingTime} min</span>
             </div>
           )}
-          {resource.scriptureReferences && resource.scriptureReferences.length > 0 && (
+          {resource.scriptureReferences && resource.scriptureReferences.length > 0 && resource.scriptureReferences[0] && (
             <div className="flex items-center gap-1.5">
               <BookOpen className="w-3 h-3 text-accent/60" />
               <span>
                 {(() => {
                   const firstRef = resource.scriptureReferences[0];
+                  if (!firstRef) return '';
                   return typeof firstRef === 'string' ? firstRef : firstRef.reference;
                 })()}
               </span>
