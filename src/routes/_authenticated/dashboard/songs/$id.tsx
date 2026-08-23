@@ -305,6 +305,19 @@ function EditSongPage() {
                     Import Text
                   </label>
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    const enhanced = enhanceChordParsing(formData.lyrics || '');
+                    updateField('lyrics', enhanced);
+                    toast.success('Chords enhanced and formatted');
+                  }}
+                  className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
+                >
+                  <Wand2 className="w-3 h-3 mr-1" />
+                  Format Chords
+                </Button>
               </div>
             </div>
             
