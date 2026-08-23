@@ -508,7 +508,8 @@ function SetlistDetailPage() {
                 </div>
               ))}
             </div>
-            </TabsContent>
+            </section>
+          </TabsContent>
             
             <TabsContent value="team" className="space-y-12 mt-0 focus-visible:outline-none">
               <section className="space-y-8">
