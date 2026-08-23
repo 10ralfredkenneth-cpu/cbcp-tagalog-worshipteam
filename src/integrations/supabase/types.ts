@@ -512,6 +512,7 @@ export type Database = {
           audio_url: string | null
           bpm: number | null
           ccli_number: string | null
+          chords: string | null
           copyright_owner: string | null
           copyright_year: number | null
           created_at: string | null
@@ -522,6 +523,7 @@ export type Database = {
           id: string
           is_public: boolean | null
           language: Database["public"]["Enums"]["song_language"]
+          lyrics: string | null
           public_domain: boolean | null
           scripture_references: Json | null
           sections: Json | null
@@ -541,6 +543,7 @@ export type Database = {
           audio_url?: string | null
           bpm?: number | null
           ccli_number?: string | null
+          chords?: string | null
           copyright_owner?: string | null
           copyright_year?: number | null
           created_at?: string | null
@@ -551,6 +554,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           language?: Database["public"]["Enums"]["song_language"]
+          lyrics?: string | null
           public_domain?: boolean | null
           scripture_references?: Json | null
           sections?: Json | null
@@ -570,6 +574,7 @@ export type Database = {
           audio_url?: string | null
           bpm?: number | null
           ccli_number?: string | null
+          chords?: string | null
           copyright_owner?: string | null
           copyright_year?: number | null
           created_at?: string | null
@@ -580,6 +585,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           language?: Database["public"]["Enums"]["song_language"]
+          lyrics?: string | null
           public_domain?: boolean | null
           scripture_references?: Json | null
           sections?: Json | null
