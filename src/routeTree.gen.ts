@@ -27,6 +27,7 @@ import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/
 import { Route as PublicSongsIndexRouteImport } from './routes/_public/songs/index'
 import { Route as PublicSongsIdRouteImport } from './routes/_public/songs/$id'
 import { Route as PublicTeamIdRouteImport } from './routes/_public/team/$id'
+import { Route as PublicTeamIndexRouteImport } from './routes/_public/team/_index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -116,6 +117,10 @@ const PublicTeamIdRoute = PublicTeamIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PublicTeamRoute,
 } as any)
+const PublicTeamIndexRoute = PublicTeamIndexRouteImport.update({
+  id: '/_index',
+  getParentRoute: () => PublicTeamRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -168,6 +173,7 @@ export interface FileRoutesById {
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
   '/_public/team/$id': typeof PublicTeamIdRoute
+  '/_public/team/_index': typeof PublicTeamIndexRoute
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_public/setlists/': typeof PublicSetlistsIndexRoute
   '/_public/songs/': typeof PublicSongsIndexRoute
@@ -224,6 +230,7 @@ export interface FileRouteTypes {
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
     | '/_public/team/$id'
+    | '/_public/team/_index'
     | '/_authenticated/team/'
     | '/_public/setlists/'
     | '/_public/songs/'
@@ -363,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicTeamIdRouteImport
       parentRoute: typeof PublicTeamRoute
     }
+    '/_public/team/_index': {
+      id: '/_public/team/_index'
+      path: ''
+      fullPath: '/team'
+      preLoaderRoute: typeof PublicTeamIndexRouteImport
+      parentRoute: typeof PublicTeamRoute
+    }
   }
 }
 
@@ -396,10 +410,12 @@ const PublicSongsRouteWithChildren = PublicSongsRoute._addFileChildren(
 
 interface PublicTeamRouteChildren {
   PublicTeamIdRoute: typeof PublicTeamIdRoute
+  PublicTeamIndexRoute: typeof PublicTeamIndexRoute
 }
 
 const PublicTeamRouteChildren: PublicTeamRouteChildren = {
   PublicTeamIdRoute: PublicTeamIdRoute,
+  PublicTeamIndexRoute: PublicTeamIndexRoute,
 }
 
 const PublicTeamRouteWithChildren = PublicTeamRoute._addFileChildren(
