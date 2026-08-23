@@ -34,19 +34,19 @@ function EditSongPage() {
       if (error) throw error;
       return {
         ...data,
-        defaultKey: data.default_key,
-        songType: data.song_type,
-        ccliNumber: data.ccli_number,
-        visibility: data.is_public ? 'Public' : 'Team Only',
-        audioUrl: data.audio_url,
-        sheetMusicUrl: data.sheet_music_url,
-        externalResources: data.external_resources,
-        scriptureReferences: data.scripture_references || [],
-        lyrics: data.lyrics,
-        chords: data.chords,
-        isPublic: data.is_public,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
+        defaultKey: (data as any).default_key,
+        songType: (data as any).song_type,
+        ccliNumber: (data as any).ccli_number,
+        visibility: (data as any).is_public ? 'Public' : 'Team Only',
+        audioUrl: (data as any).audio_url,
+        sheetMusicUrl: (data as any).sheet_music_url,
+        externalResources: (data as any).external_resources,
+        scriptureReferences: (data as any).scripture_references || [],
+        lyrics: (data as any).lyrics,
+        chords: (data as any).chords,
+        isPublic: (data as any).is_public,
+        createdAt: (data as any).created_at,
+        updatedAt: (data as any).updated_at
       } as unknown as WorshipSong;
     },
   });
