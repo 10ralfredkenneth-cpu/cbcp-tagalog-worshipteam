@@ -33,20 +33,21 @@ export async function createMember(input: { data: any } | any) {
   if (!payload?.full_name) throw new Error("Full name is required");
   if (!payload?.email) throw new Error("Email is required");
 
+  // Map camelCase to snake_case for Supabase
   const insertData: any = {
     id: payload.id ?? crypto.randomUUID(),
     full_name: payload.full_name,
     email: payload.email,
-    primary_role: payload.primary_role || null,
-    skills: payload.instruments
-      ? (Array.isArray(payload.instruments)
-          ? payload.instruments
-          : String(payload.instruments).split(',').map((s: string) => s.trim()).filter(Boolean))
+    primary_role: payload.primary_role || payload.primaryRole || null,
+    skills: payload.instruments || payload.skills
+      ? (Array.isArray(payload.instruments || payload.skills)
+          ? (payload.instruments || payload.skills)
+          : String(payload.instruments || payload.skills).split(',').map((s: string) => s.trim()).filter(Boolean))
       : null,
-    is_public: payload.is_public !== undefined ? payload.is_public : true,
+    is_public: payload.is_public !== undefined ? payload.is_public : (payload.isPublic !== undefined ? payload.isPublic : true),
     status: payload.status || 'Active',
     bio: payload.bio ?? null,
-    avatar_url: payload.avatar_url ?? null,
+    avatar_url: payload.avatar_url || payload.avatarUrl || null,
     instrument: payload.instruments && !Array.isArray(payload.instruments) ? payload.instruments : null,
   };
 
