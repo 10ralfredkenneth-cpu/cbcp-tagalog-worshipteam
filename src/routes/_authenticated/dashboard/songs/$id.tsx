@@ -40,8 +40,12 @@ function EditSongPage() {
         visibility: data.is_public ? 'Public' : 'Team Only',
         audioUrl: data.audio_url,
         sheetMusicUrl: data.sheet_music_url,
-        externalResources: data.external_resources
-      } as WorshipSong;
+        externalResources: data.external_resources,
+        scriptureReferences: data.scripture_references || [],
+        isPublic: data.is_public,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      } as unknown as WorshipSong;
     },
   });
 
