@@ -283,6 +283,7 @@ function AddSongPage() {
               <Textarea 
                 placeholder="Paste lyrics or chords here for reference..." 
                 className="rounded-none border-accent/10 bg-background min-h-[300px] font-mono text-[12px]" 
+                value={formData.lyrics || ''}
                 onChange={(e) => updateField('lyrics', e.target.value)}
               />
             </div>
