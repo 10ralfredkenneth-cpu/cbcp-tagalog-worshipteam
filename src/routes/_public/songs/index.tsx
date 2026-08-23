@@ -91,7 +91,9 @@ function SongLibraryPage() {
     <div className="container mx-auto px-6 py-20 animate-in fade-in duration-700">
       <div className="max-w-4xl mx-auto mb-16 text-center">
         <h1 className="font-serif text-5xl lg:text-6xl text-foreground mb-6">Worship Song Library</h1>
-        <p className="text-xl text-muted-foreground font-light">Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required. In the worship song library, I want you to make it manageable to navigate on phones and other devices. Can you arrange it professionally, or can you make it collapsible so that the lyrics and chords will show as a priority and the transposed chords as well?</p>
+        <p className="text-xl text-muted-foreground font-light">
+          A collection of songs we use to lead the Church in biblical, Christ-centered worship.
+        </p>
       </div>
 
       {/* Search & Controls */}
