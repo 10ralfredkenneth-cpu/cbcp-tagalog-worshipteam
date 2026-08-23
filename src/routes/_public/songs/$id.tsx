@@ -7,11 +7,13 @@ import {
   Music, FileText, Star, Printer, Layout, 
   Minus, Plus, ChevronUp, ChevronDown, Share2, 
   Split, Maximize2, Hash, ArrowLeft,
-  Volume2, Play, Pause, Settings, RefreshCw
+  Volume2, Play, Pause, Settings, RefreshCw,
+  Clock, Repeat
 } from 'lucide-react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { KEYS, transposeChord, getSemitoneDifference, chordToNumber } from '@/utils/transposition';
 import { WorshipSong } from '@/types/songs';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_public/songs/$id')({
   head: () => ({
