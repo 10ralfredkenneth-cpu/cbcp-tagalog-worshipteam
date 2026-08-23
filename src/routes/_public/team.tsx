@@ -148,6 +148,7 @@ function TeamPage() {
                   key={member.id} 
                   to="/team/$id" 
                   params={{ id: member.id }}
+
                   className="group block"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-muted mb-4">
