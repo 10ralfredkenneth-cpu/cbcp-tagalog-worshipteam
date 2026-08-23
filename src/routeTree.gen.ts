@@ -21,10 +21,12 @@ import { Route as PublicResourcesRouteImport } from './routes/_public/resources'
 import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
+import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team/index'
 import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlists/index'
 import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/$id'
 import { Route as PublicSongsIndexRouteImport } from './routes/_public/songs/index'
 import { Route as PublicSongsIdRouteImport } from './routes/_public/songs/$id'
+import { Route as PublicTeamIdRouteImport } from './routes/_public/team.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -84,6 +86,11 @@ const PublicWorshipRoute = PublicWorshipRouteImport.update({
   path: '/worship',
   getParentRoute: () => PublicRoute,
 } as any)
+const AuthenticatedTeamIndexRoute = AuthenticatedTeamIndexRouteImport.update({
+  id: '/team/',
+  path: '/team/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const PublicSetlistsIndexRoute = PublicSetlistsIndexRouteImport.update({
   id: '/setlists/',
   path: '/setlists/',
@@ -104,6 +111,11 @@ const PublicSongsIdRoute = PublicSongsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PublicSongsRoute,
 } as any)
+const PublicTeamIdRoute = PublicTeamIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PublicTeamRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -114,10 +126,12 @@ export interface FileRoutesByFullPath {
   '/media': typeof PublicMediaRoute
   '/resources': typeof PublicResourcesRoute
   '/songs': typeof PublicSongsRouteWithChildren
-  '/team': typeof PublicTeamRoute
+  '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
+  '/team/$id': typeof PublicTeamIdRoute
+  '/team/': typeof AuthenticatedTeamIndexRoute
   '/setlists/': typeof PublicSetlistsIndexRoute
   '/songs/': typeof PublicSongsIndexRoute
 }
@@ -129,10 +143,11 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/media': typeof PublicMediaRoute
   '/resources': typeof PublicResourcesRoute
-  '/team': typeof PublicTeamRoute
+  '/team': typeof AuthenticatedTeamIndexRoute
   '/worship': typeof PublicWorshipRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
+  '/team/$id': typeof PublicTeamIdRoute
   '/setlists': typeof PublicSetlistsIndexRoute
   '/songs': typeof PublicSongsIndexRoute
 }
@@ -148,10 +163,12 @@ export interface FileRoutesById {
   '/_public/media': typeof PublicMediaRoute
   '/_public/resources': typeof PublicResourcesRoute
   '/_public/songs': typeof PublicSongsRouteWithChildren
-  '/_public/team': typeof PublicTeamRoute
+  '/_public/team': typeof PublicTeamRouteWithChildren
   '/_public/worship': typeof PublicWorshipRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
+  '/_public/team/$id': typeof PublicTeamIdRoute
+  '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_public/setlists/': typeof PublicSetlistsIndexRoute
   '/_public/songs/': typeof PublicSongsIndexRoute
 }
@@ -170,6 +187,8 @@ export interface FileRouteTypes {
     | '/worship'
     | '/setlists/$id'
     | '/songs/$id'
+    | '/team/$id'
+    | '/team/'
     | '/setlists/'
     | '/songs/'
   fileRoutesByTo: FileRoutesByTo
@@ -185,6 +204,7 @@ export interface FileRouteTypes {
     | '/worship'
     | '/setlists/$id'
     | '/songs/$id'
+    | '/team/$id'
     | '/setlists'
     | '/songs'
   id:
@@ -203,6 +223,8 @@ export interface FileRouteTypes {
     | '/_public/worship'
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
+    | '/_public/team/$id'
+    | '/_authenticated/team/'
     | '/_public/setlists/'
     | '/_public/songs/'
   fileRoutesById: FileRoutesById
@@ -299,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicWorshipRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_authenticated/team/': {
+      id: '/_authenticated/team/'
+      path: '/team'
+      fullPath: '/team/'
+      preLoaderRoute: typeof AuthenticatedTeamIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_public/setlists/': {
       id: '/_public/setlists/'
       path: '/setlists'
@@ -327,15 +356,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicSongsIdRouteImport
       parentRoute: typeof PublicSongsRoute
     }
+    '/_public/team/$id': {
+      id: '/_public/team/$id'
+      path: '/$id'
+      fullPath: '/team/$id'
+      preLoaderRoute: typeof PublicTeamIdRouteImport
+      parentRoute: typeof PublicTeamRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -356,6 +394,18 @@ const PublicSongsRouteWithChildren = PublicSongsRoute._addFileChildren(
   PublicSongsRouteChildren,
 )
 
+interface PublicTeamRouteChildren {
+  PublicTeamIdRoute: typeof PublicTeamIdRoute
+}
+
+const PublicTeamRouteChildren: PublicTeamRouteChildren = {
+  PublicTeamIdRoute: PublicTeamIdRoute,
+}
+
+const PublicTeamRouteWithChildren = PublicTeamRoute._addFileChildren(
+  PublicTeamRouteChildren,
+)
+
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicContactRoute: typeof PublicContactRoute
@@ -363,7 +413,7 @@ interface PublicRouteChildren {
   PublicMediaRoute: typeof PublicMediaRoute
   PublicResourcesRoute: typeof PublicResourcesRoute
   PublicSongsRoute: typeof PublicSongsRouteWithChildren
-  PublicTeamRoute: typeof PublicTeamRoute
+  PublicTeamRoute: typeof PublicTeamRouteWithChildren
   PublicWorshipRoute: typeof PublicWorshipRoute
   PublicSetlistsIdRoute: typeof PublicSetlistsIdRoute
   PublicSetlistsIndexRoute: typeof PublicSetlistsIndexRoute
@@ -376,7 +426,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicMediaRoute: PublicMediaRoute,
   PublicResourcesRoute: PublicResourcesRoute,
   PublicSongsRoute: PublicSongsRouteWithChildren,
-  PublicTeamRoute: PublicTeamRoute,
+  PublicTeamRoute: PublicTeamRouteWithChildren,
   PublicWorshipRoute: PublicWorshipRoute,
   PublicSetlistsIdRoute: PublicSetlistsIdRoute,
   PublicSetlistsIndexRoute: PublicSetlistsIndexRoute,
