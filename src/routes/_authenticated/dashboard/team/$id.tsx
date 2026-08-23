@@ -1,169 +1,137 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTeamMembers, updateMember } from '@/lib/db-team.functions';
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Mail, Phone, Calendar, User, Shield, ExternalLink, Edit } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/team/$id')({
-  component: EditTeamMemberPage,
+  component: MemberDetailsPage,
 });
 
-function EditTeamMemberPage() {
-  const { id } = useParams({ from: '/_authenticated/dashboard/team/$id' });
-  const navigate = useNavigate();
+function MemberDetailsPage() {
+  const { id } = Route.useParams();
   const queryClient = useQueryClient();
   
   const { data: team = [], isLoading } = useQuery({
-    queryKey: ['team-members'],
-    queryFn: getTeamMembers
+    queryKey: ['team-full'],
+    queryFn: () => getTeamMembers(),
   });
 
-  const member = team.find(m => m.id === id);
+  const member = team.find((m: any) => m.id === id);
 
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    primary_role: '',
-    instrument: '',
-    status: 'Active',
-    is_public: false
-  });
-
-  useEffect(() => {
-    if (member) {
-      setFormData({
-        full_name: member.full_name || '',
-        email: member.email || '',
-        primary_role: member.primary_role || '',
-        instrument: member.instrument || '',
-        status: member.status || 'Active',
-        is_public: member.is_public || false
-      });
-    }
-  }, [member]);
-
-  const mutation = useMutation({
-    mutationFn: updateMember,
+  const updateMutation = useMutation({
+    mutationFn: (updates: any) => updateMember({ data: { id, updates } }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-full'] });
       toast.success('Member updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      navigate({ to: '/dashboard/team' });
     },
-    onError: (error) => {
-      toast.error('Failed to update member: ' + (error as Error).message);
+    onError: () => {
+      toast.error('Failed to update member');
     }
   });
 
-  const handleSubmit = () => {
-    if (!formData.full_name || !formData.email) {
-      toast.error('Name and email are required');
-      return;
-    }
-    mutation.mutate({ data: { id, updates: formData } });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (!member) {
-    return (
-      <div className="container mx-auto px-6 py-12 text-center">
-        <h2 className="text-2xl font-serif">Member Not Found</h2>
-        <Button onClick={() => navigate({ to: '/dashboard/team' })} className="mt-4">Back to Team</Button>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="p-24 text-center text-[10px] uppercase tracking-widest text-accent animate-pulse">Retrieving profile...</div>;
+  if (!member) return <div className="p-24 text-center text-[10px] uppercase tracking-widest text-muted-foreground">Profile not found</div>;
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-4">
-          <Badge variant="outline" className="rounded-none uppercase text-[10px] tracking-widest border-accent/20 text-accent">
-            Personnel Management
-          </Badge>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="h-10 w-10 text-accent rounded-none" onClick={() => window.history.back()}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="font-serif text-5xl text-foreground">Edit Member</h1>
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-accent/5 pb-12">
+        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+          <div className="w-32 h-32 bg-accent/10 border border-accent/20 flex items-center justify-center font-serif text-accent text-5xl shrink-0">
+            {member.avatar_url ? (
+              <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover grayscale" />
+            ) : (
+              member.full_name.charAt(0)
+            )}
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Badge className="rounded-none bg-accent/10 text-accent border-none uppercase text-[9px] tracking-widest">
+                {member.status || 'Active'}
+              </Badge>
+              {member.is_public && (
+                <Badge variant="outline" className="rounded-none text-muted-foreground border-accent/10 uppercase text-[8px]">Public Bio</Badge>
+              )}
+            </div>
+            <h1 className="font-serif text-5xl text-foreground">{member.full_name}</h1>
+            <div className="flex flex-wrap items-center gap-6 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              <span className="flex items-center gap-2"><Shield className="w-3 h-3 text-accent" /> {member.primary_role || 'No Role Assigned'}</span>
+              <span className="flex items-center gap-2"><User className="w-3 h-3 text-accent" /> {member.instrument || 'Vocalist'}</span>
+            </div>
           </div>
         </div>
-        <Button 
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
-        >
-          {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Profile
-        </Button>
+        <div className="flex gap-4">
+          <Button variant="outline" className="rounded-none border-accent/20 px-8 py-6 font-bold text-[10px] uppercase tracking-widest" asChild>
+            <Link to="/dashboard/team">
+              <ArrowLeft className="w-4 h-4 mr-2" /> All Members
+            </Link>
+          </Button>
+          <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+            <Edit className="w-4 h-4 mr-2" /> Update Profile
+          </Button>
+        </div>
       </header>
 
-      <div className="max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 ml-14">
-        <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2 space-y-12">
           <section className="space-y-6">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Personal Information</h3>
-            
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
-              <Input 
-                value={formData.full_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                placeholder="John Doe" 
-                className="rounded-none border-accent/10 bg-background" 
-              />
-            </div>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Biography</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed italic">
+              {member.bio || 'No public biography has been provided for this team member.'}
+            </p>
+          </section>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Email Address</Label>
-              <Input 
-                type="email" 
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="john@example.com" 
-                className="rounded-none border-accent/10 bg-background" 
-              />
+          <section className="space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Internal Notes</h3>
+            <div className="p-8 bg-muted/20 border border-accent/5">
+              <p className="text-[11px] text-muted-foreground italic leading-relaxed">
+                {member.internal_notes || 'No administrative notes recorded.'}
+              </p>
             </div>
           </section>
         </div>
 
         <div className="space-y-8">
-          <section className="space-y-6">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Ministry Assignment</h3>
-            
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Role</Label>
-              <Select value={formData.primary_role} onValueChange={(v) => setFormData(prev => ({ ...prev, primary_role: v }))}>
-                <SelectTrigger className="rounded-none border-accent/10 bg-background">
-                  <SelectValue placeholder="Select Role" />
-                </SelectTrigger>
-                <SelectContent className="rounded-none">
-                  <SelectItem value="vocalist">Vocalist</SelectItem>
-                  <SelectItem value="musician">Musician</SelectItem>
-                  <SelectItem value="production">Production / Tech</SelectItem>
-                  <SelectItem value="leader">Worship Leader</SelectItem>
-                </SelectContent>
-              </Select>
+          <section className="p-8 bg-muted/10 border border-accent/5 space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Contact Information</h3>
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <Mail className="w-4 h-4 text-accent mt-0.5" />
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Email Address</p>
+                  <p className="text-sm">{member.email}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Phone className="w-4 h-4 text-accent mt-0.5" />
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Phone Number</p>
+                  <p className="text-sm">{member.phone || 'Not Provided'}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Calendar className="w-4 h-4 text-accent mt-0.5" />
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Date Joined</p>
+                  <p className="text-sm">{member.date_joined ? new Date(member.date_joined).toLocaleDateString() : 'N/A'}</p>
+                </div>
+              </div>
             </div>
+          </section>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Instrument</Label>
-              <Input 
-                value={formData.instrument}
-                onChange={(e) => setFormData(prev => ({ ...prev, instrument: e.target.value }))}
-                placeholder="e.g. Acoustic Guitar" 
-                className="rounded-none border-accent/10 bg-background" 
-              />
+          <section className="p-8 border border-accent/5 space-y-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-accent">Availability Status</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-accent/5">
+                <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Current Status</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-accent">{member.status || 'Active'}</span>
+              </div>
+              <Button variant="ghost" className="w-full justify-start rounded-none text-[8px] uppercase tracking-[0.2em] h-10 hover:bg-accent/5">
+                <ExternalLink className="w-3 h-3 mr-2" /> View Full Schedule
+              </Button>
             </div>
           </section>
         </div>
