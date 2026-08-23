@@ -44,6 +44,7 @@ function CreateServicePage() {
     rehearsalDate: '',
     rehearsalTime: '',
     rehearsalLocation: 'Main Sanctuary',
+    isPublic: true
   });
 
   const mutation = useMutation({
@@ -144,7 +145,7 @@ function CreateServicePage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Service Type</Label>
-                  <Select value={formData.serviceType} onValueChange={(v) => updateField('serviceType', v)}>
+                  <Select value={formData.serviceType || 'Sunday Worship'} onValueChange={(v) => updateField('serviceType', v)}>
                     <SelectTrigger className="rounded-none border-accent/10 bg-background">
                       <SelectValue />
                     </SelectTrigger>
@@ -257,7 +258,7 @@ function CreateServicePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</Label>
-                  <Select value={formData.status} onValueChange={(v) => updateField('status', v)}>
+                  <Select value={formData.status || 'Draft'} onValueChange={(v) => updateField('status', v)}>
                     <SelectTrigger className="rounded-none border-accent/10 bg-background">
                       <SelectValue />
                     </SelectTrigger>
@@ -272,7 +273,7 @@ function CreateServicePage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Visibility</Label>
-                  <Select value={formData.visibility} onValueChange={(v) => updateField('visibility', v)}>
+                  <Select value={formData.visibility || 'Public'} onValueChange={(v) => updateField('visibility', v)}>
                     <SelectTrigger className="rounded-none border-accent/10 bg-background">
                       <SelectValue />
                     </SelectTrigger>
