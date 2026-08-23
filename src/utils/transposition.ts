@@ -45,3 +45,20 @@ export function getSemitoneDifference(fromKey: string, toKey: string): number {
   
   return toIdx - fromIdx;
 }
+
+export function chordToNumber(chord: string, key: string): string {
+  const note = chord.replace(/[m7addsus0-9]/g, '');
+  const noteIdx = KEYS.indexOf(normalizeNote(note));
+  const keyIdx = KEYS.indexOf(normalizeNote(key));
+  
+  if (noteIdx === -1 || keyIdx === -1) return chord;
+  
+  let number = (noteIdx - keyIdx + 12) % 12 + 1;
+  const suffix = chord.replace(/^[A-G][#b]?/, '');
+  
+  // Roman numeral mapping for 1-7
+  const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  const res = number <= 7 ? roman[number - 1] : number.toString();
+  
+  return res + suffix;
+}
