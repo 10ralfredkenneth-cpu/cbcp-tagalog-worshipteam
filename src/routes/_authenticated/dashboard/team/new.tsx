@@ -1,51 +1,16 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, User, Mail, Shield, Music, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createMember } from '@/lib/db-team.functions';
-import { toast } from 'sonner';
+import { ArrowLeft, Save, User, Mail, Shield, Music } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/dashboard/team/new')({
   component: AddTeamMemberPage,
 });
 
 function AddTeamMemberPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    primary_role: '',
-    instruments: '',
-    status: 'Active',
-    is_public: false
-  });
-
-  const mutation = useMutation({
-    mutationFn: createMember,
-    onSuccess: () => {
-      toast.success('Team member added successfully');
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      navigate({ to: '/dashboard/team' });
-    },
-    onError: (error) => {
-      toast.error('Failed to add member: ' + (error as Error).message);
-    }
-  });
-
-  const handleSubmit = () => {
-    if (!formData.full_name || !formData.email) {
-      toast.error('Name and email are required');
-      return;
-    }
-    mutation.mutate({ data: formData });
-  };
-
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -63,13 +28,8 @@ function AddTeamMemberPage() {
             Onboard new ministry members. Assign roles and instruments to start scheduling them for services.
           </p>
         </div>
-        <Button 
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
-        >
-          {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Create Profile
+        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Save className="w-4 h-4 mr-2" /> Create Profile
         </Button>
       </header>
 
@@ -82,12 +42,7 @@ function AddTeamMemberPage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  value={formData.full_name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                  placeholder="John Doe" 
-                  className="pl-10 rounded-none border-accent/10 bg-background" 
-                />
+                <Input placeholder="John Doe" className="pl-10 rounded-none border-accent/10 bg-background" />
               </div>
             </div>
 
@@ -95,13 +50,7 @@ function AddTeamMemberPage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Email Address</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="john@example.com" 
-                  className="pl-10 rounded-none border-accent/10 bg-background" 
-                />
+                <Input type="email" placeholder="john@example.com" className="pl-10 rounded-none border-accent/10 bg-background" />
               </div>
             </div>
           </section>
@@ -115,7 +64,7 @@ function AddTeamMemberPage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Role</Label>
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                <Select value={formData.primary_role} onValueChange={(v) => setFormData(prev => ({ ...prev, primary_role: v }))}>
+                <Select>
                   <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
@@ -133,12 +82,7 @@ function AddTeamMemberPage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Primary Instrument / Skill</Label>
               <div className="relative">
                 <Music className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  value={formData.instruments}
-                  onChange={(e) => setFormData(prev => ({ ...prev, instruments: e.target.value }))}
-                  placeholder="e.g. Acoustic Guitar, Soprano, ProPresenter" 
-                  className="pl-10 rounded-none border-accent/10 bg-background" 
-                />
+                <Input placeholder="e.g. Acoustic Guitar, Soprano, ProPresenter" className="pl-10 rounded-none border-accent/10 bg-background" />
               </div>
             </div>
 
@@ -154,5 +98,4 @@ function AddTeamMemberPage() {
     </div>
   );
 }
-
 

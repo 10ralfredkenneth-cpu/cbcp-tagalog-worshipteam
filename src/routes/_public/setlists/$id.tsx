@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services.functions';
+import { getServices } from '@/lib/db-services';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -58,7 +58,7 @@ function SetlistDetailPage() {
   const navigate = useNavigate();
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: () => getServices(),
+    queryFn: getServices,
   });
 
   const { data: songs = [] } = useQuery({

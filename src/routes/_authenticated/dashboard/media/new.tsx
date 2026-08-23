@@ -1,52 +1,17 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Upload, FileVideo, Music, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createMediaItem } from '@/lib/db-resources.functions';
-import { toast } from 'sonner';
+import { ArrowLeft, Save, Upload, Film, FileVideo, Music, Image as ImageIcon, Plus } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/dashboard/media/new')({
   component: UploadMediaPage,
 });
 
 function UploadMediaPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({
-    title: '',
-    media_type: 'Photo',
-    category: 'Worship Service',
-    description: '',
-    visibility: 'Private',
-    file_url: 'https://placeholder.com/image.jpg' // Placeholder until file upload is implemented
-  });
-
-  const mutation = useMutation({
-    mutationFn: createMediaItem,
-    onSuccess: () => {
-      toast.success('Media uploaded successfully');
-      queryClient.invalidateQueries({ queryKey: ['media-items'] });
-      navigate({ to: '/dashboard/media' });
-    },
-    onError: (error) => {
-      toast.error('Failed to upload media: ' + (error as Error).message);
-    }
-  });
-
-  const handleSubmit = () => {
-    if (!formData.title) {
-      toast.error('Title is required');
-      return;
-    }
-    mutation.mutate({ data: formData });
-  };
-
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -60,14 +25,12 @@ function UploadMediaPage() {
             </Button>
             <h1 className="font-serif text-5xl text-foreground">Upload Media</h1>
           </div>
+          <p className="text-muted-foreground text-sm max-w-2xl ml-14">
+            Add videos, photos, and recordings to the ministry archives. Media items can be organized into albums later.
+          </p>
         </div>
-        <Button 
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
-        >
-          {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Start Upload
+        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Save className="w-4 h-4 mr-2" /> Start Upload
         </Button>
       </header>
 
@@ -85,6 +48,8 @@ function UploadMediaPage() {
                   <Button variant="outline" className="rounded-none border-accent/20 text-[10px] uppercase font-bold tracking-[0.2em] mb-4">
                     <Upload className="w-3 h-3 mr-2" /> Select Files
                   </Button>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">or drag and drop files here</p>
+                  <p className="text-[8px] text-muted-foreground/60 mt-2 uppercase tracking-widest">Supports MP4, MOV, JPG, PNG, MP3 (Max 500MB)</p>
                 </div>
               </div>
             </div>
@@ -95,22 +60,43 @@ function UploadMediaPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Title</Label>
-                  <Input 
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Descriptive name" 
-                    className="rounded-none border-accent/10 bg-background" 
-                  />
+                  <Input placeholder="Descriptive name for this media" className="rounded-none border-accent/10 bg-background" />
                 </div>
                 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Media Type</Label>
+                    <Select>
+                      <SelectTrigger className="rounded-none border-accent/10 bg-background">
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none">
+                        <SelectItem value="video">Video (Service / Sermon)</SelectItem>
+                        <SelectItem value="photo">Photography</SelectItem>
+                        <SelectItem value="audio">Audio Recording</SelectItem>
+                        <SelectItem value="graphic">Graphic / Slide</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Album (Optional)</Label>
+                    <Select>
+                      <SelectTrigger className="rounded-none border-accent/10 bg-background">
+                        <SelectValue placeholder="General Collection" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none">
+                        <SelectItem value="services">Sunday Services 2024</SelectItem>
+                        <SelectItem value="worship">Worship Nights</SelectItem>
+                        <SelectItem value="outreach">Outreach Events</SelectItem>
+                        <SelectItem value="new"><Plus className="w-3 h-3 mr-2" /> Create New Album</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
-                  <Textarea 
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Details about this media..." 
-                    className="rounded-none border-accent/10 bg-background min-h-[100px]" 
-                  />
+                  <Textarea placeholder="Details about this media..." className="rounded-none border-accent/10 bg-background min-h-[100px]" />
                 </div>
               </div>
             </div>
@@ -118,19 +104,38 @@ function UploadMediaPage() {
         </div>
 
         <div className="space-y-12">
+          <section className="p-8 bg-primary text-primary-foreground rounded-none shadow-2xl space-y-6">
+             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent">Upload Guidelines</h3>
+             <ul className="space-y-4 text-[10px] text-white/60 uppercase tracking-widest leading-relaxed">
+               <li className="flex gap-3">
+                 <span className="text-accent font-bold">01.</span>
+                 <span>Ensure you have the rights to all uploaded content.</span>
+               </li>
+               <li className="flex gap-3">
+                 <span className="text-accent font-bold">02.</span>
+                 <span>Use descriptive titles for better searchability.</span>
+               </li>
+               <li className="flex gap-3">
+                 <span className="text-accent font-bold">03.</span>
+                 <span>High-resolution video should be compressed where possible.</span>
+               </li>
+             </ul>
+          </section>
+
           <section className="p-6 bg-muted/20 border border-accent/5 space-y-4">
              <div className="flex items-center justify-between">
                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Public in Gallery</span>
-               <button 
-                onClick={() => setFormData(prev => ({ ...prev, visibility: prev.visibility === 'Public' ? 'Private' : 'Public' }))}
-                className={`w-8 h-4 rounded-full relative transition-colors ${formData.visibility === 'Public' ? 'bg-accent/20' : 'bg-muted/30'}`}
-               >
-                 <div className={`absolute top-1 w-2 h-2 rounded-full transition-all ${formData.visibility === 'Public' ? 'left-5 bg-accent' : 'left-1 bg-muted'}`} />
-               </button>
+               <div className="w-8 h-4 bg-accent/20 rounded-full relative">
+                 <div className="absolute left-1 top-1 w-2 h-2 bg-accent rounded-full" />
+               </div>
              </div>
+             <p className="text-[9px] text-muted-foreground leading-relaxed italic">
+               Private media is only accessible by ministry admins and leaders.
+             </p>
           </section>
         </div>
       </div>
     </div>
   );
 }
+

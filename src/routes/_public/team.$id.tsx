@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
-import { getServices } from '@/lib/db-services.functions';
+import { getServices } from '@/lib/db-services';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ function MemberProfilePage() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: () => getServices(),
+    queryFn: getServices,
   });
 
   const servingHistory = useMemo(() => {

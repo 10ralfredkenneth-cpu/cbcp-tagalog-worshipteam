@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSongs, archiveSong, createSong, updateSong } from '@/lib/db-songs.functions';
+import { getSongs, archiveSong, createSong, updateSong } from '@/lib/db-songs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -41,7 +41,7 @@ function SongManagementPage() {
   const queryClient = useQueryClient();
   const { data: songs = [], isLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: () => getSongs(),
+    queryFn: getSongs,
   });
 
   const archiveMutation = useMutation({
@@ -56,7 +56,7 @@ function SongManagementPage() {
   });
 
   const handleArchive = (id: string) => {
-    archiveMutation.mutate({ data: id });
+    archiveMutation.mutate(id);
   };
 
   return (
@@ -163,16 +163,10 @@ function SongManagementPage() {
                     "rounded-none border-none text-[8px] font-bold uppercase tracking-widest",
                     song.status === 'Active' ? "bg-green-500/10 text-green-500" : 
                     song.status === 'Learning' ? "bg-amber-500/10 text-amber-500" :
-                    song.status === 'Inactive' ? "bg-red-500/10 text-red-500" :
-                    "bg-muted text-muted-foreground"
+                    "bg-red-500/10 text-red-500"
                   )}>
                     {song.status}
                   </Badge>
-                  {song.visibility !== 'Public' && (
-                    <Badge variant="outline" className="ml-2 rounded-none border-accent/20 text-accent/60 text-[7px] font-bold uppercase tracking-widest">
-                      {song.visibility}
-                    </Badge>
-                  )}
                 </TableCell>
                 <TableCell className="py-6 px-6 text-right">
                   <DropdownMenu>

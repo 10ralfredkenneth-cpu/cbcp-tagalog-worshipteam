@@ -625,7 +625,6 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string | null
-          visibility: Database["public"]["Enums"]["visibility_level"] | null
         }
         Insert: {
           author_id?: string | null
@@ -647,7 +646,6 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string | null
-          visibility?: Database["public"]["Enums"]["visibility_level"] | null
         }
         Update: {
           author_id?: string | null
@@ -669,7 +667,6 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
-          visibility?: Database["public"]["Enums"]["visibility_level"] | null
         }
         Relationships: [
           {

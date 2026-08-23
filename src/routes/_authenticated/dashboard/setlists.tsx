@@ -33,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services.functions';
+import { getServices } from '@/lib/db-services';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
@@ -46,7 +46,7 @@ function SetlistManagementPage() {
   const queryClient = useQueryClient();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: () => getServices(),
+    queryFn: getServices,
   });
 
   const archiveMutation = useMutation({

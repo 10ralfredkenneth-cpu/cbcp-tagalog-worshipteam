@@ -42,7 +42,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/resources')({
 function ResourceManagementPage() {
   const { data: resources = [], isLoading } = useQuery({
     queryKey: ['resources'],
-    queryFn: () => getResources(),
+    queryFn: getResources,
   });
 
   const handleArchive = (id: string) => {

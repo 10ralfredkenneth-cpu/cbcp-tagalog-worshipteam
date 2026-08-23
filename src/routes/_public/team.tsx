@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { getServices } from '@/lib/db-services.functions';
+import { getServices } from '@/lib/db-services';
 import { getTeamPublic } from '@/lib/db-public.functions';
 import { TeamRole, TeamMemberStatus } from '@/types/team';
 import { 
@@ -46,7 +46,7 @@ function TeamDirectoryLayout() {
 
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
-    queryFn: () => getServices(),
+    queryFn: getServices,
   });
 
   const filteredMembers = useMemo(() => {

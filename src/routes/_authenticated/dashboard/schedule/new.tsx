@@ -1,60 +1,32 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Calendar, User, Shield, Clock, Loader2 } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services.functions';
-import { getTeamMembers, createAssignment } from '@/lib/db-team.functions';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { ArrowLeft, Save, Calendar, User, Shield, Clock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getServices } from '@/lib/db-services';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/schedule/new')({
   component: AddSchedulePage,
 });
 
 function AddSchedulePage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({
-    service_id: '',
-    user_id: '',
-    role: '',
-    status: 'Pending',
-    notes: ''
-  });
-
   const { data: services = [] } = useQuery({
     queryKey: ['services-upcoming-schedule'],
-    queryFn: () => getServices()
+    queryFn: getServices
   });
 
-  const { data: team = [] } = useQuery<any[]>({
+  const { data: team = [] } = useQuery({
     queryKey: ['team-members-schedule'],
-    queryFn: getTeamMembers
-  });
-
-  const mutation = useMutation({
-    mutationFn: createAssignment,
-    onSuccess: () => {
-      toast.success('Assignment created successfully');
-      queryClient.invalidateQueries({ queryKey: ['service-assignments'] });
-      navigate({ to: '/dashboard/schedule' });
-    },
-    onError: (error) => {
-      toast.error('Failed to create assignment: ' + (error as Error).message);
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*').neq('status', 'Archived');
+      if (error) throw error;
+      return data;
     }
   });
-
-  const handleSubmit = () => {
-    if (!formData.service_id || !formData.user_id || !formData.role) {
-      toast.error('Service, member, and role are required');
-      return;
-    }
-    mutation.mutate({ data: formData });
-  };
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
@@ -73,13 +45,8 @@ function AddSchedulePage() {
             Assign ministry members to upcoming services. Roster updates reflect instantly on team dashboards.
           </p>
         </div>
-        <Button 
-          onClick={handleSubmit}
-          disabled={mutation.isPending}
-          className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl"
-        >
-          {mutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Send Invites
+        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Save className="w-4 h-4 mr-2" /> Send Invites
         </Button>
       </header>
 
@@ -92,7 +59,7 @@ function AddSchedulePage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Target Service</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                <Select value={formData.service_id} onValueChange={(v) => setFormData(prev => ({ ...prev, service_id: v }))}>
+                <Select>
                   <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Select Service..." />
                   </SelectTrigger>
@@ -103,6 +70,14 @@ function AddSchedulePage() {
                     {services.length === 0 && <SelectItem value="none" disabled>No upcoming services</SelectItem>}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Call Time</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input type="time" placeholder="07:30" className="pl-10 rounded-none border-accent/10 bg-background" />
               </div>
             </div>
           </section>
@@ -116,7 +91,7 @@ function AddSchedulePage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Team Member</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                <Select value={formData.user_id} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v }))}>
+                <Select>
                   <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Search Member..." />
                   </SelectTrigger>
@@ -133,20 +108,20 @@ function AddSchedulePage() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Assignment Role</Label>
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-                <Select value={formData.role} onValueChange={(v) => setFormData(prev => ({ ...prev, role: v }))}>
+                <Select>
                   <SelectTrigger className="pl-10 rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Assign Role..." />
                   </SelectTrigger>
                   <SelectContent className="rounded-none">
-                    <SelectItem value="Worship Leader">Worship Leader</SelectItem>
-                    <SelectItem value="Vocalist">Vocalist</SelectItem>
-                    <SelectItem value="Acoustic Guitar">Acoustic Guitar</SelectItem>
-                    <SelectItem value="Electric Guitar">Electric Guitar</SelectItem>
-                    <SelectItem value="Bass Guitar">Bass Guitar</SelectItem>
-                    <SelectItem value="Drums">Drums</SelectItem>
-                    <SelectItem value="Keys / Synth">Keys / Synth</SelectItem>
-                    <SelectItem value="ProPresenter">ProPresenter</SelectItem>
-                    <SelectItem value="Sound Engineer">Sound Engineer</SelectItem>
+                    <SelectItem value="worship_leader">Worship Leader</SelectItem>
+                    <SelectItem value="vocalist">Vocalist</SelectItem>
+                    <SelectItem value="acoustic_guitar">Acoustic Guitar</SelectItem>
+                    <SelectItem value="electric_guitar">Electric Guitar</SelectItem>
+                    <SelectItem value="bass">Bass Guitar</SelectItem>
+                    <SelectItem value="drums">Drums</SelectItem>
+                    <SelectItem value="keys">Keys / Synth</SelectItem>
+                    <SelectItem value="propresenter">ProPresenter</SelectItem>
+                    <SelectItem value="sound">Sound Engineer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -164,5 +139,4 @@ function AddSchedulePage() {
     </div>
   );
 }
-
 
