@@ -28,6 +28,8 @@ export function MediaCard({ item, onClick }: MediaCardProps) {
           src={item.thumbnailUrl} 
           alt={item.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-primary/5">
