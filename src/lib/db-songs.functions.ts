@@ -1,11 +1,13 @@
+import { createServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from '@/types/songs';
-import { supabase } from '@/integrations/supabase/client';
 
-export const getSongs = async () => {
-  const { data, error } = await supabase
-    .from('songs')
-    .select('*')
-    .order('title');
+export const getSongs = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { data, error } = await supabase
+      .from('songs')
+      .select('*')
+      .order('title');
   
   if (error) throw error;
   
