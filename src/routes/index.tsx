@@ -5,6 +5,12 @@ import { MinistryIntro } from "@/components/home/MinistryIntro";
 import { CoreValues } from "@/components/home/CoreValues";
 import { EventCard } from "@/components/ui/events/EventCard";
 import { SongCard } from "@/components/ui/songs/SongCard";
+import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
+import { TeamPreview } from "@/components/ui/team/TeamPreview";
+import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
+import { GalleryPreview } from "@/components/home/gallery/GalleryPreview";
+import { JoinCTA } from "@/components/home/cta/JoinCTA";
+import { PrepareHeart } from "@/components/home/cta/PrepareHeart";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -120,8 +126,21 @@ function Index() {
           </div>
         </div>
       </section>
+
+      <WorshipSetlist />
+
+      <TeamPreview />
+
+      <ResourcePreview />
+
+      <GalleryPreview />
+
+      <JoinCTA />
+
+      <PrepareHeart />
     </div>
   );
 }
+
 
 
