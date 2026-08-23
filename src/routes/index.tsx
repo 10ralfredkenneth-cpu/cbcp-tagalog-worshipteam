@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { HeroSection } from "@/components/layout/HeroSection";
 import { ScriptureBlock } from "@/components/ui/ScriptureBlock";
 import { MinistryIntro } from "@/components/home/MinistryIntro";
