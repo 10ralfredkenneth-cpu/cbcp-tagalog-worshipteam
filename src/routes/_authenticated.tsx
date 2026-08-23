@@ -7,13 +7,11 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_authenticated')({
+  // The session lives in browser storage, so this subtree must not be server-rendered.
+  ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) {
-      console.error('Auth guard session error:', error);
-      throw redirect({ to: '/login' });
-    }
-    
+    const { data: { session } } = await supabase.auth.getSession();
+
     if (!session) {
       throw redirect({
         to: '/login',
