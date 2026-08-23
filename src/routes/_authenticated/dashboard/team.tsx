@@ -11,7 +11,8 @@ import {
   UserX,
   Mail,
   Shield,
-  ArrowRight
+  ArrowRight,
+  Archive
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,8 +74,31 @@ function TeamManagementPage() {
     }
   });
 
+  const archiveMemberMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'Archived' })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      toast.success('Member archived');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to archive member: ' + error.message);
+    }
+  });
+
   const handleStatusChange = (id: string, status: string) => {
     updateStatusMutation.mutate({ id, status: status as any });
+  };
+
+  const handleArchive = (id: string) => {
+    if (confirm('Are you sure you want to archive this team member?')) {
+      archiveMemberMutation.mutate(id);
+    }
   };
 
   return (
@@ -222,10 +246,10 @@ function TeamManagementPage() {
                         <UserX className="w-3 h-3 mr-2" /> Set On Break
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => handleStatusChange(member.id, 'Active')}
-                        className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer"
+                        onClick={() => handleArchive(member.id)}
+                        className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
                       >
-                        <UserCheck className="w-3 h-3 mr-2" /> Reactivate
+                        <Archive className="w-3 h-3 mr-2" /> Archive Member
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

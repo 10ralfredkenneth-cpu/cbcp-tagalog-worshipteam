@@ -29,3 +29,52 @@ export const archiveSong = async (id: string) => {
   
   if (error) throw error;
 };
+
+export const createSong = async (song: Partial<WorshipSong>) => {
+  const { data, error } = await supabase
+    .from('songs')
+    .insert([{
+      title: song.title,
+      artist: song.artist,
+      default_key: song.defaultKey,
+      bpm: song.bpm,
+      time_signature: song.timeSignature,
+      language: song.language,
+      song_type: song.songType,
+      status: song.status,
+      themes: song.themes,
+      scripture_references: song.scriptureReferences,
+      sections: (song as any).sections,
+      flow: (song as any).flow
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const updateSong = async (id: string, song: Partial<WorshipSong>) => {
+  const { data, error } = await supabase
+    .from('songs')
+    .update({
+      title: song.title,
+      artist: song.artist,
+      default_key: song.defaultKey,
+      bpm: song.bpm,
+      time_signature: song.timeSignature,
+      language: song.language,
+      song_type: song.songType,
+      status: song.status,
+      themes: song.themes,
+      scripture_references: song.scriptureReferences,
+      sections: (song as any).sections,
+      flow: (song as any).flow
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};

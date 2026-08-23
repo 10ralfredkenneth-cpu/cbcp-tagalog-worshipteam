@@ -32,8 +32,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getServices } from '@/lib/db-services';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 
@@ -42,15 +43,33 @@ export const Route = createFileRoute('/_authenticated/dashboard/setlists')({
 });
 
 function SetlistManagementPage() {
+  const queryClient = useQueryClient();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
     queryFn: getServices,
   });
 
+  const archiveMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('services')
+        .update({ status: 'Archived' })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      toast.success('Setlist archived');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to archive setlist: ' + error.message);
+    }
+  });
+
   const handleArchive = (id: string) => {
-    toast.success('Setlist archived', {
-      description: `Setlist ${id} has been moved to archives.`
-    });
+    if (confirm('Are you sure you want to archive this setlist? This will move the service to the archives.')) {
+      archiveMutation.mutate(id);
+    }
   };
 
   return (
