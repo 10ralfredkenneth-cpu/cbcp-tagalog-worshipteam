@@ -121,3 +121,60 @@ export async function deleteSong(id: string) {
 
   if (error) throw error;
 }
+
+export async function getSongVersions(songId: string): Promise<SongVersion[]> {
+  const { data, error } = await supabase
+    .from('song_versions')
+    .select('*')
+    .eq('song_id', songId)
+    .order('version_number', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function restoreSongVersion(songId: string, version: Partial<SongVersion>) {
+  const { error } = await supabase
+    .from('songs')
+    .update({
+      lyrics: version.lyrics,
+      chords: version.chords,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', songId);
+
+  if (error) throw error;
+  return true;
+}
+
+/**
+ * Enhanced chord parser that identifies chords in text and wraps them in [ ] brackets
+ * if they are not already. It handles common worship chord formats.
+ */
+export function enhanceChordParsing(text: string): string {
+  if (!text) return '';
+
+  // Regex for common chords (A-G, optional #/b, optional m, 7, maj, sus, etc.)
+  // We look for them separated by spaces or at the start/end of lines
+  // This is a simplified but effective heuristic for worship lyrics
+  const chordRegex = /\b([A-G][#b]?(m|min|maj|dim|aug|sus|add)?[0-9]*(/[A-G][#b]?)?)\b(?![^\[]*\])/g;
+
+  return text.split('\n').map(line => {
+    // If the line is already a "chord line" (high ratio of chord-like words to text)
+    const words = line.trim().split(/\s+/);
+    if (words.length === 0) return line;
+
+    const chordMatches = line.match(chordRegex);
+    if (!chordMatches) return line;
+
+    // Heuristic: if more than 50% of words look like chords, it's likely a chord line
+    const isChordLine = chordMatches.length / words.length > 0.5;
+
+    if (isChordLine) {
+      // Wrap each chord in brackets if not already wrapped
+      return line.replace(chordRegex, '[$1]');
+    }
+
+    return line;
+  }).join('\n');
+}
