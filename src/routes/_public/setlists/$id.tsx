@@ -65,6 +65,7 @@ function SetlistDetailPage() {
     if (targetIndex < 0 || targetIndex >= newSongs.length) return;
     
     const [movedSong] = newSongs.splice(index, 1);
+    if (!movedSong) return;
     newSongs.splice(targetIndex, 0, movedSong);
     
     // Update orders
