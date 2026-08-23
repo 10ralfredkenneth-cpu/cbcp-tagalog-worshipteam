@@ -368,23 +368,36 @@ function SetlistDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
-          {/* Order of Service / Timeline */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between border-b border-accent/10 pb-4 print:hidden">
-              <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Order of Service</h2>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => setViewMode('Rehearsal')}
-                  variant="outline" 
-                  className="bg-accent/5 text-accent border-accent/20 rounded-none text-[10px] font-bold tracking-widest uppercase hover:bg-accent hover:text-primary transition-all"
-                >
-                  <Play className="w-3 h-3 mr-2" /> Rehearsal Mode
-                </Button>
-                <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
-                  <Plus className="w-3 h-3 mr-2" /> Add Item
-                </Button>
-              </div>
-            </div>
+          <Tabs defaultValue="order" className="w-full">
+            <TabsList className="bg-transparent border-b border-accent/10 w-full justify-start rounded-none h-auto p-0 mb-8 space-x-8">
+              <TabsTrigger value="order" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Order of Service
+              </TabsTrigger>
+              <TabsTrigger value="team" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Team Roster
+              </TabsTrigger>
+              <TabsTrigger value="rehearsal" className="bg-transparent border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent rounded-none px-0 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all">
+                Rehearsal & Setup
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="order" className="space-y-12 mt-0 focus-visible:outline-none">
+              <section className="space-y-6">
+                <div className="flex items-center justify-between border-b border-accent/10 pb-4 print:hidden">
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Service Timeline</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => setViewMode('Rehearsal')}
+                      variant="outline" 
+                      className="bg-accent/5 text-accent border-accent/20 rounded-none text-[10px] font-bold tracking-widest uppercase hover:bg-accent hover:text-primary transition-all"
+                    >
+                      <Play className="w-3 h-3 mr-2" /> Rehearsal Mode
+                    </Button>
+                    <Button variant="ghost" className="text-[10px] font-bold tracking-widest uppercase text-accent hover:bg-accent/5">
+                      <Plus className="w-3 h-3 mr-2" /> Add Item
+                    </Button>
+                  </div>
+                </div>
 
             <div className="space-y-4">
               {timeline.map((item, idx) => {
