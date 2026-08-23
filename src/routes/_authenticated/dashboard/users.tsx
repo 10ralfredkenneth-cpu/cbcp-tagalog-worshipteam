@@ -346,7 +346,7 @@ function UserManagementPage() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                ))
               )}
             </TableBody>
           </Table>
