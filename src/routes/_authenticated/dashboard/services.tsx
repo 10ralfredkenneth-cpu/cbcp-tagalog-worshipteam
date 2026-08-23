@@ -211,8 +211,10 @@ function ServiceManagementPage() {
                           <ListMusic className="w-3 h-3 mr-2" /> Manage Setlist
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Service
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/services/$id" params={{ id: service.id }}>
+                          <Edit className="w-3 h-3 mr-2" /> Edit Service
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
