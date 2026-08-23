@@ -104,7 +104,7 @@ function Index() {
             <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Join the Assembly</span>
             <h2 className="text-4xl font-serif text-foreground">Gather With Us</h2>
           </div>
-          <EventCard event={sampleEvent} />
+          <EventCard event={serviceEvent} />
         </div>
       </section>
 
