@@ -137,7 +137,7 @@ function AddSongPage() {
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Language</Label>
-                  <Select value={formData.language} onValueChange={(v) => updateField('language', v)}>
+                  <Select value={formData.language || 'English'} onValueChange={(v) => updateField('language', v)}>
                     <SelectTrigger className="rounded-none border-accent/10 bg-background">
                       <SelectValue />
                     </SelectTrigger>
@@ -151,7 +151,7 @@ function AddSongPage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Song Type</Label>
-                  <Select value={formData.songType} onValueChange={(v) => updateField('songType', v)}>
+                  <Select value={formData.songType || 'Worship'} onValueChange={(v) => updateField('songType', v)}>
                     <SelectTrigger className="rounded-none border-accent/10 bg-background">
                       <SelectValue />
                     </SelectTrigger>
@@ -168,7 +168,7 @@ function AddSongPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Original Key</Label>
-                <Select value={formData.defaultKey} onValueChange={(v) => updateField('defaultKey', v)}>
+                <Select value={formData.defaultKey || 'C'} onValueChange={(v) => updateField('defaultKey', v)}>
                   <SelectTrigger className="rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Key" />
                   </SelectTrigger>
@@ -194,7 +194,7 @@ function AddSongPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Time Signature</Label>
-                <Select value={formData.timeSignature} onValueChange={(v) => updateField('timeSignature', v)}>
+                <Select value={formData.timeSignature || '4/4'} onValueChange={(v) => updateField('timeSignature', v)}>
                   <SelectTrigger className="rounded-none border-accent/10 bg-background">
                     <SelectValue placeholder="Meter" />
                   </SelectTrigger>
@@ -228,7 +228,7 @@ function AddSongPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</Label>
-                <Select value={formData.status} onValueChange={(v) => updateField('status', v)}>
+                <Select value={formData.status || 'Active'} onValueChange={(v) => updateField('status', v)}>
                   <SelectTrigger className="rounded-none border-accent/10 bg-background">
                     <SelectValue />
                   </SelectTrigger>
@@ -243,7 +243,7 @@ function AddSongPage() {
 
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Visibility</Label>
-                <Select value={formData.visibility} onValueChange={(v) => updateField('visibility', v)}>
+                <Select value={formData.visibility || 'Public'} onValueChange={(v) => updateField('visibility', v)}>
                   <SelectTrigger className="rounded-none border-accent/10 bg-background">
                     <SelectValue />
                   </SelectTrigger>
@@ -263,7 +263,7 @@ function AddSongPage() {
                   <p className="text-[8px] text-muted-foreground uppercase">Show on homepage</p>
                 </div>
                 <Switch 
-                  checked={formData.featured}
+                  checked={formData.featured || false}
                   onCheckedChange={(v) => updateField('featured', v)}
                 />
               </div>
