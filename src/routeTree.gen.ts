@@ -10,33 +10,173 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as PublicContactRouteImport } from './routes/_public/contact'
+import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicMediaRouteImport } from './routes/_public/media'
+import { Route as PublicResourcesRouteImport } from './routes/_public/resources'
+import { Route as PublicSetlistsRouteImport } from './routes/_public/setlists'
+import { Route as PublicSongsRouteImport } from './routes/_public/songs'
+import { Route as PublicTeamRouteImport } from './routes/_public/team'
+import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicLoginRoute = PublicLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicMediaRoute = PublicMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicResourcesRoute = PublicResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSetlistsRoute = PublicSetlistsRouteImport.update({
+  id: '/setlists',
+  path: '/setlists',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSongsRoute = PublicSongsRouteImport.update({
+  id: '/songs',
+  path: '/songs',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicTeamRoute = PublicTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicWorshipRoute = PublicWorshipRouteImport.update({
+  id: '/worship',
+  path: '/worship',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/login': typeof PublicLoginRoute
+  '/media': typeof PublicMediaRoute
+  '/resources': typeof PublicResourcesRoute
+  '/setlists': typeof PublicSetlistsRoute
+  '/songs': typeof PublicSongsRoute
+  '/team': typeof PublicTeamRoute
+  '/worship': typeof PublicWorshipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/login': typeof PublicLoginRoute
+  '/media': typeof PublicMediaRoute
+  '/resources': typeof PublicResourcesRoute
+  '/setlists': typeof PublicSetlistsRoute
+  '/songs': typeof PublicSongsRoute
+  '/team': typeof PublicTeamRoute
+  '/worship': typeof PublicWorshipRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/contact': typeof PublicContactRoute
+  '/_public/login': typeof PublicLoginRoute
+  '/_public/media': typeof PublicMediaRoute
+  '/_public/resources': typeof PublicResourcesRoute
+  '/_public/setlists': typeof PublicSetlistsRoute
+  '/_public/songs': typeof PublicSongsRoute
+  '/_public/team': typeof PublicTeamRoute
+  '/_public/worship': typeof PublicWorshipRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/media'
+    | '/resources'
+    | '/setlists'
+    | '/songs'
+    | '/team'
+    | '/worship'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/media'
+    | '/resources'
+    | '/setlists'
+    | '/songs'
+    | '/team'
+    | '/worship'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_public'
+    | '/_authenticated/dashboard'
+    | '/_public/about'
+    | '/_public/contact'
+    | '/_public/login'
+    | '/_public/media'
+    | '/_public/resources'
+    | '/_public/setlists'
+    | '/_public/songs'
+    | '/_public/team'
+    | '/_public/worship'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +188,136 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/media': {
+      id: '/_public/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof PublicMediaRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/resources': {
+      id: '/_public/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof PublicResourcesRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/setlists': {
+      id: '/_public/setlists'
+      path: '/setlists'
+      fullPath: '/setlists'
+      preLoaderRoute: typeof PublicSetlistsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/songs': {
+      id: '/_public/songs'
+      path: '/songs'
+      fullPath: '/songs'
+      preLoaderRoute: typeof PublicSongsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/team': {
+      id: '/_public/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof PublicTeamRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/worship': {
+      id: '/_public/worship'
+      path: '/worship'
+      fullPath: '/worship'
+      preLoaderRoute: typeof PublicWorshipRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicContactRoute: typeof PublicContactRoute
+  PublicLoginRoute: typeof PublicLoginRoute
+  PublicMediaRoute: typeof PublicMediaRoute
+  PublicResourcesRoute: typeof PublicResourcesRoute
+  PublicSetlistsRoute: typeof PublicSetlistsRoute
+  PublicSongsRoute: typeof PublicSongsRoute
+  PublicTeamRoute: typeof PublicTeamRoute
+  PublicWorshipRoute: typeof PublicWorshipRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicContactRoute: PublicContactRoute,
+  PublicLoginRoute: PublicLoginRoute,
+  PublicMediaRoute: PublicMediaRoute,
+  PublicResourcesRoute: PublicResourcesRoute,
+  PublicSetlistsRoute: PublicSetlistsRoute,
+  PublicSongsRoute: PublicSongsRoute,
+  PublicTeamRoute: PublicTeamRoute,
+  PublicWorshipRoute: PublicWorshipRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

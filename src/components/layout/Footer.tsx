@@ -44,7 +44,7 @@ export function Footer() {
               {["Home", "Worship", "Songs", "Setlists", "Team"].map((item) => (
                 <li key={item}>
                   <Link
-                    to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                    to={item === "Home" ? "/" : (`/${item.toLowerCase()}` as any)}
                     className="text-sm text-background/60 transition-colors hover:text-background"
                   >
                     {item}
@@ -61,7 +61,7 @@ export function Footer() {
               {["Media Library", "Chord Charts", "Service Times", "About Us", "Contact"].map((item) => (
                 <li key={item}>
                   <Link
-                    to={`/${item.toLowerCase().replace(" ", "-")}`}
+                    to={`/${item.toLowerCase().replace(" ", "-")}` as any}
                     className="text-sm text-background/60 transition-colors hover:text-background"
                   >
                     {item}
