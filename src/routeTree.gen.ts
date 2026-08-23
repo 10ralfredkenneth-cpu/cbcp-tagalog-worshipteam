@@ -21,6 +21,8 @@ import { Route as PublicResourcesRouteImport } from './routes/_public/resources'
 import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
+import { Route as AuthenticatedDashboardActivityRouteImport } from './routes/_authenticated/dashboard/activity'
+import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard/settings'
 import { Route as AuthenticatedMediaUploadRouteImport } from './routes/_authenticated/media/upload'
 import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team/index'
 import { Route as PublicResourcesIdRouteImport } from './routes/_public/resources.$id'
@@ -88,6 +90,18 @@ const PublicWorshipRoute = PublicWorshipRouteImport.update({
   path: '/worship',
   getParentRoute: () => PublicRoute,
 } as any)
+const AuthenticatedDashboardActivityRoute =
+  AuthenticatedDashboardActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardSettingsRoute =
+  AuthenticatedDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedMediaUploadRoute =
   AuthenticatedMediaUploadRouteImport.update({
     id: '/media/upload',
@@ -132,7 +146,7 @@ const PublicTeamIdRoute = PublicTeamIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/login': typeof PublicLoginRoute
@@ -141,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/songs': typeof PublicSongsRouteWithChildren
   '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
+  '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
@@ -152,7 +168,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/login': typeof PublicLoginRoute
@@ -160,6 +176,8 @@ export interface FileRoutesByTo {
   '/resources': typeof PublicResourcesRouteWithChildren
   '/team': typeof AuthenticatedTeamIndexRoute
   '/worship': typeof PublicWorshipRoute
+  '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
@@ -173,7 +191,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/login': typeof PublicLoginRoute
@@ -182,6 +200,8 @@ export interface FileRoutesById {
   '/_public/songs': typeof PublicSongsRouteWithChildren
   '/_public/team': typeof PublicTeamRouteWithChildren
   '/_public/worship': typeof PublicWorshipRoute
+  '/_authenticated/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
+  '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/_authenticated/media/upload': typeof AuthenticatedMediaUploadRoute
   '/_public/resources/$id': typeof PublicResourcesIdRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
@@ -204,6 +224,8 @@ export interface FileRouteTypes {
     | '/songs'
     | '/team'
     | '/worship'
+    | '/dashboard/activity'
+    | '/dashboard/settings'
     | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
@@ -223,6 +245,8 @@ export interface FileRouteTypes {
     | '/resources'
     | '/team'
     | '/worship'
+    | '/dashboard/activity'
+    | '/dashboard/settings'
     | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
@@ -244,6 +268,8 @@ export interface FileRouteTypes {
     | '/_public/songs'
     | '/_public/team'
     | '/_public/worship'
+    | '/_authenticated/dashboard/activity'
+    | '/_authenticated/dashboard/settings'
     | '/_authenticated/media/upload'
     | '/_public/resources/$id'
     | '/_public/setlists/$id'
@@ -346,6 +372,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicWorshipRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_authenticated/dashboard/activity': {
+      id: '/_authenticated/dashboard/activity'
+      path: '/activity'
+      fullPath: '/dashboard/activity'
+      preLoaderRoute: typeof AuthenticatedDashboardActivityRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/settings': {
+      id: '/_authenticated/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/media/upload': {
       id: '/_authenticated/media/upload'
       path: '/media/upload'
@@ -405,14 +445,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardActivityRoute: typeof AuthenticatedDashboardActivityRoute
+  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardActivityRoute: AuthenticatedDashboardActivityRoute,
+    AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedMediaUploadRoute: typeof AuthenticatedMediaUploadRoute
   AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedMediaUploadRoute: AuthenticatedMediaUploadRoute,
   AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
 }
