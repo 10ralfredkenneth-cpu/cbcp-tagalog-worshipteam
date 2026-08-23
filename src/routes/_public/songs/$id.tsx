@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getSongsPublic } from '@/lib/db-public.functions';
+import { useSearchParams } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
