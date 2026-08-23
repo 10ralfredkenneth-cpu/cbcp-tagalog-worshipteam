@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2, Hash, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2, Hash, Eye, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createSong } from '@/lib/db-songs.functions';
+import { createSong, enhanceChordParsing } from '@/lib/db-songs.functions';
 import { toast } from 'sonner';
 import { WorshipSong } from '@/types/songs';
 import { useAuth } from '@/hooks/use-auth';
@@ -311,6 +311,19 @@ function AddSongPage() {
                     <FileText className="w-3 h-3 mr-1" />
                     Import Text
                   </label>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    const enhanced = enhanceChordParsing(formData.lyrics || '');
+                    updateField('lyrics', enhanced);
+                    toast.success('Chords enhanced and formatted');
+                  }}
+                  className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
+                >
+                  <Wand2 className="w-3 h-3 mr-1" />
+                  Format Chords
                 </Button>
               </div>
             </div>

@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2, Eye, History, Wand2, RotateCcw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { updateSong, getSongs } from '@/lib/db-songs.functions';
+import { updateSong, getSongs, getSongVersions, restoreSongVersion, enhanceChordParsing, SongVersion } from '@/lib/db-songs.functions';
 import { toast } from 'sonner';
 import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from '@/types/songs';
 import { useAuth } from '@/hooks/use-auth';
@@ -50,6 +50,11 @@ function EditSongPage() {
         updatedAt: (data as any).updated_at
       } as unknown as WorshipSong;
     },
+  });
+
+  const { data: versions, isLoading: versionsLoading } = useQuery({
+    queryKey: ['song-versions', id],
+    queryFn: () => getSongVersions(id),
   });
 
   const [formData, setFormData] = useState<Partial<WorshipSong>>({});
@@ -300,16 +305,32 @@ function EditSongPage() {
                     Import Text
                   </label>
                 </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    const enhanced = enhanceChordParsing(formData.lyrics || '');
+                    updateField('lyrics', enhanced);
+                    toast.success('Chords enhanced and formatted');
+                  }}
+                  className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
+                >
+                  <Wand2 className="w-3 h-3 mr-1" />
+                  Format Chords
+                </Button>
               </div>
             </div>
             
             <Tabs defaultValue="edit" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 rounded-none bg-muted/20 p-1">
+              <TabsList className="grid w-full grid-cols-3 rounded-none bg-muted/20 p-1">
                 <TabsTrigger value="edit" className="rounded-none text-[9px] uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-accent">
                   <Type className="w-3 h-3 mr-2" /> Editor
                 </TabsTrigger>
                 <TabsTrigger value="preview" className="rounded-none text-[9px] uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-accent">
                   <Eye className="w-3 h-3 mr-2" /> Live Preview
+                </TabsTrigger>
+                <TabsTrigger value="history" className="rounded-none text-[9px] uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-accent">
+                  <History className="w-3 h-3 mr-2" /> History
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="edit" className="mt-4 space-y-4">
@@ -334,6 +355,51 @@ function EditSongPage() {
                     <p className="text-[10px] uppercase tracking-widest">No content to preview</p>
                   </div>
                 )}
+              </TabsContent>
+              <TabsContent value="history" className="mt-4 space-y-4">
+                <div className="space-y-4">
+                  {versionsLoading ? (
+                    <div className="flex justify-center py-12">
+                      <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                    </div>
+                  ) : versions && versions.length > 0 ? (
+                    <div className="space-y-3">
+                      {versions.map((version) => (
+                        <div key={version.id} className="p-4 bg-background border border-accent/10 flex items-center justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-accent px-2 py-0.5 border border-accent/20">v{version.version_number}</span>
+                              <p className="text-xs font-serif">{new Date(version.created_at).toLocaleString()}</p>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-widest">
+                              {version.lyrics?.length || 0} characters
+                            </p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="rounded-none text-[9px] uppercase tracking-widest font-bold border-accent/20"
+                            onClick={async () => {
+                              if (confirm('Restore this version? Unsaved changes will be lost.')) {
+                                updateField('lyrics', version.lyrics);
+                                updateField('chords', version.chords);
+                                toast.success(`Restored version ${version.version_number}`);
+                              }
+                            }}
+                          >
+                            <RotateCcw className="w-3 h-3 mr-2" /> Restore
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center text-muted-foreground space-y-2">
+                      <History className="w-8 h-8 mx-auto opacity-20" />
+                      <p className="text-[10px] uppercase tracking-widest">No version history yet</p>
+                      <p className="text-[8px] uppercase tracking-widest max-w-[200px] mx-auto opacity-60">Versions are created automatically when you save changes to lyrics or chords.</p>
+                    </div>
+                  )}
+                </div>
               </TabsContent>
             </Tabs>
           </section>
