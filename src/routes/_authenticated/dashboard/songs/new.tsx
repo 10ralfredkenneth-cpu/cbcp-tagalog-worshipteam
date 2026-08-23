@@ -26,8 +26,6 @@ function AddSongPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<string | null>(null);
   const [tempId] = useState(() => crypto.randomUUID());
-  const [isUploading, setIsUploading] = useState<string | null>(null);
-  const tempId = useMemo(() => crypto.randomUUID(), []);
   
   const [formData, setFormData] = useState<Partial<WorshipSong>>({
     title: '',
