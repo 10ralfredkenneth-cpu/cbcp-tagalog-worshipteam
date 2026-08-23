@@ -31,7 +31,15 @@ function ResourceDetailPage() {
   });
   
   const resource = useMemo(() => {
-    return resources.find((r: any) => r.id === id);
+    const raw = (resources || []).find((r: any) => r.id === id);
+    if (!raw) return null;
+    return {
+      ...raw,
+      resourceType: raw.resource_type || raw.resourceType,
+      ministryRoles: raw.ministry_roles || raw.ministryRoles,
+      createdAt: raw.created_at || raw.createdAt,
+      updatedAt: raw.updated_at || raw.updatedAt
+    };
   }, [resources, id]);
 
   const relatedResources = useMemo(() => {

@@ -37,9 +37,22 @@ function SongDetailPage() {
   });
 
   const { id } = Route.useParams();
-  const initialSong = songs.find((s: any) => s.id === (id as string));
+  const rawSong = (songs || []).find((s: any) => s.id === (id as string));
+  const initialSong = useMemo(() => {
+    if (!rawSong) return null;
+    return {
+      ...rawSong,
+      defaultKey: rawSong.default_key || rawSong.defaultKey,
+      timeSignature: rawSong.time_signature || rawSong.timeSignature,
+      createdAt: rawSong.created_at || rawSong.createdAt,
+      updatedAt: rawSong.updated_at || rawSong.updatedAt,
+      scriptureReferences: rawSong.scripture_references || rawSong.scriptureReferences || [],
+      sections: rawSong.sections || [],
+      flow: rawSong.flow || []
+    };
+  }, [rawSong]);
   
-  const [currentKey, setCurrentKey] = useState(initialSong?.default_key || initialSong?.defaultKey || 'C');
+  const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
   const [viewMode, setViewMode] = useState<ViewMode>('Standard');
   const [showChords, setShowChords] = useState(true);
   const [isFavorite, setIsFavorite] = useState(initialSong?.isFavorite || false);

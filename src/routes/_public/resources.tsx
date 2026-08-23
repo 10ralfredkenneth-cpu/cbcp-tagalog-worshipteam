@@ -34,12 +34,18 @@ function ResourcesLibrary() {
   });
 
   const filteredResources = useMemo(() => {
-    return resources.filter((resource: any) => {
+    return (resources || []).map((raw: any) => ({
+      ...raw,
+      resourceType: raw.resource_type || raw.resourceType,
+      ministryRoles: raw.ministry_roles || raw.ministryRoles,
+      createdAt: raw.created_at || raw.createdAt,
+      updatedAt: raw.updated_at || raw.updatedAt
+    })).filter((resource: any) => {
       const title = resource.title || '';
       const description = resource.description || '';
       const tags = resource.tags || [];
       const scripture = resource.scripture_references || [];
-      const roles = resource.ministry_roles || resource.ministryRoles || [];
+      const roles = resource.ministryRoles || [];
 
       const matchesSearch = 
         title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,8 +57,7 @@ function ResourcesLibrary() {
         });
       
       const matchesCategory = category === 'All' || resource.category === category;
-      const resType = resource.resource_type || resource.resourceType;
-      const matchesType = resourceType === 'All' || resType === resourceType;
+      const matchesType = resourceType === 'All' || resource.resourceType === resourceType;
       const matchesRole = role === 'All' || roles.includes(role as any) || roles.includes('All Team Members');
 
       return matchesSearch && matchesCategory && matchesType && matchesRole;

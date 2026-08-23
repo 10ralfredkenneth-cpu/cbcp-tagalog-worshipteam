@@ -41,13 +41,19 @@ function MediaPage() {
   });
 
   const filteredItems = useMemo(() => {
-    return media.filter((item: any) => {
+    return (media || []).map((item: any) => ({
+      ...item,
+      mediaType: item.media_type || item.mediaType,
+      fileUrl: item.file_url || item.fileUrl,
+      createdAt: item.created_at || item.createdAt,
+      visibility: (item as any).visibility || 'Public'
+    })).filter((item: any) => {
       const title = item.title || '';
       const tags = item.tags || [];
       const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const mediaType = item.media_type || item.mediaType;
+      const mediaType = item.mediaType;
       if (activeTab === 'all') return matchesSearch;
       if (activeTab === 'photos') return matchesSearch && mediaType === 'Photo';
       if (activeTab === 'videos') return matchesSearch && mediaType === 'Video';
