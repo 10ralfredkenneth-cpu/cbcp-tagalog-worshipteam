@@ -58,6 +58,8 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     audio_url: (song as any).audioUrl || null,
     sheet_music_url: (song as any).sheetMusicUrl || null,
     external_resources: (song as any).externalResources || [],
+    lyrics: song.lyrics || null,
+    chords: song.chords || null,
   };
 
   const { data, error } = await supabase
@@ -95,6 +97,8 @@ export async function updateSong(input: { data: { id: string; song: Partial<Wors
   if ((song as any).audioUrl !== undefined) updateData.audio_url = (song as any).audioUrl || null;
   if ((song as any).sheetMusicUrl !== undefined) updateData.sheet_music_url = (song as any).sheetMusicUrl || null;
   if ((song as any).externalResources !== undefined) updateData.external_resources = (song as any).externalResources || [];
+  if (song.lyrics !== undefined) updateData.lyrics = song.lyrics || null;
+  if (song.chords !== undefined) updateData.chords = song.chords || null;
 
   const { data, error } = await supabase
     .from('songs')
