@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,7 @@ function SetlistsPage() {
 
   const { data: setlists = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices,
+    queryFn: () => getServices(),
   });
 
   const filteredSetlists = useMemo(() => {

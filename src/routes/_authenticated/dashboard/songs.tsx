@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSongs, archiveSong, createSong, updateSong } from '@/lib/db-songs';
+import { getSongs, archiveSong, createSong, updateSong } from '@/lib/db-songs.functions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -41,7 +41,7 @@ function SongManagementPage() {
   const queryClient = useQueryClient();
   const { data: songs = [], isLoading } = useQuery({
     queryKey: ['songs'],
-    queryFn: getSongs,
+    queryFn: () => getSongs(),
   });
 
   const archiveMutation = useMutation({
@@ -56,7 +56,7 @@ function SongManagementPage() {
   });
 
   const handleArchive = (id: string) => {
-    archiveMutation.mutate(id);
+    archiveMutation.mutate({ data: id });
   };
 
   return (

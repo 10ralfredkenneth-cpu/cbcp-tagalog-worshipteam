@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Music, Calendar, Clock, MapPin, User, ChevronRight } from 'lucide-react';
@@ -14,7 +14,7 @@ function ServiceDetailsPage() {
   const { id } = Route.useParams();
   const { data: services = [], isLoading } = useQuery({
     queryKey: ['services'],
-    queryFn: getServices
+    queryFn: () => getServices()
   });
 
   const service = services.find(s => s.id === id);

@@ -22,8 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { getSongs } from '@/lib/db-songs';
-import { getServices } from '@/lib/db-services';
+import { getSongs } from '@/lib/db-songs.functions';
+import { getServices } from '@/lib/db-services.functions';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
@@ -33,8 +33,8 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
 function AdminDashboardOverview() {
   const { isWorshipLeader, isMinistryAdmin } = useAuth();
 
-  const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: getSongs });
-  const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: getServices });
+  const { data: songs = [] } = useQuery({ queryKey: ['songs'], queryFn: () => getSongs() });
+  const { data: services = [] } = useQuery({ queryKey: ['services'], queryFn: () => getServices() });
   const { data: team = [] } = useQuery({ 
     queryKey: ['team-count'], 
     queryFn: async () => {

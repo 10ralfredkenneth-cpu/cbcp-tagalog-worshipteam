@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Music, Hash, Type, Link2, Languages, Tags, BookOpen, Shield, Star, Info } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createSong } from '@/lib/db-songs';
+import { createSong } from '@/lib/db-songs.functions';
 import { toast } from 'sonner';
 import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from '@/types/songs';
 
@@ -59,7 +59,7 @@ function AddSongPage() {
       return;
     }
     setIsSaving(true);
-    mutation.mutate(formData);
+    mutation.mutate({ data: formData });
   };
 
   const updateField = (field: keyof WorshipSong, value: any) => {

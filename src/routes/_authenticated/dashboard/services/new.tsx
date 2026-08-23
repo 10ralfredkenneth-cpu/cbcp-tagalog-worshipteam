@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, Calendar, Clock, MapPin, Info, Tag, BookOpen, User } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { createService } from '@/lib/db-services';
+import { createService } from '@/lib/db-services.functions';
 import { toast } from 'sonner';
 import { WorshipSetlist, ServiceType, ServiceVisibility, SetlistStatus } from '@/types/setlists';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,7 +66,7 @@ function CreateServicePage() {
       return;
     }
     setIsSaving(true);
-    mutation.mutate(formData);
+    mutation.mutate({ data: formData });
   };
 
   const updateField = (field: keyof WorshipSetlist, value: any) => {

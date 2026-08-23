@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, ArrowRight, Save, Loader2, Calendar, User, Clock, CheckCircle2, XCircle, Shield } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getServices } from '@/lib/db-services';
+import { getServices } from '@/lib/db-services.functions';
 import { getTeamMembers, getAssignments, updateAssignmentStatus } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ function AssignmentDetailPage() {
 
   const { data: assignments = [], isLoading: loadingAssignments } = useQuery({
     queryKey: ['assignments'],
-    queryFn: () => getAssignments({})
+    queryFn: () => getAssignments()
   });
 
   const assignment = assignments.find(a => a.id === id);
