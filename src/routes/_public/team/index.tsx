@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute('/_public/team/')({
+
   component: TeamPage,
 });
 
