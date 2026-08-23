@@ -39,17 +39,7 @@ function SongDetailPage() {
   const { id } = Route.useParams();
   const rawSong = (songs || []).find((s: any) => s.id === (id as string));
   const initialSong = useMemo(() => {
-    if (!rawSong) return null;
-    return {
-      ...rawSong,
-      defaultKey: (rawSong as any).default_key || (rawSong as any).defaultKey,
-      timeSignature: (rawSong as any).time_signature || (rawSong as any).timeSignature,
-      createdAt: (rawSong as any).created_at || (rawSong as any).createdAt,
-      updatedAt: (rawSong as any).updated_at || (rawSong as any).updatedAt,
-      scriptureReferences: (rawSong as any).scripture_references || (rawSong as any).scriptureReferences || [],
-      sections: rawSong.sections || [],
-      flow: rawSong.flow || []
-    };
+    return rawSong as unknown as WorshipSong;
   }, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
@@ -353,13 +343,21 @@ function SongDetailPage() {
 
             <TabsContent value="lyrics" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="max-w-2xl mx-auto space-y-12 py-8">
-                {(initialSong.sections as any || []).map((section: any, idx: number) => (
-                  <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
-                ))}
-                {!initialSong.sections && (
-                  <p className="text-muted-foreground italic text-center py-12">
-                    Lyrics for this song are currently unavailable.
-                  </p>
+                {initialSong.lyrics ? (
+                  <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap text-foreground/80">
+                    {initialSong.lyrics}
+                  </div>
+                ) : (
+                  <>
+                    {(initialSong.sections as any || []).map((section: any, idx: number) => (
+                      <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
+                    ))}
+                    {!((initialSong.sections as any)?.length) && (
+                      <p className="text-muted-foreground italic text-center py-12">
+                        Lyrics for this song are currently unavailable.
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </TabsContent>

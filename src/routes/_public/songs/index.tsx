@@ -50,7 +50,10 @@ function SongLibraryPage() {
 
   const allKeys = useMemo(() => {
     const keys = new Set<string>();
-    songs.forEach((song: any) => keys.add(song.default_key || song.defaultKey));
+    songs.forEach((song: any) => {
+      const key = song.defaultKey;
+      if (key) keys.add(key);
+    });
     return ['All', ...Array.from(keys).sort()];
   }, [songs]);
 
@@ -59,16 +62,17 @@ function SongLibraryPage() {
       const title = song.title || '';
       const artist = song.artist || '';
       const themes = song.themes || [];
-      const scripture = Array.isArray(song.scripture_references) ? song.scripture_references : [];
+      const scripture = Array.isArray(song.scriptureReferences) ? song.scriptureReferences : [];
 
       const matchesSearch = 
         title.toLowerCase().includes(search.toLowerCase()) ||
         artist.toLowerCase().includes(search.toLowerCase()) ||
         themes.some((t: string) => t.toLowerCase().includes(search.toLowerCase())) ||
-        scripture.some((r: any) => (typeof r === 'string' ? r : (r.reference || '')).toLowerCase().includes(search.toLowerCase()));
+        scripture.some((r: any) => (typeof r === 'string' ? r : (r.reference || '')).toLowerCase().includes(search.toLowerCase())) ||
+        (song.lyrics || '').toLowerCase().includes(search.toLowerCase());
       
       const matchesTheme = themeFilter === 'All' || themes.includes(themeFilter);
-      const songKey = song.default_key || song.defaultKey;
+      const songKey = song.defaultKey;
       const matchesKey = keyFilter === 'All' || songKey === keyFilter;
 
       return matchesSearch && matchesTheme && matchesKey;
@@ -76,7 +80,7 @@ function SongLibraryPage() {
       switch (sortBy) {
         case 'title-asc': return (a.title || '').localeCompare(b.title || '');
         case 'title-desc': return (b.title || '').localeCompare(a.title || '');
-        case 'recent': return new Date(b.created_at || b.createdAt).getTime() - new Date(a.created_at || a.createdAt).getTime();
+        case 'recent': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'most-used': return (b.usage_count || b.usageCount || 0) - (a.usage_count || a.usageCount || 0);
         default: return 0;
       }
@@ -206,14 +210,7 @@ function SongLibraryPage() {
       {filteredSongs.length > 0 ? (
         <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16" : "space-y-1"}>
           {(filteredSongs || []).map((song: any) => (
-            <SongCard key={song.id} song={{
-              ...song,
-              defaultKey: song.default_key || song.defaultKey,
-              scriptureReferences: song.scripture_references || song.scriptureReferences || [],
-              songType: song.song_type || song.songType,
-              createdAt: song.created_at || song.createdAt,
-              updatedAt: song.updated_at || song.updatedAt
-            }} viewMode={viewMode} />
+            <SongCard key={song.id} song={song} viewMode={viewMode} />
           ))}
         </div>
       ) : (
