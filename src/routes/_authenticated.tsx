@@ -29,7 +29,7 @@ function AuthenticatedLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading && isPending && location.pathname !== '/awaiting-approval') {
+    if (!loading && isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
       navigate({ to: '/awaiting-approval' });
     }
   }, [loading, isPending, location.pathname, navigate]);
@@ -43,7 +43,7 @@ function AuthenticatedLayout() {
   }
 
   // Show a blank state while navigating to avoid flickering the sidebar/dashboard
-  if (isPending && location.pathname !== '/awaiting-approval') {
+  if (isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
     return null;
   }
 
