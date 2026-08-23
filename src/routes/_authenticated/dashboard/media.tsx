@@ -63,7 +63,7 @@ function MediaManagementPage() {
           </p>
         </div>
         <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Link to="/media">
+          <Link to="/dashboard/media">
             <Plus className="w-4 h-4 mr-2" /> Upload New Media
           </Link>
         </Button>
@@ -152,9 +152,12 @@ function MediaManagementPage() {
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Eye className="w-3 h-3 mr-2" /> View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Metadata
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/media">
+                          <Edit className="w-3 h-3 mr-2" /> Edit Metadata
+                        </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
                         onClick={() => handleArchive(item.id)}

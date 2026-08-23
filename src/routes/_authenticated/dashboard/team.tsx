@@ -114,7 +114,7 @@ function TeamManagementPage() {
           </p>
         </div>
         <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Link to="/team">
+          <Link to="/dashboard/team/new">
             <Plus className="w-4 h-4 mr-2" /> Add Team Member
           </Link>
         </Button>
@@ -232,9 +232,12 @@ function TeamManagementPage() {
                           <ArrowRight className="w-3 h-3 mr-2" /> View Profile
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Member
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/team/new">
+                          <Edit className="w-3 h-3 mr-2" /> Edit Member
+                        </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Mail className="w-3 h-3 mr-2" /> Contact Member
                       </DropdownMenuItem>

@@ -64,7 +64,8 @@ function ResourceManagementPage() {
           </p>
         </div>
         <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Link to="/resources">
+          <Link to="/dashboard/resources/new">
+
             <Plus className="w-4 h-4 mr-2" /> Create New Resource
           </Link>
         </Button>
@@ -152,9 +153,12 @@ function ResourceManagementPage() {
                           <Eye className="w-3 h-3 mr-2" /> View Public Page
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Resource
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/resources/new">
+                          <Edit className="w-3 h-3 mr-2" /> Edit Resource
+                        </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
                         onClick={() => handleArchive(res.id)}

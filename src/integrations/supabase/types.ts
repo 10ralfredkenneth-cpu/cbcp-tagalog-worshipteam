@@ -240,19 +240,19 @@ export type Database = {
           date_joined: string | null
           email: string
           emergency_contact: string | null
+          featured: boolean | null
           full_name: string
           groups: string[] | null
           id: string
           instrument: string | null
           internal_notes: string | null
+          is_public: boolean | null
           phone: string | null
           primary_role: string | null
           skills: string[] | null
           status: Database["public"]["Enums"]["member_status"] | null
           team_member_id: string | null
           updated_at: string | null
-          featured: boolean | null
-          is_public: boolean | null
           vocal_range: string | null
         }
         Insert: {
@@ -263,11 +263,13 @@ export type Database = {
           date_joined?: string | null
           email: string
           emergency_contact?: string | null
+          featured?: boolean | null
           full_name: string
           groups?: string[] | null
           id: string
           instrument?: string | null
           internal_notes?: string | null
+          is_public?: boolean | null
           phone?: string | null
           primary_role?: string | null
           skills?: string[] | null
@@ -284,11 +286,13 @@ export type Database = {
           date_joined?: string | null
           email?: string
           emergency_contact?: string | null
+          featured?: boolean | null
           full_name?: string
           groups?: string[] | null
           id?: string
           instrument?: string | null
           internal_notes?: string | null
+          is_public?: boolean | null
           phone?: string | null
           primary_role?: string | null
           skills?: string[] | null
@@ -428,6 +432,7 @@ export type Database = {
           created_at: string | null
           estimated_duration: number | null
           id: string
+          is_public: boolean | null
           notes: string | null
           rehearsal_date: string | null
           rehearsal_location: string | null
@@ -438,7 +443,6 @@ export type Database = {
           service_time: string
           service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["setlist_status"]
-          is_public: boolean | null
           theme: string | null
           title: string
           updated_at: string | null
@@ -448,6 +452,7 @@ export type Database = {
           created_at?: string | null
           estimated_duration?: number | null
           id?: string
+          is_public?: boolean | null
           notes?: string | null
           rehearsal_date?: string | null
           rehearsal_location?: string | null
@@ -467,6 +472,7 @@ export type Database = {
           created_at?: string | null
           estimated_duration?: number | null
           id?: string
+          is_public?: boolean | null
           notes?: string | null
           rehearsal_date?: string | null
           rehearsal_location?: string | null
@@ -509,15 +515,15 @@ export type Database = {
           copyright_year: number | null
           created_at: string | null
           default_key: string
+          featured: boolean | null
           flow: string[] | null
           id: string
+          is_public: boolean | null
           language: Database["public"]["Enums"]["song_language"]
           public_domain: boolean | null
           scripture_references: Json | null
           sections: Json | null
           song_type: Database["public"]["Enums"]["song_type"]
-          featured: boolean | null
-          is_public: boolean | null
           songwriter: string | null
           status: Database["public"]["Enums"]["song_status"]
           themes: string[] | null
@@ -535,8 +541,10 @@ export type Database = {
           copyright_year?: number | null
           created_at?: string | null
           default_key: string
+          featured?: boolean | null
           flow?: string[] | null
           id?: string
+          is_public?: boolean | null
           language?: Database["public"]["Enums"]["song_language"]
           public_domain?: boolean | null
           scripture_references?: Json | null
@@ -559,8 +567,10 @@ export type Database = {
           copyright_year?: number | null
           created_at?: string | null
           default_key?: string
+          featured?: boolean | null
           flow?: string[] | null
           id?: string
+          is_public?: boolean | null
           language?: Database["public"]["Enums"]["song_language"]
           public_domain?: boolean | null
           scripture_references?: Json | null
@@ -625,6 +635,7 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: string
+          is_public?: boolean | null
           ministry_roles?: string[] | null
           published_at?: string | null
           reading_time?: number | null
@@ -645,6 +656,7 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: string
+          is_public?: boolean | null
           ministry_roles?: string[] | null
           published_at?: string | null
           reading_time?: number | null
@@ -968,6 +980,7 @@ export const Constants = {
         "Inactive",
         "Pending",
         "Suspended",
+        "Archived",
       ],
       resource_category: [
         "Worship Devotionals",

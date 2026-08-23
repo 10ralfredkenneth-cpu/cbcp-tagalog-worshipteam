@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { 
   Users, 
   Search, 
@@ -10,7 +10,9 @@ import {
   Lock,
   Unlock,
   UserX,
-  Link2
+  Link2,
+  Plus
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -187,7 +189,13 @@ function UserManagementPage() {
             Manage system access, roles, and permissions. Link accounts to worship team profiles.
           </p>
         </div>
+        <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Link to="/dashboard/users/new">
+            <Plus className="w-4 h-4 mr-2" /> Add New User
+          </Link>
+        </Button>
       </header>
+
 
       {/* Controls */}
       <div className="flex flex-col md:flex-row gap-4 bg-muted/20 p-6 border border-accent/5">
