@@ -7,7 +7,7 @@ import { EventCard } from "@/components/ui/events/EventCard";
 import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
 import { useQuery } from "@tanstack/react-query";
-import { getSongsPublic } from "@/lib/db-public.functions";
+import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
