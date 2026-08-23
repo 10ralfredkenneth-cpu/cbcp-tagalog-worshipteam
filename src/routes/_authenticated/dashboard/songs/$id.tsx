@@ -278,7 +278,11 @@ function EditSongPage() {
                   className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
                 >
                   <Wand2 className="w-3 h-3 mr-1" />
-                  Format Chords
+                  Add an export button that lets me download the song with current key/chord view as PDF or plain text.
+
+Create shareable links that open the public song page with my selected key and split-view settings pre-applied.
+
+Show a real-time sync status indicator in the admin so I can confirm when my changes have propagated to the public page.
                 </Button>
               </div>
             </div>
