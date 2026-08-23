@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { 
   Music, 
   Search, 
@@ -34,8 +34,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs')({
-  component: SongManagementPage,
+  component: SongManagementLayout,
 });
+
+function SongManagementLayout() {
+  return <Outlet />;
+}
 
 function SongManagementPage() {
   const queryClient = useQueryClient();
