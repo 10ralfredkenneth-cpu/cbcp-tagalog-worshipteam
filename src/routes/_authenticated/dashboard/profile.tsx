@@ -8,7 +8,8 @@ import {
   Award,
   Calendar,
   Save,
-  Camera
+  Camera,
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

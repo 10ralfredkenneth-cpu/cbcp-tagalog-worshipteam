@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 
 export const logAuditAction = async (
@@ -11,8 +10,10 @@ export const logAuditAction = async (
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
+    // Using a direct Supabase call for now, assuming types might not be perfectly in sync
+    // or the 'audit_logs' table was just created and not yet in the generated types.
     const { error } = await supabase
-      .from('audit_logs')
+      .from('audit_logs' as any)
       .insert({
         user_id: user?.id,
         action,
@@ -20,7 +21,7 @@ export const logAuditAction = async (
         entity_id: entityId,
         summary,
         metadata
-      });
+      } as any);
 
     if (error) throw error;
   } catch (err) {
