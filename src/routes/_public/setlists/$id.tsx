@@ -139,9 +139,9 @@ function SetlistDetailPage() {
   const duplicateSetlist = () => {
     const newSetlist = {
       ...setlist,
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       title: `${setlist.title} (Copy)`,
-      status: 'Draft' as SetlistStatus,
+      status: 'Draft' as any,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

@@ -46,11 +46,11 @@ function ScheduleManagementPage() {
       .map((a: any) => ({ ...a, serviceTitle: s.title, serviceDate: s.serviceDate }))
   );
 
-  const recentlyConfirmed = services.flatMap(s => 
-    s.assignments
+  const recentlyConfirmed = services.flatMap((s: any) => 
+    (s.assignments || [])
       .filter((a: any) => a.status === 'Confirmed')
       .map((a: any) => ({ ...a, serviceTitle: s.title, serviceDate: s.serviceDate }))
-  ).sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
+  ).sort((a: any, b: any) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
 
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
@@ -171,13 +171,13 @@ function ScheduleManagementPage() {
                       <div className="flex items-center justify-between text-[7px] uppercase tracking-widest text-muted-foreground px-1">
                         <span>Confirmed</span>
                         <span className="font-bold text-green-600">
-                          {service.assignments.filter(a => a.status === 'Confirmed').length}/{service.assignments.length}
+                          {(service.assignments || []).filter((a: any) => a.status === 'Confirmed').length}/{(service.assignments || []).length}
                         </span>
                       </div>
                       <div className="w-full bg-accent/10 h-1">
                         <div 
                           className="bg-green-600 h-full" 
-                          style={{ width: `${(service.assignments.filter(a => a.status === 'Confirmed').length / service.assignments.length) * 100}%` }}
+                          style={{ width: `${((service.assignments || []).filter((a: any) => a.status === 'Confirmed').length / (service.assignments || []).length) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -209,7 +209,7 @@ function ScheduleManagementPage() {
           </h3>
           <div className="space-y-2">
             {pendingAssignments.slice(0, 5).map((assignment: any) => {
-              const member = team.find((t: any) => t.id === assignment.user_id);
+              const member = (team || []).find((t: any) => t.id === (assignment.memberId || assignment.member_id));
               return (
                 <div key={assignment.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all group">
                   <div className="flex items-center gap-4">
@@ -243,7 +243,7 @@ function ScheduleManagementPage() {
           </h3>
           <div className="space-y-2">
             {recentlyConfirmed.slice(0, 5).map((assignment: any) => {
-              const member = team.find((t: any) => t.id === assignment.user_id);
+              const member = (team || []).find((t: any) => t.id === (assignment.memberId || assignment.member_id));
               return (
                 <div key={assignment.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
                   <div className="flex items-center gap-4">
