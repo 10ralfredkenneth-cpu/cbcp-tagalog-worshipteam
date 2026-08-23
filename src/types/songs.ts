@@ -51,6 +51,15 @@ export interface WorshipSong {
   publicDomain?: boolean;
   createdAt: string;
   updatedAt: string;
+  audioUrl?: string;
+  sheetMusicUrl?: string;
+  externalResources?: {
+    audioUrl?: string;
+    sheetMusicUrl?: string;
+    metronomeDefaultSound?: 'beep' | 'woodblock' | 'click';
+    metronomeDefaultVolume?: number;
+    [key: string]: any;
+  };
 }
 
 
