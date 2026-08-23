@@ -34,18 +34,70 @@ function SongDetailPage() {
   const song = useMemo(() => rawSong as unknown as WorshipSong, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(song?.defaultKey || 'C');
-  const [showChords, setShowChords] = useState(true);
-  const [showLyrics, setShowLyrics] = useState(true);
+  const [showChords, setShowChords] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-showChords-${id}`);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [showLyrics, setShowLyrics] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-showLyrics-${id}`);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [numberNotation, setNumberNotation] = useState(false);
-  const [isSplit, setIsSplit] = useState(false);
+  const [isSplit, setIsSplit] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
+    return saved !== null ? JSON.parse(saved) : false;
+  });
   const [fontSize, setFontSize] = useState(16);
-  const [chordColor, setChordColor] = useState('text-accent');
+  const [chordColor, setChordColor] = useState(() => {
+    return localStorage.getItem(`song-pref-chordColor-${id}`) || 'text-accent';
+  });
   
   // Metronome state
   const [metronomePlaying, setMetronomePlaying] = useState(false);
   const [bpm, setBpm] = useState(song?.bpm || 72);
+  const [metronomeVolume, setMetronomeVolume] = useState(0.5);
+  const [metronomeSound, setMetronomeSound] = useState<'beep' | 'woodblock' | 'click'>('beep');
+  const [autoScroll, setAutoScroll] = useState(false);
+  
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(`song-pref-showChords-${id}`, JSON.stringify(showChords));
+  }, [showChords, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-showLyrics-${id}`, JSON.stringify(showLyrics));
+  }, [showLyrics, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-isSplit-${id}`, JSON.stringify(isSplit));
+  }, [isSplit, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
+  }, [chordColor, id]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      switch (e.key.toLowerCase()) {
+        case 'c': setShowChords(prev => !prev); break;
+        case 'l': setShowLyrics(prev => !prev); break;
+        case 's': setIsSplit(prev => !prev); break;
+        case ' ': 
+          e.preventDefault();
+          setMetronomePlaying(prev => !prev); 
+          break;
+        case 'r': setBpm(song?.bpm || 72); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [song?.bpm]);
 
   useEffect(() => {
     if (song?.bpm) setBpm(song.bpm);
@@ -58,9 +110,16 @@ function SongDetailPage() {
     const osc = audioCtxRef.current.createOscillator();
     const envelope = audioCtxRef.current.createGain();
 
-    osc.frequency.value = 880;
-    envelope.gain.value = 1;
-    envelope.gain.exponentialRampToValueAtTime(1, audioCtxRef.current.currentTime + 0.001);
+    if (metronomeSound === 'beep') {
+      osc.frequency.value = 880;
+    } else if (metronomeSound === 'woodblock') {
+      osc.frequency.value = 600;
+    } else {
+      osc.frequency.value = 1200;
+    }
+    
+    envelope.gain.value = metronomeVolume;
+    envelope.gain.exponentialRampToValueAtTime(metronomeVolume || 0.001, audioCtxRef.current.currentTime + 0.001);
     envelope.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.02);
 
     osc.connect(envelope);
@@ -73,7 +132,7 @@ function SongDetailPage() {
   useEffect(() => {
     if (metronomePlaying) {
       const interval = (60 / bpm) * 1000;
-      playClick(); // Initial click
+      playClick();
       timerRef.current = setInterval(playClick, interval);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -81,7 +140,18 @@ function SongDetailPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [metronomePlaying, bpm]);
+  }, [metronomePlaying, bpm, metronomeSound, metronomeVolume]);
+
+  // Auto-scroll logic
+  useEffect(() => {
+    let scrollInterval: NodeJS.Timeout;
+    if (autoScroll && metronomePlaying) {
+      scrollInterval = setInterval(() => {
+        window.scrollBy({ top: 1, behavior: 'auto' });
+      }, 50);
+    }
+    return () => clearInterval(scrollInterval);
+  }, [autoScroll, metronomePlaying]);
 
   if (!song) {
     return (
