@@ -1,19 +1,21 @@
 export type TeamMemberStatus = 'Active' | 'Available' | 'Limited Availability' | 'On Break' | 'Inactive';
 
+export type AvailabilityStatus = 'Available' | 'Unavailable' | 'Tentative';
+
 export type TeamRole = 
   | 'Worship Leader'
   | 'Assistant Worship Leader'
-  | 'Vocalist'
+  | 'Vocalist' 
   | 'Acoustic Guitar'
   | 'Electric Guitar'
-  | 'Bass'
+  | 'Bass' 
   | 'Keyboard'
   | 'Piano'
   | 'Drums'
-  | 'Percussion'
+  | 'Percussion' 
   | 'Sound Engineer'
   | 'Multimedia'
-  | 'Livestream'
+  | 'Livestream' 
   | 'Stage Manager'
   | 'Technical Team';
 
@@ -25,11 +27,19 @@ export type TeamSkill =
   | 'Tenor'
   | 'Acoustic Guitar'
   | 'Electric Guitar'
-  | 'Bass'
+  | 'Bass' 
   | 'Keyboard'
   | 'Drums'
   | 'Sound'
   | 'Multimedia';
+
+export interface TeamMemberAvailability {
+  id: string;
+  memberId: string;
+  date: string;
+  status: AvailabilityStatus;
+  notes?: string;
+}
 
 export interface TeamMember {
   id: string;
@@ -48,6 +58,7 @@ export interface TeamMember {
   dateJoined: string;
   skills: TeamSkill[];
   groups: string[];
+  availability?: TeamMemberAvailability[];
   createdAt: string;
   updatedAt: string;
 }
