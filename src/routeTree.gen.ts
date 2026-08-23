@@ -26,8 +26,7 @@ import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlis
 import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/$id'
 import { Route as PublicSongsIndexRouteImport } from './routes/_public/songs/index'
 import { Route as PublicSongsIdRouteImport } from './routes/_public/songs/$id'
-import { Route as PublicTeamIndexRouteImport } from './routes/_public/team/_index'
-import { Route as PublicTeamProfileRouteImport } from './routes/_public/team/profile'
+import { Route as PublicTeamIdRouteImport } from './routes/_public/team.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,13 +111,9 @@ const PublicSongsIdRoute = PublicSongsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PublicSongsRoute,
 } as any)
-const PublicTeamIndexRoute = PublicTeamIndexRouteImport.update({
-  id: '/_index',
-  getParentRoute: () => PublicTeamRoute,
-} as any)
-const PublicTeamProfileRoute = PublicTeamProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const PublicTeamIdRoute = PublicTeamIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => PublicTeamRoute,
 } as any)
 
@@ -135,7 +130,7 @@ export interface FileRoutesByFullPath {
   '/worship': typeof PublicWorshipRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
-  '/team/profile': typeof PublicTeamProfileRoute
+  '/team/$id': typeof PublicTeamIdRoute
   '/team/': typeof AuthenticatedTeamIndexRoute
   '/setlists/': typeof PublicSetlistsIndexRoute
   '/songs/': typeof PublicSongsIndexRoute
@@ -152,7 +147,7 @@ export interface FileRoutesByTo {
   '/worship': typeof PublicWorshipRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
-  '/team/profile': typeof PublicTeamProfileRoute
+  '/team/$id': typeof PublicTeamIdRoute
   '/setlists': typeof PublicSetlistsIndexRoute
   '/songs': typeof PublicSongsIndexRoute
 }
@@ -172,8 +167,7 @@ export interface FileRoutesById {
   '/_public/worship': typeof PublicWorshipRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
-  '/_public/team/_index': typeof PublicTeamIndexRoute
-  '/_public/team/profile': typeof PublicTeamProfileRoute
+  '/_public/team/$id': typeof PublicTeamIdRoute
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_public/setlists/': typeof PublicSetlistsIndexRoute
   '/_public/songs/': typeof PublicSongsIndexRoute
@@ -193,7 +187,7 @@ export interface FileRouteTypes {
     | '/worship'
     | '/setlists/$id'
     | '/songs/$id'
-    | '/team/profile'
+    | '/team/$id'
     | '/team/'
     | '/setlists/'
     | '/songs/'
@@ -210,7 +204,7 @@ export interface FileRouteTypes {
     | '/worship'
     | '/setlists/$id'
     | '/songs/$id'
-    | '/team/profile'
+    | '/team/$id'
     | '/setlists'
     | '/songs'
   id:
@@ -229,8 +223,7 @@ export interface FileRouteTypes {
     | '/_public/worship'
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
-    | '/_public/team/_index'
-    | '/_public/team/profile'
+    | '/_public/team/$id'
     | '/_authenticated/team/'
     | '/_public/setlists/'
     | '/_public/songs/'
@@ -363,18 +356,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicSongsIdRouteImport
       parentRoute: typeof PublicSongsRoute
     }
-    '/_public/team/_index': {
-      id: '/_public/team/_index'
-      path: ''
-      fullPath: '/team'
-      preLoaderRoute: typeof PublicTeamIndexRouteImport
-      parentRoute: typeof PublicTeamRoute
-    }
-    '/_public/team/profile': {
-      id: '/_public/team/profile'
-      path: '/profile'
-      fullPath: '/team/profile'
-      preLoaderRoute: typeof PublicTeamProfileRouteImport
+    '/_public/team/$id': {
+      id: '/_public/team/$id'
+      path: '/$id'
+      fullPath: '/team/$id'
+      preLoaderRoute: typeof PublicTeamIdRouteImport
       parentRoute: typeof PublicTeamRoute
     }
   }
@@ -409,13 +395,11 @@ const PublicSongsRouteWithChildren = PublicSongsRoute._addFileChildren(
 )
 
 interface PublicTeamRouteChildren {
-  PublicTeamIndexRoute: typeof PublicTeamIndexRoute
-  PublicTeamProfileRoute: typeof PublicTeamProfileRoute
+  PublicTeamIdRoute: typeof PublicTeamIdRoute
 }
 
 const PublicTeamRouteChildren: PublicTeamRouteChildren = {
-  PublicTeamIndexRoute: PublicTeamIndexRoute,
-  PublicTeamProfileRoute: PublicTeamProfileRoute,
+  PublicTeamIdRoute: PublicTeamIdRoute,
 }
 
 const PublicTeamRouteWithChildren = PublicTeamRoute._addFileChildren(
