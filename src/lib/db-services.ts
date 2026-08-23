@@ -1,4 +1,4 @@
-import { WorshipSetlist, SetlistStatus, ServiceType } from '@/types/setlists';
+import { WorshipSetlist, SetlistStatus, ServiceType, ServiceVisibility } from '@/types/setlists';
 import { supabase } from '@/integrations/supabase/client';
 
 export const getServices = async () => {
@@ -20,6 +20,8 @@ export const getServices = async () => {
     serviceType: service.service_type as ServiceType,
     worshipLeader: service.worship_leader_id,
     status: service.status as SetlistStatus,
+    visibility: service.visibility as ServiceVisibility,
+    isPublic: service.is_public,
     songs: (service.service_items || [])
       .filter((item: any) => item.item_type === 'Song')
       .map((item: any) => ({
@@ -60,4 +62,64 @@ export const getServices = async () => {
     createdAt: service.created_at,
     updatedAt: service.updated_at
   })) as WorshipSetlist[];
+};
+
+export const createService = async (service: Partial<WorshipSetlist>) => {
+  const insertData: any = {
+    title: service.title || 'New Service',
+    service_date: service.serviceDate || new Date().toISOString().split('T')[0],
+    service_time: service.serviceTime || '10:00',
+    service_type: service.serviceType || 'Sunday Worship',
+    status: service.status || 'Draft',
+    theme: service.theme || null,
+    scripture_reference: service.scriptureReference || null,
+    notes: service.notes || null,
+    worship_leader_id: service.worshipLeader || null,
+    rehearsal_date: service.rehearsalDate || null,
+    rehearsal_time: service.rehearsalTime || null,
+    rehearsal_location: service.rehearsalLocation || null,
+    rehearsal_notes: service.rehearsalNotes || null,
+    is_public: service.visibility === 'Public',
+    visibility: service.visibility || 'Public'
+  };
+
+  const { data, error } = await supabase
+    .from('services')
+    .insert([insertData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateService = async (id: string, service: Partial<WorshipSetlist>) => {
+  const updateData: any = {};
+  if (service.title !== undefined) updateData.title = service.title;
+  if (service.serviceDate !== undefined) updateData.service_date = service.serviceDate;
+  if (service.serviceTime !== undefined) updateData.service_time = service.serviceTime;
+  if (service.serviceType !== undefined) updateData.service_type = service.serviceType;
+  if (service.status !== undefined) updateData.status = service.status;
+  if (service.theme !== undefined) updateData.theme = service.theme || null;
+  if (service.scriptureReference !== undefined) updateData.scripture_reference = service.scriptureReference || null;
+  if (service.notes !== undefined) updateData.notes = service.notes || null;
+  if (service.worshipLeader !== undefined) updateData.worship_leader_id = service.worshipLeader || null;
+  if (service.rehearsalDate !== undefined) updateData.rehearsal_date = service.rehearsalDate || null;
+  if (service.rehearsalTime !== undefined) updateData.rehearsal_time = service.rehearsalTime || null;
+  if (service.rehearsalLocation !== undefined) updateData.rehearsal_location = service.rehearsalLocation || null;
+  if (service.rehearsalNotes !== undefined) updateData.rehearsal_notes = service.rehearsalNotes || null;
+  if (service.visibility !== undefined) {
+    updateData.visibility = service.visibility;
+    updateData.is_public = service.visibility === 'Public';
+  }
+
+  const { data, error } = await supabase
+    .from('services')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };
