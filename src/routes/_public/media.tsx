@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getMedia } from '@/lib/db-resources.functions';
+import { getMediaPublic } from '@/lib/db-public.functions';
 import { supabase } from '@/integrations/supabase/client';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaCard } from '@/components/media/MediaCard';
@@ -27,8 +27,8 @@ function MediaPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: media = [] } = useQuery({
-    queryKey: ['media'],
-    queryFn: getMedia,
+    queryKey: ['media-public'],
+    queryFn: getMediaPublic,
   });
 
   const { data: albums = [] } = useQuery({

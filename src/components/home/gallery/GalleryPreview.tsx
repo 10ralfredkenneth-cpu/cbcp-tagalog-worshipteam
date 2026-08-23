@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getMedia } from "@/lib/db-resources.functions";
+import { getMediaPublic } from "@/lib/db-public.functions";
 
 export function GalleryPreview() {
   const { data: media = [] } = useQuery({
-    queryKey: ['media'],
-    queryFn: getMedia,
+    queryKey: ['media-public'],
+    queryFn: getMediaPublic,
   });
 
   const displayMedia = useMemo(() => {

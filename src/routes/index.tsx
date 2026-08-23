@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { HeroSection } from "@/components/layout/HeroSection";
 import { ScriptureBlock } from "@/components/ui/ScriptureBlock";
 import { MinistryIntro } from "@/components/home/MinistryIntro";
@@ -7,7 +8,7 @@ import { EventCard } from "@/components/ui/events/EventCard";
 import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
 import { useQuery } from "@tanstack/react-query";
-import { getSongsPublic } from "@/lib/db-public.functions";
+import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
@@ -35,14 +36,34 @@ function Index() {
     queryFn: () => getSongsPublic()
   });
 
-  const sampleEvent = {
-    title: "Sunday Worship Service",
-    date: "Sunday",
-    time: "9:00 AM",
-    location: "Main Sanctuary",
-    description: "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
-    theme: "The Holiness of God"
-  };
+  const { data: upcomingService } = useQuery({
+    queryKey: ['upcoming-service-public'],
+    queryFn: () => getUpcomingServicePublic()
+  });
+
+  const featuredSongs = useMemo(() => {
+    return songs.filter((s: any) => s.featured).slice(0, 3);
+  }, [songs]);
+
+  const serviceEvent = useMemo(() => {
+    if (!upcomingService) return {
+      title: "Sunday Worship Service",
+      date: "Sunday",
+      time: "9:00 AM",
+      location: "Main Sanctuary",
+      description: "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
+      theme: "The Holiness of God"
+    };
+
+    return {
+      title: upcomingService.title,
+      date: new Date(upcomingService.service_date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }),
+      time: upcomingService.service_time,
+      location: upcomingService.rehearsal_location || "Main Sanctuary",
+      description: upcomingService.notes || "Join us as we gather as one body to worship Christ, hear His Word, pray, and encourage one another.",
+      theme: upcomingService.theme || ""
+    };
+  }, [upcomingService]);
 
 
   return (
@@ -83,7 +104,7 @@ function Index() {
             <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Join the Assembly</span>
             <h2 className="text-4xl font-serif text-foreground">Gather With Us</h2>
           </div>
-          <EventCard event={sampleEvent} />
+          <EventCard event={serviceEvent} />
         </div>
       </section>
 
@@ -104,7 +125,7 @@ function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {songs.slice(0, 3).map((song: any) => (
+            {featuredSongs.map((song: any) => (
               <SongCard key={song.id} song={song} />
             ))}
           </div>

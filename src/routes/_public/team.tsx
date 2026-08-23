@@ -3,6 +3,7 @@ import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { getServices } from '@/lib/db-services';
+import { getTeamPublic } from '@/lib/db-public.functions';
 import { TeamRole, TeamMemberStatus } from '@/types/team';
 import { 
   LayoutGrid, 
@@ -39,12 +40,8 @@ function TeamDirectoryLayout() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const { data: team = [] } = useQuery({
-    queryKey: ['team-full'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*');
-      if (error) throw error;
-      return data;
-    }
+    queryKey: ['team-public'],
+    queryFn: () => getTeamPublic()
   });
 
   const { data: services = [] } = useQuery({

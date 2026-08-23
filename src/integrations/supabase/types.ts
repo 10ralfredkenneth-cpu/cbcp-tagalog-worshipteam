@@ -251,6 +251,8 @@ export type Database = {
           status: Database["public"]["Enums"]["member_status"] | null
           team_member_id: string | null
           updated_at: string | null
+          featured: boolean | null
+          is_public: boolean | null
           vocal_range: string | null
         }
         Insert: {
@@ -436,6 +438,7 @@ export type Database = {
           service_time: string
           service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["setlist_status"]
+          is_public: boolean | null
           theme: string | null
           title: string
           updated_at: string | null
@@ -513,6 +516,8 @@ export type Database = {
           scripture_references: Json | null
           sections: Json | null
           song_type: Database["public"]["Enums"]["song_type"]
+          featured: boolean | null
+          is_public: boolean | null
           songwriter: string | null
           status: Database["public"]["Enums"]["song_status"]
           themes: string[] | null
@@ -599,6 +604,7 @@ export type Database = {
           description: string | null
           featured: boolean | null
           id: string
+          is_public: boolean | null
           ministry_roles: string[] | null
           published_at: string | null
           reading_time: number | null
@@ -754,6 +760,7 @@ export type Database = {
         | "Inactive"
         | "Pending"
         | "Suspended"
+        | "Archived"
       resource_category:
         | "Worship Devotionals"
         | "Biblical Worship"

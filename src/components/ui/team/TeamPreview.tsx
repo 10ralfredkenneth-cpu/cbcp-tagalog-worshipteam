@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getTeamPublic } from "@/lib/db-public.functions";
 
 export function TeamPreview() {
-  const members = [
-    { name: "Sarah Jenkins", role: "Worship Leader", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop" },
-    { name: "David Chen", role: "Keyboardist", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop" },
-    { name: "Marcus Thorne", role: "Guitarist", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop" },
-    { name: "Elena Rodriguez", role: "Vocalist", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop" },
-  ];
+  const { data: team = [] } = useQuery({
+    queryKey: ['team-public'],
+    queryFn: getTeamPublic,
+  });
+
+  const featuredMembers = team.filter((m: any) => m.featured).slice(0, 4);
+  const displayMembers = featuredMembers.length > 0 ? featuredMembers : team.slice(0, 4);
 
   return (
     <section className="py-24 px-6 bg-muted/20">
@@ -27,13 +30,13 @@ export function TeamPreview() {
           </div>
 
           <div className="lg:col-span-3 grid grid-cols-2 gap-6">
-            {members.map((member) => (
-              <div key={member.name} className="group">
+            {displayMembers.map((member: any) => (
+              <div key={member.id} className="group">
                 <div className="aspect-[3/4] overflow-hidden bg-muted mb-4">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" loading="lazy" decoding="async" />
+                  <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0" loading="lazy" decoding="async" />
                 </div>
-                <h4 className="font-serif text-lg">{member.name}</h4>
-                <p className="text-[10px] tracking-[0.2em] text-accent uppercase">{member.role}</p>
+                <h4 className="font-serif text-lg">{member.full_name}</h4>
+                <p className="text-[10px] tracking-[0.2em] text-accent uppercase">{member.primary_role}</p>
               </div>
             ))}
           </div>

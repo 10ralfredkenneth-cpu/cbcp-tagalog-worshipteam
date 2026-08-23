@@ -188,7 +188,7 @@ function ServiceManagementPage() {
                       <DropdownMenuLabel className="text-[9px] uppercase tracking-widest text-accent/50 font-bold">Options</DropdownMenuLabel>
                       <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Link to="/setlists/$id" params={{ id: service.id }}>
-                          <Eye className="w-3 h-3 mr-2" /> View Plan
+                          <Eye className="w-3 h-3 mr-2" /> View Public Page
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
