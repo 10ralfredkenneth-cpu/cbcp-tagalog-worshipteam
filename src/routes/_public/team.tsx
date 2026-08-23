@@ -98,7 +98,8 @@ function TeamDirectoryLayout() {
             </Badge>
             <h1 className="font-serif text-5xl lg:text-7xl text-foreground">Worship Team</h1>
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
-              Directory of those serving in the house of the Lord. Implement real-time updates so every team member I add in admin appears instantly on the public Team page without manual refresh.
+              Directory of those serving in the house of the Lord. Implement real-time updates so every team member I add in admin appears instantly on the public Team page without manual refresh. can you fix the problem here it says failed to upload image...
+can you check this and solve this problem immediately
             </p>
           </div>
           <div className="flex gap-3">
