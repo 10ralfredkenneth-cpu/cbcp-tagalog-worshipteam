@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 
-// Team Management
-export const getTeamMembers = createServerFn({ method: "GET" })
+export const getProfiles = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabase
       .from("profiles")
@@ -13,84 +13,39 @@ export const getTeamMembers = createServerFn({ method: "GET" })
     return data || [];
   });
 
-export const updateMemberStatus = createServerFn({ method: "POST" })
-  .validator((data: { id: string, status: any }) => data)
-  .handler(async ({ data }) => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ status: data.status })
-      .eq("id", data.id);
-    
-    if (error) throw error;
-    return { success: true };
-  });
-
 export const createMember = createServerFn({ method: "POST" })
-  .validator((data: any) => data)
+  .inputValidator((data: any) => z.object({
+    full_name: z.string().min(1),
+    email: z.string().email(),
+    role: z.string().optional(),
+    bio: z.string().optional(),
+    avatar_url: z.string().optional(),
+    member_status: z.string().optional(),
+  }).parse(data.data))
   .handler(async ({ data }) => {
-    const { error } = await supabase
+    const { data: member, error } = await supabase
       .from("profiles")
-      .insert(data);
+      .insert([data])
+      .select()
+      .single();
     
     if (error) throw error;
-    return { success: true };
+    return member;
   });
 
-export const updateMember = createServerFn({ method: "POST" })
-  .validator((data: { id: string, updates: any }) => data)
+export const updateMemberStatus = createServerFn({ method: "POST" })
+  .inputValidator((data: any) => z.object({
+    id: z.string().uuid(),
+    member_status: z.string(),
+  }).parse(data.data))
   .handler(async ({ data }) => {
-    const { error } = await supabase
+    const { data: member, error } = await supabase
       .from("profiles")
-      .update(data.updates)
-      .eq("id", data.id);
+      .update({ member_status: data.member_status })
+      .eq("id", data.id)
+      .select()
+      .single();
     
     if (error) throw error;
-    return { success: true };
-  });
-
-// Scheduling
-export const getAssignments = createServerFn({ method: "GET" })
-  .validator((data: { serviceId?: string } = {}) => data)
-  .handler(async ({ data }) => {
-    let query = supabase
-      .from("service_assignments")
-      .select(`
-        *,
-        profiles (
-          id,
-          full_name,
-          avatar_url
-        )
-      `);
-    
-    if (data.serviceId) {
-      query = query.eq("service_id", data.serviceId);
-    }
-    
-    const { data: assignments, error } = await query;
-    if (error) throw error;
-    return assignments || [];
-  });
-
-export const createAssignment = createServerFn({ method: "POST" })
-  .validator((data: any) => data)
-  .handler(async ({ data }) => {
-    const { error } = await supabase
-      .from("service_assignments")
-      .insert(data);
-    
-    if (error) throw error;
-    return { success: true };
-  });
-
-export const updateAssignmentStatus = createServerFn({ method: "POST" })
-  .validator((data: { id: string, status: any }) => data)
-  .handler(async ({ data }) => {
-    const { error } = await supabase
-      .from("service_assignments")
-      .update({ status: data.status })
-      .eq("id", data.id);
-    
-    if (error) throw error;
-    return { success: true };
+    return member;
   });
