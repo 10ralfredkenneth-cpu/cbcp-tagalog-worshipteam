@@ -35,7 +35,8 @@ export async function createMember(input: { data: any } | any) {
 
   // Map camelCase to snake_case for Supabase
   const insertData: any = {
-    id: payload.id || crypto.randomUUID(),
+    // Let Supabase generate the ID if not provided explicitly in payload
+    ...(payload.id ? { id: payload.id } : {}),
     full_name: payload.full_name,
     email: payload.email,
     primary_role: payload.primary_role || payload.primaryRole || null,
