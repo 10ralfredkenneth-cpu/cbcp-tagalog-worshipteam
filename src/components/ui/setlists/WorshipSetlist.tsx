@@ -20,7 +20,7 @@ export function WorshipSetlist() {
         </div>
 
         <div className="divide-y divide-accent/10">
-          {upcomingSetlist.songs.map((item) => (
+          {upcomingSetlist.songs?.map((item) => (
             <div key={item.id} className="flex justify-between items-center py-8">
               <div>
                 <h4 className="text-xl font-serif text-foreground">{getSongTitle(item.songId)}</h4>
