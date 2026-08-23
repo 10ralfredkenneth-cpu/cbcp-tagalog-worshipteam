@@ -105,13 +105,13 @@ function AddTeamMemberPage() {
                   setFormData(prev => ({ ...prev, avatar_url: url }));
                   setErrors(prev => {
                     const next = { ...prev };
-                    delete next.avatar;
+                    delete next['avatar'];
                     return next;
                   });
                 }}
                 bucket="personnel-avatars"
               />
-              {errors.avatar && <p className="mt-2 text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors.avatar}</p>}
+              {errors['avatar'] && <p className="mt-2 text-[9px] text-red-500 uppercase tracking-widest font-bold">{errors['avatar']}</p>}
             </div>
           </section>
 
