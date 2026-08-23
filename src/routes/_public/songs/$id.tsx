@@ -101,11 +101,7 @@ function SongDetailPage() {
               <Split className="w-4 h-4 mr-2" /> Split
             </Button>
             <Button variant="default" size="sm" className="rounded-none bg-primary text-white h-9">
-              Add an export button that lets me download the song with current key/chord view as PDF or plain text.
-
-Create shareable links that open the public song page with my selected key and split-view settings pre-applied.
-
-Show a real-time sync status indicator in the admin so I can confirm when my changes have propagated to the public page.
+              <Share2 className="w-4 h-4 mr-2" /> Share
             </Button>
           </div>
         </div>

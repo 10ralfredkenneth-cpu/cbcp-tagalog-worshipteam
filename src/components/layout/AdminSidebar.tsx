@@ -123,11 +123,7 @@ export function AdminSidebar() {
             {!collapsed && (
               <div className="animate-in fade-in duration-500">
                 <span className="font-serif text-xl text-accent tracking-tighter">Radiant</span>
-                <span className="block text-[8px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Add an export button that lets me download the song with current key/chord view as PDF or plain text.
-
-Create shareable links that open the public song page with my selected key and split-view settings pre-applied.
-
-Show a real-time sync status indicator in the admin so I can confirm when my changes have propagated to the public page.</span>
+                <span className="block text-[8px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Management</span>
               </div>
             )}
             <button 
