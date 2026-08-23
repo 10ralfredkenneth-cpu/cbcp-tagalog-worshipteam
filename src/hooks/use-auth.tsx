@@ -13,6 +13,8 @@ type AuthContextType = {
   isMinistryAdmin: boolean;
   isWorshipLeader: boolean;
   isTeamMember: boolean;
+  status: string | null;
+  isPending: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
