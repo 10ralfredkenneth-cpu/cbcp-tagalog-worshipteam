@@ -14,7 +14,7 @@ export async function getSongs(): Promise<WorshipSong[]> {
     language: song.language as SongLanguage,
     songType: song.song_type as SongType,
     status: song.status as SongStatus,
-    visibility: song.visibility as SongVisibility,
+    visibility: song.is_public ? 'Public' : 'Team Only',
     scriptureReferences: song.scripture_references as any,
     defaultKey: song.default_key,
     isPublic: song.is_public,
