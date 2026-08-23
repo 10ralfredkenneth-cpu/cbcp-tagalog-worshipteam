@@ -232,9 +232,12 @@ function TeamManagementPage() {
                           <ArrowRight className="w-3 h-3 mr-2" /> View Profile
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Member
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/team/new">
+                          <Edit className="w-3 h-3 mr-2" /> Edit Member
+                        </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Mail className="w-3 h-3 mr-2" /> Contact Member
                       </DropdownMenuItem>

@@ -152,9 +152,12 @@ function MediaManagementPage() {
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Eye className="w-3 h-3 mr-2" /> View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Edit className="w-3 h-3 mr-2" /> Edit Metadata
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/dashboard/media">
+                          <Edit className="w-3 h-3 mr-2" /> Edit Metadata
+                        </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuSeparator className="bg-accent/10" />
                       <DropdownMenuItem 
                         onClick={() => handleArchive(item.id)}
