@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStatus(profileData?.status || 'Pending');
       }
     } catch (error) {
-      console.error('Error fetching user auth data:', error);
+      reportLovableError(error instanceof Error ? error : new Error(String(error)), { boundary: 'useAuth_fetchRoles' });
     } finally {
       setLoading(false);
     }

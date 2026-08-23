@@ -8,7 +8,11 @@ import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Auth guard session error:', error);
+      throw redirect({ to: '/login' });
+    }
     
     if (!session) {
       throw redirect({
