@@ -179,10 +179,56 @@ function MemberProfilePage() {
                 </div>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-muted/20">
+              <div className="space-y-8">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Serving History</h3>
+                <div className="space-y-4">
+                  {servingHistory.length > 0 ? (
+                    servingHistory.map((assignment: any) => (
+                      <div key={assignment.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
+                        <div>
+                          <p className="text-[10px] font-bold text-accent uppercase">{new Date(assignment.serviceDate).toLocaleDateString()}</p>
+                          <p className="text-sm font-serif">{assignment.serviceTitle}</p>
+                        </div>
+                        <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest text-muted-foreground border-muted">
+                          {assignment.role}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">No recent serving history.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Availability</h3>
+                <div className="space-y-4">
+                  {member.availability?.map((av: any) => (
+                    <div key={av.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
+                      <div>
+                        <p className="text-[10px] font-bold text-accent uppercase">{new Date(av.date).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted-foreground">{av.notes || 'No specific notes'}</p>
+                      </div>
+                      <Badge variant="outline" className={cn(
+                        "rounded-none text-[8px] uppercase tracking-widest",
+                        av.status === 'Available' ? "text-green-600 border-green-500/20" : "text-red-600 border-red-500/20"
+                      )}>
+                        {av.status}
+                      </Badge>
+                    </div>
+                  ))}
+                  {(!member.availability || member.availability.length === 0) && (
+                    <p className="text-sm text-muted-foreground italic">No availability data set.</p>
+                  )}
+                </div>
+              </div>
+            </div>
             
             <div className="pt-12">
               <Button variant="accent" className="h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase">
-                Edit Profile
+                Schedule for Service
               </Button>
             </div>
           </div>
