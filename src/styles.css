@@ -182,5 +182,30 @@ html {
   .prose {
     max-width: none !important;
   }
+  
+  .print-roster {
+    display: block !important;
+    page-break-before: always;
+  }
+  
+  .print-roster-title {
+    font-size: 24pt !important;
+    margin-bottom: 20pt !important;
+    border-bottom: 2px solid black;
+    padding-bottom: 10pt;
+  }
+  
+  .print-roster-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  
+  .print-roster-table th, 
+  .print-roster-table td {
+    border: 1px solid #ddd !important;
+    padding: 8pt !important;
+    text-align: left !important;
+  }
 }
+
 
