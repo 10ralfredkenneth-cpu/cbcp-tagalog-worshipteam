@@ -52,9 +52,9 @@ import { Route as AuthenticatedDashboardSongsIndexRouteImport } from './routes/_
 import { Route as AuthenticatedDashboardSongsIdRouteImport } from './routes/_authenticated/dashboard/songs/$id'
 import { Route as AuthenticatedDashboardSongsNewRouteImport } from './routes/_authenticated/dashboard/songs/new'
 import { Route as AuthenticatedDashboardTeamIdRouteImport } from './routes/_authenticated/dashboard/team/$id'
-import { Route as AuthenticatedDashboardTeamNewRouteImport } from './routes/_authenticated/dashboard/team/new'
 import { Route as AuthenticatedDashboardUsersNewRouteImport } from './routes/_authenticated/dashboard/users/new'
 import { Route as AuthenticatedDashboardTeamEditIdRouteImport } from './routes/_authenticated/dashboard/team/edit/$id'
+import { Route as AuthenticatedDashboardTeamNewIndexRouteImport } from './routes/_authenticated/dashboard/team/new/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -294,12 +294,6 @@ const AuthenticatedDashboardTeamIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedDashboardTeamRoute,
   } as any)
-const AuthenticatedDashboardTeamNewRoute =
-  AuthenticatedDashboardTeamNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedDashboardTeamRoute,
-  } as any)
 const AuthenticatedDashboardUsersNewRoute =
   AuthenticatedDashboardUsersNewRouteImport.update({
     id: '/new',
@@ -310,6 +304,12 @@ const AuthenticatedDashboardTeamEditIdRoute =
   AuthenticatedDashboardTeamEditIdRouteImport.update({
     id: '/edit/$id',
     path: '/edit/$id',
+    getParentRoute: () => AuthenticatedDashboardTeamRoute,
+  } as any)
+const AuthenticatedDashboardTeamNewIndexRoute =
+  AuthenticatedDashboardTeamNewIndexRouteImport.update({
+    id: '/new/',
+    path: '/new/',
     getParentRoute: () => AuthenticatedDashboardTeamRoute,
   } as any)
 
@@ -354,10 +354,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/songs/$id': typeof AuthenticatedDashboardSongsIdRoute
   '/dashboard/songs/new': typeof AuthenticatedDashboardSongsNewRoute
   '/dashboard/team/$id': typeof AuthenticatedDashboardTeamIdRoute
-  '/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/dashboard/songs/': typeof AuthenticatedDashboardSongsIndexRoute
   '/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
+  '/dashboard/team/new/': typeof AuthenticatedDashboardTeamNewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -397,10 +397,10 @@ export interface FileRoutesByTo {
   '/dashboard/songs/$id': typeof AuthenticatedDashboardSongsIdRoute
   '/dashboard/songs/new': typeof AuthenticatedDashboardSongsNewRoute
   '/dashboard/team/$id': typeof AuthenticatedDashboardTeamIdRoute
-  '/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/dashboard/songs': typeof AuthenticatedDashboardSongsIndexRoute
   '/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
+  '/dashboard/team/new': typeof AuthenticatedDashboardTeamNewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -446,10 +446,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/songs/$id': typeof AuthenticatedDashboardSongsIdRoute
   '/_authenticated/dashboard/songs/new': typeof AuthenticatedDashboardSongsNewRoute
   '/_authenticated/dashboard/team/$id': typeof AuthenticatedDashboardTeamIdRoute
-  '/_authenticated/dashboard/team/new': typeof AuthenticatedDashboardTeamNewRoute
   '/_authenticated/dashboard/users/new': typeof AuthenticatedDashboardUsersNewRoute
   '/_authenticated/dashboard/songs/': typeof AuthenticatedDashboardSongsIndexRoute
   '/_authenticated/dashboard/team/edit/$id': typeof AuthenticatedDashboardTeamEditIdRoute
+  '/_authenticated/dashboard/team/new/': typeof AuthenticatedDashboardTeamNewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -494,10 +494,10 @@ export interface FileRouteTypes {
     | '/dashboard/songs/$id'
     | '/dashboard/songs/new'
     | '/dashboard/team/$id'
-    | '/dashboard/team/new'
     | '/dashboard/users/new'
     | '/dashboard/songs/'
     | '/dashboard/team/edit/$id'
+    | '/dashboard/team/new/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -537,10 +537,10 @@ export interface FileRouteTypes {
     | '/dashboard/songs/$id'
     | '/dashboard/songs/new'
     | '/dashboard/team/$id'
-    | '/dashboard/team/new'
     | '/dashboard/users/new'
     | '/dashboard/songs'
     | '/dashboard/team/edit/$id'
+    | '/dashboard/team/new'
   id:
     | '__root__'
     | '/'
@@ -585,10 +585,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/songs/$id'
     | '/_authenticated/dashboard/songs/new'
     | '/_authenticated/dashboard/team/$id'
-    | '/_authenticated/dashboard/team/new'
     | '/_authenticated/dashboard/users/new'
     | '/_authenticated/dashboard/songs/'
     | '/_authenticated/dashboard/team/edit/$id'
+    | '/_authenticated/dashboard/team/new/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -900,13 +900,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardTeamIdRouteImport
       parentRoute: typeof AuthenticatedDashboardTeamRoute
     }
-    '/_authenticated/dashboard/team/new': {
-      id: '/_authenticated/dashboard/team/new'
-      path: '/new'
-      fullPath: '/dashboard/team/new'
-      preLoaderRoute: typeof AuthenticatedDashboardTeamNewRouteImport
-      parentRoute: typeof AuthenticatedDashboardTeamRoute
-    }
     '/_authenticated/dashboard/users/new': {
       id: '/_authenticated/dashboard/users/new'
       path: '/new'
@@ -919,6 +912,13 @@ declare module '@tanstack/react-router' {
       path: '/edit/$id'
       fullPath: '/dashboard/team/edit/$id'
       preLoaderRoute: typeof AuthenticatedDashboardTeamEditIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardTeamRoute
+    }
+    '/_authenticated/dashboard/team/new/': {
+      id: '/_authenticated/dashboard/team/new/'
+      path: '/new'
+      fullPath: '/dashboard/team/new/'
+      preLoaderRoute: typeof AuthenticatedDashboardTeamNewIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardTeamRoute
     }
   }
@@ -1028,16 +1028,17 @@ const AuthenticatedDashboardSongsRouteWithChildren =
 
 interface AuthenticatedDashboardTeamRouteChildren {
   AuthenticatedDashboardTeamIdRoute: typeof AuthenticatedDashboardTeamIdRoute
-  AuthenticatedDashboardTeamNewRoute: typeof AuthenticatedDashboardTeamNewRoute
   AuthenticatedDashboardTeamEditIdRoute: typeof AuthenticatedDashboardTeamEditIdRoute
+  AuthenticatedDashboardTeamNewIndexRoute: typeof AuthenticatedDashboardTeamNewIndexRoute
 }
 
 const AuthenticatedDashboardTeamRouteChildren: AuthenticatedDashboardTeamRouteChildren =
   {
     AuthenticatedDashboardTeamIdRoute: AuthenticatedDashboardTeamIdRoute,
-    AuthenticatedDashboardTeamNewRoute: AuthenticatedDashboardTeamNewRoute,
     AuthenticatedDashboardTeamEditIdRoute:
       AuthenticatedDashboardTeamEditIdRoute,
+    AuthenticatedDashboardTeamNewIndexRoute:
+      AuthenticatedDashboardTeamNewIndexRoute,
   }
 
 const AuthenticatedDashboardTeamRouteWithChildren =
