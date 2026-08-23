@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -53,13 +54,20 @@ function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+
+      if (result.error) {
+        toast.error(result.error.message || 'Failed to sign in with Google');
+        setLoading(false);
+        return;
+      }
+
+      if (result.redirected) return;
+
+      toast.success('Welcome back');
+      navigate({ to: '/dashboard' });
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign in with Google');
       setLoading(false);
