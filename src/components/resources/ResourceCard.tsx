@@ -56,7 +56,12 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           {resource.scriptureReferences && resource.scriptureReferences.length > 0 && (
             <div className="flex items-center gap-1.5">
               <BookOpen className="w-3 h-3 text-accent/60" />
-              <span>{typeof resource.scriptureReferences[0] === 'string' ? resource.scriptureReferences[0] : resource.scriptureReferences[0].reference}</span>
+              <span>
+                {(() => {
+                  const firstRef = resource.scriptureReferences[0];
+                  return typeof firstRef === 'string' ? firstRef : firstRef.reference;
+                })()}
+              </span>
             </div>
           )}
         </div>
