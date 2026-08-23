@@ -21,6 +21,7 @@ import { Route as PublicResourcesRouteImport } from './routes/_public/resources'
 import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
+import { Route as AuthenticatedMediaUploadRouteImport } from './routes/_authenticated/media/upload'
 import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team/index'
 import { Route as PublicResourcesIdRouteImport } from './routes/_public/resources.$id'
 import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlists/index'
@@ -87,6 +88,12 @@ const PublicWorshipRoute = PublicWorshipRouteImport.update({
   path: '/worship',
   getParentRoute: () => PublicRoute,
 } as any)
+const AuthenticatedMediaUploadRoute =
+  AuthenticatedMediaUploadRouteImport.update({
+    id: '/media/upload',
+    path: '/media/upload',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedTeamIndexRoute = AuthenticatedTeamIndexRouteImport.update({
   id: '/team/',
   path: '/team/',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/songs': typeof PublicSongsRouteWithChildren
   '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
+  '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/resources': typeof PublicResourcesRouteWithChildren
   '/team': typeof AuthenticatedTeamIndexRoute
   '/worship': typeof PublicWorshipRoute
+  '/media/upload': typeof AuthenticatedMediaUploadRoute
   '/resources/$id': typeof PublicResourcesIdRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
@@ -173,6 +182,7 @@ export interface FileRoutesById {
   '/_public/songs': typeof PublicSongsRouteWithChildren
   '/_public/team': typeof PublicTeamRouteWithChildren
   '/_public/worship': typeof PublicWorshipRoute
+  '/_authenticated/media/upload': typeof AuthenticatedMediaUploadRoute
   '/_public/resources/$id': typeof PublicResourcesIdRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/songs'
     | '/team'
     | '/worship'
+    | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
     | '/songs/$id'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/team'
     | '/worship'
+    | '/media/upload'
     | '/resources/$id'
     | '/setlists/$id'
     | '/songs/$id'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/_public/songs'
     | '/_public/team'
     | '/_public/worship'
+    | '/_authenticated/media/upload'
     | '/_public/resources/$id'
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicWorshipRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_authenticated/media/upload': {
+      id: '/_authenticated/media/upload'
+      path: '/media/upload'
+      fullPath: '/media/upload'
+      preLoaderRoute: typeof AuthenticatedMediaUploadRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/team/': {
       id: '/_authenticated/team/'
       path: '/team'
@@ -387,11 +407,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMediaUploadRoute: typeof AuthenticatedMediaUploadRoute
   AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMediaUploadRoute: AuthenticatedMediaUploadRoute,
   AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
 }
 
