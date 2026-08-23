@@ -79,7 +79,7 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
         <div className="flex items-center gap-2">
           {song.scriptureReferences.length > 0 && (
             <p className="text-[10px] text-muted-foreground italic border-l border-accent/20 pl-3">
-              {song.scriptureReferences[0]}
+              {song.scriptureReferences[0].reference}
             </p>
           )}
         </div>
