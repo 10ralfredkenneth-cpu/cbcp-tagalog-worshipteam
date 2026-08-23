@@ -72,6 +72,7 @@ function SetlistDetailPage() {
   }
 
   const getSongById = (songId: string) => MOCK_SONGS.find(s => s.id === songId);
+  const getMemberById = (memberId: string) => MOCK_TEAM.find(m => m.id === memberId);
 
   const totalDuration = setlist.items.reduce((acc, item) => acc + (item.duration || 0), 0);
   const itemsWithNoDuration = setlist.items.filter(item => !item.duration).length;
