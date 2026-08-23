@@ -241,6 +241,7 @@ function SongDetailPage() {
   const sections = useMemo(() => song.lyrics?.split('\n\n') || [], [song.lyrics]);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
     if (loopMode && loopStart !== null && metronomePlaying && !isCountingIn) {
       const loopStartEl = document.getElementById(`section-${loopStart}`);
       const loopEndEl = document.getElementById(`section-${loopEnd !== null ? loopEnd : loopStart}`);
@@ -252,10 +253,12 @@ function SongDetailPage() {
             loopStartEl.scrollIntoView({ behavior: 'smooth' });
           }
         };
-        const interval = setInterval(checkScroll, 100);
-        return () => clearInterval(interval);
+        interval = setInterval(checkScroll, 100);
       }
     }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [loopMode, loopStart, loopEnd, metronomePlaying, isCountingIn]);
 
 
