@@ -23,7 +23,7 @@ function MemberDetailsPage() {
   const member = team.find((m: any) => m.id === id);
 
   const updateMutation = useMutation({
-    mutationFn: (updates: any) => updateMember({ data: { id, updates } }),
+    mutationFn: (updates: any) => updateMember({ data: { id: id as string, updates } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team-full'] });
       toast.success('Member updated successfully');
