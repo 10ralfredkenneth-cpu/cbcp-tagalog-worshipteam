@@ -72,7 +72,7 @@ function SongManagementPage() {
         <div className="flex gap-4">
           <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
             <Filter className="w-3 h-3 mr-2" /> Filters
-          </Px-6>
+          </Button>
           <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
             <ArrowUpDown className="w-3 h-3 mr-2" /> Sort
           </Button>
