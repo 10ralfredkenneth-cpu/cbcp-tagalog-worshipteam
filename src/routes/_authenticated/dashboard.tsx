@@ -35,7 +35,7 @@ function AdminDashboardOverview() {
     { label: 'Pending Assignments', value: 0, icon: Clock, to: '/dashboard/schedule' },
   ];
 
-  const recentActivity = []; // Truthful empty state for now as no audit_logs backend is hooked up yet
+  const recentActivity: any[] = []; // Truthful empty state for now as no audit_logs backend is hooked up yet
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
