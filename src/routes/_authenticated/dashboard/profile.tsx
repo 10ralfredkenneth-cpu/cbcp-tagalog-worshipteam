@@ -18,7 +18,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { MOCK_TEAM } from '@/lib/mock-team';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/profile')({
@@ -27,8 +28,16 @@ export const Route = createFileRoute('/_authenticated/dashboard/profile')({
 
 function MyProfilePage() {
   const { user } = useAuth();
-  // Mock linkage to team member for current user
-  const member = MOCK_TEAM.find(m => m.id === "1");
+  const { data: member } = useQuery({
+    queryKey: ['my-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
 
   const handleSave = () => {
     toast.success('Profile updated', {
@@ -58,7 +67,7 @@ function MyProfilePage() {
         <div className="lg:col-span-1 space-y-8">
           <Card className="rounded-none border-accent/5 bg-muted/20 overflow-hidden">
             <div className="aspect-square relative group">
-              <img src={member?.photoUrl} alt={member?.fullName} className="w-full h-full object-cover grayscale" />
+              <img src={member?.avatar_url || ''} alt={member?.full_name} className="w-full h-full object-cover grayscale" />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                 <div className="text-white flex flex-col items-center">
                   <Camera className="w-8 h-8 mb-2" />
@@ -67,12 +76,12 @@ function MyProfilePage() {
               </div>
             </div>
             <CardHeader className="text-center">
-              <CardTitle className="font-serif text-2xl">{member?.fullName}</CardTitle>
+              <CardTitle className="font-serif text-2xl">{member?.full_name}</CardTitle>
               <div className="flex flex-col items-center gap-2 mt-2">
                 <Badge className="bg-accent/10 text-accent rounded-none border-none text-[8px] font-bold uppercase tracking-widest">
-                  {member?.primaryRole}
+                  {member?.primary_role || 'Member'}
                 </Badge>
-                <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Joined {new Date(member?.dateJoined || '').getFullYear()}</span>
+                <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Joined {new Date(member?.created_at || '').getFullYear()}</span>
               </div>
             </CardHeader>
           </Card>
@@ -82,10 +91,10 @@ function MyProfilePage() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-accent/40" />
-                <span className="text-[11px] font-bold uppercase tracking-widest">{member?.primaryRole}</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest">{member?.primary_role || 'Member'}</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {member?.secondaryRoles.map(role => (
+                {((member as any)?.secondary_roles || []).map((role: any) => (
                   <Badge key={role} variant="outline" className="rounded-none text-[8px] uppercase border-accent/10 text-muted-foreground">
                     {role}
                   </Badge>
@@ -103,21 +112,21 @@ function MyProfilePage() {
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-accent">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input defaultValue={member?.fullName} className="pl-10 rounded-none border-accent/10 bg-background" />
+                  <Input defaultValue={member?.full_name || ''} className="pl-10 rounded-none border-accent/10 bg-background" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-accent">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input defaultValue={member?.email} className="pl-10 rounded-none border-accent/10 bg-background" />
+                  <Input defaultValue={member?.email || ''} className="pl-10 rounded-none border-accent/10 bg-background" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-accent">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input defaultValue={member?.phone} className="pl-10 rounded-none border-accent/10 bg-background" />
+                  <Input defaultValue={member?.phone || ''} className="pl-10 rounded-none border-accent/10 bg-background" />
                 </div>
               </div>
             </div>
@@ -127,14 +136,14 @@ function MyProfilePage() {
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-accent">Primary Instrument</Label>
                 <div className="relative">
                   <Music className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input defaultValue={member?.instrument} className="pl-10 rounded-none border-accent/10 bg-background" />
+                  <Input defaultValue={member?.instrument || ''} className="pl-10 rounded-none border-accent/10 bg-background" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-accent">Vocal Part</Label>
                 <div className="relative">
                   <Award className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input defaultValue={member?.vocalRange} className="pl-10 rounded-none border-accent/10 bg-background" />
+                  <Input defaultValue={(member as any)?.vocal_range} className="pl-10 rounded-none border-accent/10 bg-background" />
                 </div>
               </div>
             </div>
@@ -143,7 +152,7 @@ function MyProfilePage() {
           <section className="space-y-6">
             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent border-b border-accent/10 pb-4">Skills & Certifications</h3>
             <div className="flex flex-wrap gap-3">
-              {member?.skills.map(skill => (
+              {(member?.skills || []).map((skill: any) => (
                 <div key={skill} className="px-4 py-2 bg-muted/20 border border-accent/10 text-[10px] font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
                   <CheckCircle2 className="w-3 h-3 text-accent" /> {skill}
                 </div>

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
-import { MOCK_RESOURCES } from '@/lib/mock-resources';
+import { useQuery } from '@tanstack/react-query';
+import { getResources } from '@/lib/db-resources.functions';
 import { ResourceCard } from '@/components/resources/ResourceCard';
 import { ResourceSearch } from '@/components/resources/ResourceSearch';
 import { ResourceFilters } from '@/components/resources/ResourceFilters';
@@ -27,28 +28,45 @@ function ResourcesLibrary() {
   const [resourceType, setResourceType] = useState<ResourceType | 'All'>('All');
   const [role, setRole] = useState<TeamRole | 'All Team Members' | 'All'>('All');
 
+  const { data: resources = [] } = useQuery({
+    queryKey: ['resources'],
+    queryFn: getResources,
+  });
+
   const filteredResources = useMemo(() => {
-    return MOCK_RESOURCES.filter(resource => {
+    return (resources || []).map((raw: any) => ({
+      ...raw,
+      resourceType: raw.resource_type || raw.resourceType,
+      ministryRoles: raw.ministry_roles || raw.ministryRoles,
+      createdAt: raw.created_at || raw.createdAt,
+      updatedAt: raw.updated_at || raw.updatedAt
+    })).filter((resource: any) => {
+      const title = resource.title || '';
+      const description = resource.description || '';
+      const tags = resource.tags || [];
+      const scripture = resource.scripture_references || [];
+      const roles = resource.ministryRoles || [];
+
       const matchesSearch = 
-        resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        resource.scriptureReferences?.some(ref => {
-          const val = typeof ref === 'string' ? ref : ref.reference;
+        title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        scripture.some((ref: any) => {
+          const val = typeof ref === 'string' ? ref : (ref.reference || '');
           return val.toLowerCase().includes(searchQuery.toLowerCase());
         });
       
       const matchesCategory = category === 'All' || resource.category === category;
       const matchesType = resourceType === 'All' || resource.resourceType === resourceType;
-      const matchesRole = role === 'All' || resource.ministryRoles.includes(role as any) || resource.ministryRoles.includes('All Team Members');
+      const matchesRole = role === 'All' || roles.includes(role as any) || roles.includes('All Team Members');
 
       return matchesSearch && matchesCategory && matchesType && matchesRole;
     });
-  }, [searchQuery, category, resourceType, role]);
+  }, [resources, searchQuery, category, resourceType, role]);
 
   const featuredResources = useMemo(() => {
-    return MOCK_RESOURCES.filter(r => r.featured).slice(0, 2);
-  }, []);
+    return resources.filter((r: any) => r.featured).slice(0, 2);
+  }, [resources]);
 
   const trainingCategories = [
     { title: 'Worship Leaders', icon: Heart, description: 'Leading biblically, song selection, and pastoral leadership.' },
@@ -125,7 +143,7 @@ function ResourcesLibrary() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {featuredResources.map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} />
+                    <ResourceCard key={resource.id} resource={resource as any} />
                   ))}
                 </div>
               </section>
@@ -141,7 +159,7 @@ function ResourcesLibrary() {
               {filteredResources.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {filteredResources.map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} />
+                    <ResourceCard key={resource.id} resource={resource as any} />
                   ))}
                 </div>
               ) : (

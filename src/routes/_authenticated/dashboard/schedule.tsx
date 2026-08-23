@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
 import { 
   Calendar, 
   Clock, 
@@ -13,10 +14,10 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
 import { cn } from "@/lib/utils";
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getServices } from '@/lib/db-services';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/schedule')({
   component: ScheduleManagementPage,
@@ -24,6 +25,32 @@ export const Route = createFileRoute('/_authenticated/dashboard/schedule')({
 
 function ScheduleManagementPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
+  const { data: team = [] } = useQuery({
+    queryKey: ['team-full'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const pendingAssignments = services.flatMap(s => 
+    s.assignments
+      .filter((a: any) => a.status === 'Pending')
+      .map((a: any) => ({ ...a, serviceTitle: s.title, serviceDate: s.serviceDate }))
+  );
+
+  const recentlyConfirmed = services.flatMap((s: any) => 
+    (s.assignments || [])
+      .filter((a: any) => a.status === 'Confirmed')
+      .map((a: any) => ({ ...a, serviceTitle: s.title, serviceDate: s.serviceDate }))
+  ).sort((a: any, b: any) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
 
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
@@ -42,7 +69,7 @@ function ScheduleManagementPage() {
   // Helper to find service for a specific date
   const getServiceForDate = (day: number) => {
     const dateString = `${year}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return MOCK_SETLISTS.find(s => s.serviceDate === dateString);
+    return services.find((s: any) => s.serviceDate === dateString);
   };
 
   return (
@@ -144,13 +171,13 @@ function ScheduleManagementPage() {
                       <div className="flex items-center justify-between text-[7px] uppercase tracking-widest text-muted-foreground px-1">
                         <span>Confirmed</span>
                         <span className="font-bold text-green-600">
-                          {service.assignments.filter(a => a.status === 'Confirmed').length}/{service.assignments.length}
+                          {(service.assignments || []).filter((a: any) => a.status === 'Confirmed').length}/{(service.assignments || []).length}
                         </span>
                       </div>
                       <div className="w-full bg-accent/10 h-1">
                         <div 
                           className="bg-green-600 h-full" 
-                          style={{ width: `${(service.assignments.filter(a => a.status === 'Confirmed').length / service.assignments.length) * 100}%` }}
+                          style={{ width: `${((service.assignments || []).filter((a: any) => a.status === 'Confirmed').length / (service.assignments || []).length) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -181,23 +208,31 @@ function ScheduleManagementPage() {
             Pending Confirmations
           </h3>
           <div className="space-y-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-accent/10 flex items-center justify-center font-serif text-accent text-xl">
-                    {MOCK_TEAM[i]?.fullName.charAt(0)}
+            {pendingAssignments.slice(0, 5).map((assignment: any) => {
+              const member = (team || []).find((t: any) => t.id === (assignment.memberId || assignment.member_id));
+              return (
+                <div key={assignment.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-accent/10 flex items-center justify-center font-serif text-accent text-xl">
+                      {member?.full_name?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest">{member?.full_name || 'Unknown'}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest">{assignment.serviceTitle} • {assignment.role}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest">{MOCK_TEAM[i]?.fullName}</p>
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Sunday Worship • Bass Guitar</p>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="sm" className="h-8 text-[8px] font-bold uppercase tracking-widest text-accent hover:bg-accent/10">Remind</Button>
+                    <Button variant="ghost" size="sm" className="h-8 text-[8px] font-bold uppercase tracking-widest text-red-400 hover:bg-red-400/10">Replace</Button>
                   </div>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="sm" className="h-8 text-[8px] font-bold uppercase tracking-widest text-accent hover:bg-accent/10">Remind</Button>
-                  <Button variant="ghost" size="sm" className="h-8 text-[8px] font-bold uppercase tracking-widest text-red-400 hover:bg-red-400/10">Replace</Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+            {pendingAssignments.length === 0 && (
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground italic p-4 text-center border border-dashed border-accent/10">
+                No pending confirmations
+              </p>
+            )}
           </div>
         </div>
 
@@ -207,22 +242,30 @@ function ScheduleManagementPage() {
             Recently Confirmed
           </h3>
           <div className="space-y-2">
-            {[4, 5, 0].map(i => (
-              <div key={i} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-600/10 flex items-center justify-center font-serif text-green-600 text-xl">
-                    {MOCK_TEAM[i]?.fullName.charAt(0)}
+            {recentlyConfirmed.slice(0, 5).map((assignment: any) => {
+              const member = (team || []).find((t: any) => t.id === (assignment.memberId || assignment.member_id));
+              return (
+                <div key={assignment.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-green-600/10 flex items-center justify-center font-serif text-green-600 text-xl">
+                      {member?.full_name?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest">{member?.full_name || 'Unknown'}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest">{assignment.serviceTitle} • {assignment.role}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest">{MOCK_TEAM[i]?.fullName}</p>
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Sunday Worship • Vocalist</p>
-                  </div>
+                  <Badge className="bg-green-600/10 text-green-600 border-none rounded-none text-[8px] font-bold uppercase tracking-widest">
+                    Confirmed
+                  </Badge>
                 </div>
-                <Badge className="bg-green-600/10 text-green-600 border-none rounded-none text-[8px] font-bold uppercase tracking-widest">
-                  Confirmed
-                </Badge>
-              </div>
-            ))}
+              );
+            })}
+            {recentlyConfirmed.length === 0 && (
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground italic p-4 text-center border border-dashed border-accent/10">
+                No recent confirmations
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { supabase } from '@/integrations/supabase/client';
+import { getServices } from '@/lib/db-services';
 import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
@@ -25,20 +26,32 @@ import { AssignmentStatus } from '@/types/setlists';
 
 export const Route = createFileRoute('/_public/team/$id')({
   component: MemberProfilePage,
-  loader: ({ params }) => {
-    const member = MOCK_TEAM.find(m => m.id === params.id);
-    if (!member) throw notFound();
-    return { member };
-  }
 });
 
 function MemberProfilePage() {
-  const { member } = Route.useLoaderData();
+  const { id } = Route.useParams();
+
+  const { data: team = [] } = useQuery({
+    queryKey: ['team'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const member = useMemo(() => (team || []).find((m: any) => m.id === id), [team, id]);
+
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
 
   const servingHistory = useMemo(() => {
+    if (!member) return [];
     const history: any[] = [];
-    MOCK_SETLISTS.forEach(service => {
-      const assignment = service.assignments?.find(a => a.memberId === member.id);
+    (services || []).forEach((service: any) => {
+      const assignment = (service.assignments || []).find((a: any) => (a.memberId || a.member_id) === (member as any).id);
       if (assignment) {
         history.push({
           ...assignment,
@@ -47,10 +60,10 @@ function MemberProfilePage() {
         });
       }
     });
-    return history.sort((a, b) => new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime()).slice(0, 5);
-  }, [member.id]);
+    return history.sort((a: any, b: any) => new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime()).slice(0, 5);
+  }, [services, member]);
 
-  const getStatusColor = (status: TeamMemberStatus) => {
+  const getStatusColor = (status: TeamMemberStatus | string | null) => {
     switch (status) {
       case 'Active': return 'bg-green-500/10 text-green-600 border-green-200';
       case 'Available': return 'bg-blue-500/10 text-blue-600 border-blue-200';
@@ -59,6 +72,19 @@ function MemberProfilePage() {
       default: return 'bg-slate-500/10 text-slate-600 border-slate-200';
     }
   };
+
+  if (!member) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="font-serif text-3xl">Member Not Found</h2>
+          <Button asChild variant="outline" className="rounded-none tracking-widest uppercase">
+            <Link to="/team">Back to Directory</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-sm pt-32 pb-24 px-6">
@@ -76,8 +102,8 @@ function MemberProfilePage() {
           <div className="lg:col-span-4 space-y-8">
             <div className="aspect-[3/4] overflow-hidden bg-muted rounded-sm">
               <img 
-                src={member.photoUrl} 
-                alt={member.fullName} 
+                src={member.avatar_url || (member as any).photoUrl || 'https://via.placeholder.com/300x400?text=No+Photo'} 
+                alt={member.full_name || (member as any).fullName} 
                 className="w-full h-full object-cover grayscale"
               />
             </div>
@@ -86,25 +112,25 @@ function MemberProfilePage() {
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Current Status</span>
                 <Badge className={getStatusColor(member.status)}>
-                  {member.status}
+                  {member.status || 'Active'}
                 </Badge>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4 text-accent" />
-                  <span>Joined {new Date(member.dateJoined).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+                  <span>Joined {member.created_at ? new Date(member.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : 'Unknown'}</span>
                 </div>
-                {member.instrument && (
+                {(member.instrument || (member as any).primary_instrument) && (
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Music className="h-4 w-4 text-accent" />
-                    <span>Primary: {member.instrument}</span>
+                    <span>Primary: {member.instrument || (member as any).primary_instrument}</span>
                   </div>
                 )}
-                {member.vocalRange && (
+                {member.vocal_range && (
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <Mic2 className="h-4 w-4 text-accent" />
-                    <span>Range: {member.vocalRange}</span>
+                    <span>Range: {member.vocal_range}</span>
                   </div>
                 )}
               </div>
@@ -112,11 +138,14 @@ function MemberProfilePage() {
               <div className="pt-6 border-t border-muted/20 space-y-4">
                 <h4 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Ministry Groups</h4>
                 <div className="flex flex-wrap gap-2">
-                  {member.groups.map((group: string) => (
+                  {(member.groups || []).map((group: string) => (
                     <Badge key={group} variant="outline" className="text-[10px] tracking-wide border-muted">
                       {group}
                     </Badge>
                   ))}
+                  {(member.groups || []).length === 0 && (
+                    <span className="text-[10px] text-muted-foreground italic uppercase tracking-tighter">No groups set</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -125,17 +154,17 @@ function MemberProfilePage() {
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-12">
             <div className="space-y-4">
-              <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">{member.primaryRole}</span>
-              <h1 className="text-5xl md:text-7xl font-serif text-primary leading-tight">{member.fullName}</h1>
-              {member.secondaryRoles.length > 0 && (
+              <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">{member.primary_role || (member as any).primaryRole || 'Team Member'}</span>
+              <h1 className="text-5xl md:text-7xl font-serif text-primary leading-tight">{member.full_name || (member as any).fullName}</h1>
+              {((member as any).secondary_roles || (member as any).secondaryRoles || []).length > 0 && (
                 <div className="flex flex-wrap gap-2 text-sm text-muted-foreground italic">
-                  Also serving as: {member.secondaryRoles.join(', ')}
+                  Also serving as: {((member as any).secondary_roles || (member as any).secondaryRoles || []).join(', ')}
                 </div>
               )}
             </div>
 
             <div className="prose prose-slate max-w-none">
-              <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-4">About {member.fullName.split(' ')[0]}</h3>
+              <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase mb-4">About {(member.full_name || (member as any).fullName || '').split(' ')[0]}</h3>
               <p className="text-lg text-muted-foreground leading-relaxed font-serif">
                 {member.bio || "No biography provided."}
               </p>
@@ -145,12 +174,15 @@ function MemberProfilePage() {
               <div className="space-y-6">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Skills & Capabilities</h3>
                 <div className="flex flex-wrap gap-3">
-                  {member.skills.map((skill: string) => (
+                  {(member.skills || []).map((skill: string) => (
                     <div key={skill} className="flex items-center gap-2 bg-muted/30 px-4 py-2 rounded-full border border-muted/20">
                       <Star className="h-3 w-3 text-accent fill-accent" />
                       <span className="text-sm font-medium">{skill}</span>
                     </div>
                   ))}
+                  {(member.skills || []).length === 0 && (
+                    <p className="text-sm text-muted-foreground italic">No skills listed yet.</p>
+                  )}
                 </div>
               </div>
 
@@ -168,11 +200,11 @@ function MemberProfilePage() {
                     <Clock className="h-4 w-4 text-accent/60" />
                     <span className="text-muted-foreground italic">Preferred Service: Sunday Morning</span>
                   </div>
-                  {member.internalNotes && (
+                  {(member as any).internal_notes && (
                     <div className="pt-4 mt-4 border-t border-accent/10">
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         <span className="font-bold text-primary mr-2 uppercase tracking-tighter">Leader Notes:</span>
-                        {member.internalNotes}
+                        {(member as any).internal_notes}
                       </p>
                     </div>
                   )}
@@ -205,7 +237,7 @@ function MemberProfilePage() {
               <div className="space-y-8">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Availability</h3>
                 <div className="space-y-4">
-                  {member.availability?.map((av: any) => (
+                  {((member as any).availability || []).map((av: any) => (
                     <div key={av.id} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
                       <div>
                         <p className="text-[10px] font-bold text-accent uppercase">{new Date(av.date).toLocaleDateString()}</p>
@@ -219,7 +251,7 @@ function MemberProfilePage() {
                       </Badge>
                     </div>
                   ))}
-                  {(!member.availability || member.availability.length === 0) && (
+                  {(!(member as any).availability || (member as any).availability.length === 0) && (
                     <p className="text-sm text-muted-foreground italic">No availability data set.</p>
                   )}
                 </div>
@@ -227,7 +259,7 @@ function MemberProfilePage() {
             </div>
             
             <div className="pt-12">
-              <Button variant="accent" className="h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase">
+              <Button variant="outline" className="h-12 px-8 text-[10px] font-bold tracking-[0.2em] uppercase rounded-none border-accent/20 text-accent hover:bg-accent hover:text-primary">
                 Schedule for Service
               </Button>
             </div>

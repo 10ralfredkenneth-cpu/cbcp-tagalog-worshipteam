@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
-import { MOCK_MEDIA, MOCK_ALBUMS } from '@/lib/mock-media';
+import { useQuery } from '@tanstack/react-query';
+import { getMedia } from '@/lib/db-resources.functions';
+import { supabase } from '@/integrations/supabase/client';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { MediaCard } from '@/components/media/MediaCard';
 import { MediaItem, MediaType, MediaCategory } from '@/types/media';
@@ -24,21 +26,44 @@ function MediaPage() {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const { data: media = [] } = useQuery({
+    queryKey: ['media'],
+    queryFn: getMedia,
+  });
+
+  const { data: albums = [] } = useQuery({
+    queryKey: ['media-albums'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('media_albums' as any).select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const filteredItems = useMemo(() => {
-    return MOCK_MEDIA.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    return (media || []).map((item: any) => ({
+      ...item,
+      mediaType: item.media_type || item.mediaType,
+      fileUrl: item.file_url || item.fileUrl,
+      createdAt: item.created_at || item.createdAt,
+      visibility: (item as any).visibility || 'Public'
+    })).filter((item: any) => {
+      const title = item.title || '';
+      const tags = item.tags || [];
+      const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
       
+      const mediaType = item.mediaType;
       if (activeTab === 'all') return matchesSearch;
-      if (activeTab === 'photos') return matchesSearch && item.mediaType === 'Photo';
-      if (activeTab === 'videos') return matchesSearch && item.mediaType === 'Video';
-      if (activeTab === 'audio') return matchesSearch && item.mediaType === 'Audio';
-      if (activeTab === 'files') return matchesSearch && item.mediaType === 'Document';
+      if (activeTab === 'photos') return matchesSearch && mediaType === 'Photo';
+      if (activeTab === 'videos') return matchesSearch && mediaType === 'Video';
+      if (activeTab === 'audio') return matchesSearch && mediaType === 'Audio';
+      if (activeTab === 'files') return matchesSearch && mediaType === 'Document';
       return matchesSearch;
     });
-  }, [activeTab, searchQuery]);
+  }, [media, activeTab, searchQuery]);
 
-  const featuredAlbums = MOCK_ALBUMS.filter(a => a.featured);
+  const featuredAlbums = albums.filter((a: any) => (a as any).featured);
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,17 +94,17 @@ function MediaPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {featuredAlbums.map(album => (
+              {(featuredAlbums || []).map((album: any) => (
                 <div key={album.id} className="group cursor-pointer space-y-6">
                   <div className="aspect-[4/5] overflow-hidden border border-accent/10 relative">
                     <img 
-                      src={album.coverImageUrl} 
+                      src={album.cover_image_url || album.coverImageUrl} 
                       alt={album.title}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                     />
                     <div className="absolute top-6 right-6">
                       <Badge className="rounded-none bg-accent text-primary text-[8px] font-bold uppercase tracking-widest">
-                        {album.mediaCount} Items
+                        {album.media_count || album.mediaCount || 0} Items
                       </Badge>
                     </div>
                   </div>

@@ -1,14 +1,24 @@
 import { Link } from "@tanstack/react-router";
-import { MOCK_SETLISTS } from "@/lib/mock-setlists";
-import { MOCK_SONGS } from "@/lib/mock-songs";
+import { useQuery } from "@tanstack/react-query";
+import { getServices } from "@/lib/db-services";
+import { getSongsPublic } from "@/lib/db-public.functions";
 
 export function WorshipSetlist() {
-  // Get the most recent "Ready" setlist
-  const upcomingSetlist = MOCK_SETLISTS.find(s => s.status === 'Ready') || MOCK_SETLISTS[0];
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
+  const { data: songs = [] } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic,
+  });
+
+  const upcomingSetlist = services.find((s: any) => s.status === 'Ready') || services[0];
 
   if (!upcomingSetlist) return null;
 
-  const getSongTitle = (songId: string) => MOCK_SONGS.find(s => s.id === songId)?.title || "Unknown Song";
+  const getSongTitle = (songId: string) => songs.find((s: any) => s.id === songId)?.title || "Unknown Song";
 
   return (
     <section className="py-24 px-6 bg-background">
@@ -20,7 +30,7 @@ export function WorshipSetlist() {
         </div>
 
         <div className="divide-y divide-accent/10">
-          {upcomingSetlist.songs?.map((item) => (
+          {upcomingSetlist.songs?.map((item: any) => (
             <div key={item.id} className="flex justify-between items-center py-8">
               <div>
                 <h4 className="text-xl font-serif text-foreground">{getSongTitle(item.songId)}</h4>

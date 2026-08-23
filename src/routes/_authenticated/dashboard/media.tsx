@@ -30,8 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_MEDIA } from '@/lib/mock-media';
-import { cn } from "@/lib/utils";
+import { useQuery } from '@tanstack/react-query';
+import { getMedia } from '@/lib/db-resources.functions';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/media')({
@@ -39,6 +39,11 @@ export const Route = createFileRoute('/_authenticated/dashboard/media')({
 });
 
 function MediaManagementPage() {
+  const { data: media = [], isLoading } = useQuery({
+    queryKey: ['media'],
+    queryFn: getMedia,
+  });
+
   const handleArchive = (id: string) => {
     toast.success('Media archived', {
       description: `Media item ${id} moved to archive.`
@@ -93,7 +98,19 @@ function MediaManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_MEDIA.map((item) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  Loading media...
+                </TableCell>
+              </TableRow>
+            ) : media.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  No media found.
+                </TableCell>
+              </TableRow>
+            ) : media.map((item: any) => (
               <TableRow key={item.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">

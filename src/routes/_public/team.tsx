@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { getServices } from '@/lib/db-services';
 import { TeamRole, TeamMemberStatus } from '@/types/team';
 import { 
   LayoutGrid, 
@@ -37,18 +38,35 @@ function TeamDirectoryLayout() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+  const { data: team = [] } = useQuery({
+    queryKey: ['team-full'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
   const filteredMembers = useMemo(() => {
-    return MOCK_TEAM.filter(member => {
-      const matchesSearch = member.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          member.primaryRole.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRole = roleFilter === 'all' || member.primaryRole === roleFilter;
+    return team.filter((member: any) => {
+      const fullName = member.full_name || member.fullName || '';
+      const primaryRole = member.primary_role || member.primaryRole || '';
+      
+      const matchesSearch = fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          primaryRole.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesRole = roleFilter === 'all' || primaryRole === roleFilter;
       const matchesStatus = statusFilter === 'all' || member.status === statusFilter;
       
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [searchQuery, roleFilter, statusFilter]);
+  }, [team, searchQuery, roleFilter, statusFilter]);
 
-  const roles = Array.from(new Set(MOCK_TEAM.map(m => m.primaryRole))).sort();
+  const roles = Array.from(new Set(team.map((m: any) => m.primary_role || m.primaryRole))).filter(Boolean).sort();
   const statuses = ['Active', 'Available', 'Limited Availability', 'On Break', 'Inactive'];
 
   const getStatusColor = (status: TeamMemberStatus) => {
@@ -62,8 +80,8 @@ function TeamDirectoryLayout() {
   };
 
   const getUpcomingAssignmentsCount = (memberId: string) => {
-    return MOCK_SETLISTS.reduce((count, service) => {
-      const isAssigned = service.assignments?.some(a => a.memberId === memberId);
+    return services.reduce((count: number, service: any) => {
+      const isAssigned = service.assignments?.some((a: any) => (a.memberId || a.member_id) === memberId);
       return isAssigned ? count + 1 : count;
     }, 0);
   };
@@ -110,7 +128,7 @@ function TeamDirectoryLayout() {
               <SelectContent className="rounded-none border-accent/10">
                 <SelectItem value="all" className="uppercase text-[10px] tracking-widest">All Roles</SelectItem>
                 {roles.map(role => (
-                  <SelectItem key={role} value={role} className="uppercase text-[10px] tracking-widest">{role}</SelectItem>
+                  <SelectItem key={role as string} value={role as string} className="uppercase text-[10px] tracking-widest">{role as string}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -169,7 +187,7 @@ function TeamDirectoryLayout() {
             </div>
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredMembers.map(member => (
+              {filteredMembers.map((member: any) => (
                 <Link 
                   key={member.id} 
                   to="/team/$id" 
@@ -178,8 +196,9 @@ function TeamDirectoryLayout() {
                 >
                   <div className="relative aspect-[4/5] overflow-hidden bg-muted mb-4">
                     <img 
-                      src={member.photoUrl} 
-                      alt={member.fullName} 
+                      src={member.avatar_url || member.photoUrl} 
+                      alt={member.full_name || member.fullName} 
+
                       className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                     />
                     <div className="absolute top-4 right-4">
@@ -190,8 +209,9 @@ function TeamDirectoryLayout() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors">{member.fullName}</h3>
-                      <p className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase">{member.primaryRole}</p>
+                      <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors">{member.full_name || member.fullName}</h3>
+                      <p className="text-[10px] font-bold tracking-[0.2em] text-accent uppercase">{member.primary_role || member.primaryRole}</p>
+
                     </div>
                     <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-muted-foreground border-t border-accent/5 pt-4">
                       <div className="flex items-center gap-1.5">
@@ -208,7 +228,7 @@ function TeamDirectoryLayout() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredMembers.map(member => (
+              {filteredMembers.map((member: any) => (
                 <Link 
                   key={member.id} 
                   to="/team/$id" 
@@ -216,12 +236,13 @@ function TeamDirectoryLayout() {
                   className="group flex flex-col sm:flex-row sm:items-center gap-6 p-6 bg-muted/20 border border-accent/5 hover:border-accent/10 transition-all"
                 >
                   <div className="h-16 w-16 overflow-hidden bg-muted flex-shrink-0">
-                    <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                    <img src={member.avatar_url || member.photoUrl} alt={member.full_name || member.fullName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors truncate">{member.fullName}</h3>
+                    <h3 className="font-serif text-2xl text-foreground group-hover:text-accent transition-colors truncate">{member.full_name || member.fullName}</h3>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-1">
-                      <span className="text-[10px] font-bold tracking-widest text-accent uppercase">{member.primaryRole}</span>
+                      <span className="text-[10px] font-bold tracking-widest text-accent uppercase">{member.primary_role || member.primaryRole}</span>
+
                       <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{member.email}</span>
                     </div>
                   </div>

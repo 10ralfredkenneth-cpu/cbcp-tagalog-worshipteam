@@ -30,7 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_RESOURCES } from '@/lib/mock-resources';
+import { useQuery } from '@tanstack/react-query';
+import { getResources } from '@/lib/db-resources.functions';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 
@@ -39,6 +40,11 @@ export const Route = createFileRoute('/_authenticated/dashboard/resources')({
 });
 
 function ResourceManagementPage() {
+  const { data: resources = [], isLoading } = useQuery({
+    queryKey: ['resources'],
+    queryFn: getResources,
+  });
+
   const handleArchive = (id: string) => {
     toast.success('Resource archived', {
       description: `Resource item ${id} moved to archive.`
@@ -93,7 +99,19 @@ function ResourceManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_RESOURCES.map((res) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  Loading resources...
+                </TableCell>
+              </TableRow>
+            ) : resources.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  No resources found.
+                </TableCell>
+              </TableRow>
+            ) : resources.map((res: any) => (
               <TableRow key={res.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">

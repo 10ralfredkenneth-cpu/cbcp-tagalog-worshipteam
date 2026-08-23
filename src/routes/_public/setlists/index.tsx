@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
+import { useQuery } from '@tanstack/react-query';
+import { getServices } from '@/lib/db-services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,19 +27,23 @@ function SetlistsPage() {
   const [typeFilter, setTypeFilter] = useState<ServiceType | 'All'>('All');
   const [showFilters, setShowFilters] = useState(false);
 
+  const { data: setlists = [], isLoading } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
   const filteredSetlists = useMemo(() => {
-    return MOCK_SETLISTS.filter(setlist => {
+    return setlists.filter((setlist: any) => {
       const matchesSearch = 
-        setlist.title.toLowerCase().includes(search.toLowerCase()) ||
-        (setlist.theme?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-        setlist.worshipLeader.toLowerCase().includes(search.toLowerCase());
+        (setlist.title || '').toLowerCase().includes(search.toLowerCase()) ||
+        (setlist.theme?.toLowerCase().includes(search.toLowerCase()) ?? false);
       
       const matchesStatus = statusFilter === 'All' || setlist.status === statusFilter;
-      const matchesType = typeFilter === 'All' || setlist.serviceType === typeFilter;
+      const matchesType = typeFilter === 'All' || setlist.service_type === typeFilter || setlist.serviceType === typeFilter;
 
       return matchesSearch && matchesStatus && matchesType;
-    }).sort((a, b) => new Date(b.serviceDate).getTime() - new Date(a.serviceDate).getTime());
-  }, [search, statusFilter, typeFilter]);
+    }).sort((a: any, b: any) => new Date(b.service_date || b.serviceDate).getTime() - new Date(a.service_date || a.serviceDate).getTime());
+  }, [setlists, search, statusFilter, typeFilter]);
 
   const getStatusColor = (status: SetlistStatus) => {
     switch (status) {

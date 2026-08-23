@@ -6,7 +6,8 @@ import { CoreValues } from "@/components/home/CoreValues";
 import { EventCard } from "@/components/ui/events/EventCard";
 import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
-import { MOCK_SONGS } from "@/lib/mock-songs";
+import { useQuery } from "@tanstack/react-query";
+import { getSongsPublic } from "@/lib/db-public.functions";
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
@@ -29,6 +30,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { data: songs = [] } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic
+  });
+
   const sampleEvent = {
     title: "Sunday Worship Service",
     date: "Sunday",
@@ -98,7 +104,7 @@ function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {MOCK_SONGS.slice(0, 3).map((song) => (
+            {songs.slice(0, 3).map((song: any) => (
               <SongCard key={song.id} song={song} />
             ))}
           </div>

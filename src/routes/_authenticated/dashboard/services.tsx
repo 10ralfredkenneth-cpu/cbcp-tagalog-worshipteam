@@ -4,15 +4,15 @@ import {
   Search, 
   Plus, 
   Filter, 
-  MoreVertical,
-  Edit,
-  Copy,
-  Archive,
-  Eye,
-  ArrowRight,
-  Clock,
-  User,
-  CheckCircle2
+  MoreVertical, 
+  Edit, 
+  Copy, 
+  Archive, 
+  Eye, 
+  ArrowRight, 
+  Clock, 
+  User, 
+  CheckCircle2 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,19 +33,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_SETLISTS } from '@/lib/mock-setlists';
-import { MOCK_TEAM } from '@/lib/mock-team';
-import { cn } from "@/lib/utils";
+import { getServices } from '@/lib/db-services';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute('/_authenticated/dashboard/services')({
   component: ServiceManagementPage,
 });
 
 function ServiceManagementPage() {
+  const { data: services = [], isLoading } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
   const handleDuplicate = (id: string) => {
-    toast.success('Service template duplicated', {
-      description: `Creating a new service based on ${id}.`
+    toast.info('Duplicate feature coming soon', {
+      description: `Service ${id} will be clonable soon.`
     });
   };
 
@@ -78,21 +83,23 @@ function ServiceManagementPage() {
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Upcoming</p>
-            <p className="font-serif text-3xl">4 Services</p>
+            <p className="font-serif text-3xl">{services.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length} Services</p>
           </div>
           <Calendar className="w-8 h-8 text-accent/20" />
         </div>
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Unconfirmed</p>
-            <p className="font-serif text-3xl text-amber-600">8 Roles</p>
+            <p className="font-serif text-3xl text-amber-600">
+              {services.reduce((acc, s) => acc + s.assignments.filter(a => a.status === 'Pending').length, 0)} Roles
+            </p>
           </div>
           <User className="w-8 h-8 text-amber-600/20" />
         </div>
         <div className="p-6 bg-muted/20 border border-accent/5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Completed</p>
-            <p className="font-serif text-3xl">128 Total</p>
+            <p className="font-serif text-3xl">{services.filter(s => s.status === 'Completed').length} Total</p>
           </div>
           <CheckCircle2 className="w-8 h-8 text-green-600/20" />
         </div>
@@ -111,7 +118,19 @@ function ServiceManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_SETLISTS.map((service) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  Loading services...
+                </TableCell>
+              </TableRow>
+            ) : services.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                  No services scheduled.
+                </TableCell>
+              </TableRow>
+            ) : services.map((service) => (
               <TableRow key={service.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="space-y-1">
@@ -128,10 +147,10 @@ function ServiceManagementPage() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 bg-accent/10 flex items-center justify-center text-[8px] font-bold text-accent">
-                        {MOCK_TEAM.find(t => t.id === service.worshipLeader)?.fullName.substring(0, 1)}
+                        L
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-widest">
-                        {MOCK_TEAM.find(t => t.id === service.worshipLeader)?.fullName.split(' ')[0]}
+                        Assigned
                       </span>
                     </div>
                     <div className="text-[8px] text-muted-foreground uppercase tracking-widest">

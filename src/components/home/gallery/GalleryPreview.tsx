@@ -1,10 +1,20 @@
 import { Link } from "@tanstack/react-router";
-
-import { MOCK_MEDIA } from "@/lib/mock-media";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getMedia } from "@/lib/db-resources.functions";
 
 export function GalleryPreview() {
-  const featuredMedia = MOCK_MEDIA.filter(m => m.featured && m.mediaType === 'Photo').slice(0, 4);
-  const displayMedia = featuredMedia.length >= 4 ? featuredMedia : MOCK_MEDIA.filter(m => m.mediaType === 'Photo').slice(0, 4);
+  const { data: media = [] } = useQuery({
+    queryKey: ['media'],
+    queryFn: getMedia,
+  });
+
+  const displayMedia = useMemo(() => {
+    const photos = (media || []).filter((m: any) => m.media_type === 'Photo' || m.mediaType === 'Photo');
+    const featured = photos.filter((m: any) => m.featured);
+    const base = featured.length >= 4 ? featured : photos;
+    return base.slice(0, 4);
+  }, [media]);
 
   return (
     <section className="py-24 px-6 bg-muted/20">
@@ -18,15 +28,17 @@ export function GalleryPreview() {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-           {displayMedia.map((item, i) => (
+           {displayMedia.map((item: any, i) => (
              <Link 
                key={item.id} 
+
                to="/media"
                className={`group relative aspect-[4/5] overflow-hidden ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
              >
-               <img 
-                 src={item.fileUrl} 
-                 alt={item.title} 
+                <img 
+                  src={item.file_url || item.fileUrl} 
+                  alt={item.title} 
+
                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" 
                  loading="lazy"
                  decoding="async"

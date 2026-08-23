@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { MOCK_SONGS } from '@/lib/mock-songs';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getSongsPublic } from '@/lib/db-public.functions';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -30,13 +31,31 @@ export const Route = createFileRoute('/_public/songs/$id')({
 type ViewMode = 'Standard' | 'Musician' | 'Vocalist' | 'Presentation';
 
 function SongDetailPage() {
+  const { data: songs = [], isLoading } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic,
+  });
+
   const { id } = Route.useParams();
-  const initialSong = MOCK_SONGS.find(s => s.id === id);
+  const rawSong = (songs || []).find((s: any) => s.id === (id as string));
+  const initialSong = useMemo(() => {
+    if (!rawSong) return null;
+    return {
+      ...rawSong,
+      defaultKey: (rawSong as any).default_key || (rawSong as any).defaultKey,
+      timeSignature: (rawSong as any).time_signature || (rawSong as any).timeSignature,
+      createdAt: (rawSong as any).created_at || (rawSong as any).createdAt,
+      updatedAt: (rawSong as any).updated_at || (rawSong as any).updatedAt,
+      scriptureReferences: (rawSong as any).scripture_references || (rawSong as any).scriptureReferences || [],
+      sections: rawSong.sections || [],
+      flow: rawSong.flow || []
+    };
+  }, [rawSong]);
   
   const [currentKey, setCurrentKey] = useState(initialSong?.defaultKey || 'C');
   const [viewMode, setViewMode] = useState<ViewMode>('Standard');
   const [showChords, setShowChords] = useState(true);
-  const [isFavorite, setIsFavorite] = useState(initialSong?.isFavorite || false);
+  const [isFavorite, setIsFavorite] = useState((initialSong as any)?.isFavorite || false);
 
   if (!initialSong) {
     return (
@@ -49,7 +68,7 @@ function SongDetailPage() {
     );
   }
 
-  const semitones = getSemitoneDifference(initialSong.defaultKey, currentKey);
+  const semitones = getSemitoneDifference(initialSong.defaultKey || 'C', currentKey);
 
   const handleKeyChange = (direction: number) => {
     const isMinor = currentKey.endsWith('m');
@@ -110,9 +129,9 @@ function SongDetailPage() {
         </Button>
         <div className="max-w-4xl w-full text-center space-y-16 py-20">
           <h1 className="font-serif text-6xl text-foreground mb-12 opacity-50">{initialSong.title}</h1>
-          {initialSong.sections?.map((section, idx) => (
+          {(initialSong.sections as any || []).map((section: any, idx: number) => (
             <div key={idx} className="space-y-8 animate-in fade-in duration-1000">
-              {section.lines.filter(l => l.type === 'lyrics').map((line, lIdx) => (
+              {section.lines.filter((l: any) => l.type === 'lyrics').map((line: any, lIdx: number) => (
                 <p key={lIdx} className="text-4xl lg:text-5xl font-serif text-foreground leading-tight">
                   {line.content}
                 </p>
@@ -189,8 +208,8 @@ function SongDetailPage() {
         {viewMode === 'Standard' && (
           <div className="w-full lg:w-1/3 space-y-8 print:hidden">
             <div className="aspect-square w-full overflow-hidden bg-muted border border-accent/10 relative group">
-              {initialSong.artworkUrl ? (
-                <img src={initialSong.artworkUrl} alt={initialSong.title} className="w-full h-full object-cover" />
+              {(initialSong as any).artworkUrl || (initialSong as any).cover_image || (initialSong as any).coverImage ? (
+                <img src={(initialSong as any).artworkUrl || (initialSong as any).cover_image || (initialSong as any).coverImage} alt={initialSong.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-primary/5">
                   <span className="font-serif italic text-muted-foreground/20 text-6xl">
@@ -228,7 +247,7 @@ function SongDetailPage() {
               <div className="p-6 bg-primary text-background rounded-sm">
                 <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Song Flow</h3>
                 <div className="flex flex-wrap gap-2">
-                  {initialSong.flow.map((step, idx) => (
+                  {initialSong.flow.map((step: any, idx: number) => (
                     <span key={idx} className="text-[10px] font-medium px-2 py-1 bg-background/10 rounded-sm">
                       {step}
                     </span>
@@ -238,9 +257,9 @@ function SongDetailPage() {
             )}
             
             <div className="text-[10px] text-muted-foreground uppercase tracking-widest space-y-2 border-t border-accent/10 pt-6">
-              <p>© {initialSong.copyrightYear} {initialSong.copyrightOwner}</p>
-              {initialSong.ccliNumber && <p>CCLI: {initialSong.ccliNumber}</p>}
-              {initialSong.publicDomain && <p>Public Domain</p>}
+              <p>© {(initialSong as any).copyrightYear || new Date().getFullYear()} {(initialSong as any).copyrightOwner || 'Radiant Worship'}</p>
+              {(initialSong as any).ccliNumber && <p>CCLI: {(initialSong as any).ccliNumber}</p>}
+              {(initialSong as any).publicDomain && <p>Public Domain</p>}
             </div>
           </div>
         )}
@@ -250,8 +269,8 @@ function SongDetailPage() {
           <div className={viewMode !== 'Standard' ? 'text-center border-b border-accent/10 pb-8' : ''}>
             <h1 className="font-serif text-5xl lg:text-6xl text-foreground mb-4">{initialSong.title}</h1>
             <p className="text-xl text-muted-foreground font-light">{initialSong.artist}</p>
-            {initialSong.songwriter && viewMode === 'Standard' && (
-              <p className="text-xs text-muted-foreground mt-2 italic">Written by {initialSong.songwriter}</p>
+            {(initialSong as any).songwriter && viewMode === 'Standard' && (
+              <p className="text-xs text-muted-foreground mt-2 italic">Written by {(initialSong as any).songwriter}</p>
             )}
             
             {viewMode !== 'Standard' && (
@@ -274,7 +293,7 @@ function SongDetailPage() {
 
           {viewMode === 'Standard' && (
             <div className="flex flex-wrap gap-2 print:hidden">
-              {initialSong.themes.map(theme => (
+              {(initialSong.themes || []).map((theme: any) => (
                 <Badge key={theme} variant="secondary" className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-3 py-1 text-[10px] uppercase tracking-widest">
                   {theme}
                 </Badge>
@@ -307,7 +326,7 @@ function SongDetailPage() {
                   <BookOpen className="w-4 h-4 mr-2 text-accent" /> Biblical Foundation
                 </h3>
                 <div className="space-y-4">
-                  {initialSong.scriptureReferences.map((ref, idx) => (
+                  {(initialSong.scriptureReferences || []).map((ref: any, idx: number) => (
                     <div key={idx}>
                       <p className="font-serif italic text-foreground text-xl">
                         "{typeof ref === 'string' ? ref : ref.reference}"
@@ -320,11 +339,11 @@ function SongDetailPage() {
                 </div>
               </div>
               
-              {initialSong.worshipLeaderNotes && (
+              {((initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes) && (
                 <div className="bg-accent/5 p-8 border-l-4 border-accent/20">
                   <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Worship Leader Notes</h3>
                   <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                    {initialSong.worshipLeaderNotes.map((note, idx) => (
+                    {((initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes || []).map((note: any, idx: number) => (
                       <li key={idx} className="italic">{note}</li>
                     ))}
                   </ul>
@@ -334,7 +353,7 @@ function SongDetailPage() {
 
             <TabsContent value="lyrics" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="max-w-2xl mx-auto space-y-12 py-8">
-                {initialSong.sections?.map((section, idx) => (
+                {(initialSong.sections as any || []).map((section: any, idx: number) => (
                   <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
                 ))}
                 {!initialSong.sections && (
@@ -359,7 +378,7 @@ function SongDetailPage() {
                 </div>
                 
                 <div className="space-y-12">
-                  {initialSong.sections?.map((section, idx) => (
+                  {(initialSong.sections as any || []).map((section: any, idx: number) => (
                     <SectionDisplay key={idx} section={section} mode={viewMode === 'Musician' ? 'Musician' : 'Standard'} />
                   ))}
                   {!initialSong.sections && (
@@ -373,7 +392,7 @@ function SongDetailPage() {
 
             <TabsContent value="scripture" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="space-y-6">
-                 {initialSong.scriptureReferences.map((ref, idx) => (
+                 {(initialSong.scriptureReferences as any || []).map((ref: any, idx: number) => (
                    <div key={idx} className="p-8 bg-muted/20 border border-accent/10">
                      <h4 className="font-serif text-2xl text-accent mb-4">
                        {typeof ref === 'string' ? ref : ref.reference}

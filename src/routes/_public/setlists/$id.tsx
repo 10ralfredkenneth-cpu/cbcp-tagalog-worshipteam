@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { MOCK_SETLISTS, SETLIST_TEMPLATES } from '@/lib/mock-setlists';
-import { MOCK_SONGS } from '@/lib/mock-songs';
-import { MOCK_TEAM } from '@/lib/mock-team';
+import { useQuery } from '@tanstack/react-query';
+import { getServices } from '@/lib/db-services';
+import { getSongsPublic } from '@/lib/db-public.functions';
+import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -55,9 +56,34 @@ export const Route = createFileRoute('/_public/setlists/$id')({
 function SetlistDetailPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const initialSetlist = MOCK_SETLISTS.find(s => s.id === id);
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
+  const { data: songs = [] } = useQuery({
+    queryKey: ['songs-public'],
+    queryFn: getSongsPublic,
+  });
+
+  const { data: team = [] } = useQuery({
+    queryKey: ['team-full'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const initialSetlist = services.find((s: any) => s.id === id);
+  const [setlist, setSetlist] = useState<any>(initialSetlist);
   
-  const [setlist, setSetlist] = useState(initialSetlist);
+  // Update state when data loads
+  useMemo(() => {
+    if (initialSetlist && !setlist) {
+      setSetlist(initialSetlist);
+    }
+  }, [initialSetlist, setlist]);
   const [viewMode, setViewMode] = useState<'Standard' | 'Rehearsal' | 'Musician' | 'Vocalist' | 'Presentation'>('Standard');
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
@@ -74,11 +100,11 @@ function SetlistDetailPage() {
     );
   }
 
-  const getSongById = (songId: string) => MOCK_SONGS.find(s => s.id === songId);
-  const getMemberById = (memberId: string) => MOCK_TEAM.find(m => m.id === memberId);
+  const getSongById = (songId: string) => songs.find((s: any) => s.id === songId);
+  const getMemberById = (memberId: string) => team.find((m: any) => m.id === memberId);
 
-  const totalDuration = setlist.items.reduce((acc, item) => acc + (item.duration || 0), 0);
-  const itemsWithNoDuration = setlist.items.filter(item => !item.duration).length;
+  const totalDuration = (setlist.items || []).reduce((acc: number, item: any) => acc + (item.duration || 0), 0);
+  const itemsWithNoDuration = (setlist.items || []).filter((item: any) => !item.duration).length;
 
   const getStatusColor = (status: SetlistStatus) => {
     switch (status) {
@@ -106,16 +132,16 @@ function SetlistDetailPage() {
   };
 
   const removeItem = (id: string) => {
-    const newItems = setlist.items.filter(item => item.id !== id).map((item, idx) => ({ ...item, order: idx + 1 }));
+    const newItems = (setlist.items || []).filter((item: any) => item.id !== id).map((item: any, idx: number) => ({ ...item, order: idx + 1 }));
     setSetlist({ ...setlist, items: newItems });
   };
 
   const duplicateSetlist = () => {
     const newSetlist = {
       ...setlist,
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       title: `${setlist.title} (Copy)`,
-      status: 'Draft' as SetlistStatus,
+      status: 'Draft' as any,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -125,8 +151,8 @@ function SetlistDetailPage() {
 
   // Timeline calculation
   const timeline = useMemo(() => {
-    let currentTime = new Date(`2000-01-01 ${setlist.serviceTime}`);
-    return setlist.items.map(item => {
+    let currentTime = new Date(`2000-01-01 ${setlist.serviceTime || '09:00'}`);
+    return (setlist.items || []).map((item: any) => {
       const startTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       currentTime = new Date(currentTime.getTime() + (item.duration || 0) * 60000);
       return { ...item, startTime };
@@ -134,9 +160,9 @@ function SetlistDetailPage() {
   }, [setlist.items, setlist.serviceTime]);
 
   if (viewMode === 'Rehearsal') {
-    const currentItem = setlist.items[activeItemIndex];
+    const currentItem = (setlist.items || [])[activeItemIndex];
     const song = currentItem?.songId ? getSongById(currentItem.songId) : null;
-    const setlistSong = song ? setlist.songs.find(s => s.songId === song.id) : null;
+    const setlistSong = song ? (setlist.songs || []).find((s: any) => (s.songId || s.song_id) === song.id) : null;
 
     return (
       <div className="min-h-screen bg-primary text-primary-foreground p-6 lg:p-12 animate-in fade-in duration-500">
@@ -169,7 +195,7 @@ function SetlistDetailPage() {
                   <div className="flex flex-wrap gap-8 pt-4">
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold tracking-widest text-accent uppercase">Selected Key</p>
-                      <p className="text-2xl font-serif">{setlistSong?.selectedKey || song.defaultKey}</p>
+                      <p className="text-2xl font-serif">{setlistSong?.selectedKey || (song as any).default_key || (song as any).defaultKey}</p>
                     </div>
                     {song.bpm && (
                       <div className="space-y-1">
@@ -181,7 +207,7 @@ function SetlistDetailPage() {
                       <div className="w-full space-y-2 mt-4">
                         <p className="text-[10px] font-bold tracking-widest text-accent uppercase">Song Flow</p>
                         <div className="flex flex-wrap gap-2">
-                          {song.flow.map((part, i) => (
+                          {song.flow.map((part: any, i: number) => (
                             <span key={i} className="text-sm px-3 py-1 bg-white/5 border border-white/10 rounded-full">
                               {part}{i < (song.flow?.length ?? 0) - 1 && ' >'}
                             </span>
@@ -234,7 +260,7 @@ function SetlistDetailPage() {
               <div className="bg-white/5 border border-white/10 p-6 space-y-6">
                 <h3 className="text-[10px] font-bold tracking-widest text-accent uppercase">Service Progress</h3>
                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  {setlist.items.map((item, idx) => (
+                  {(setlist.items || []).map((item: any, idx: number) => (
                     <button
                       key={item.id}
                       onClick={() => setActiveItemIndex(idx)}
@@ -403,9 +429,9 @@ function SetlistDetailPage() {
                 </div>
 
             <div className="space-y-4">
-              {timeline.map((item, idx) => {
+              {timeline.map((item: any, idx: number) => {
                 const song = item.songId ? getSongById(item.songId) : null;
-                const setlistSong = song ? setlist.songs.find(s => s.songId === song.id) : null;
+                const setlistSong = song ? (setlist.songs || []).find((s: any) => (s.songId || s.song_id) === song.id) : null;
 
                 return (
                   <div 
@@ -451,7 +477,7 @@ function SetlistDetailPage() {
                               <Music className="w-3 h-3 text-accent/30" />
                               Key: {setlistSong?.selectedKey}
                             </div>
-                            <div>BPM: {song.bpm}</div>
+                            <div>BPM: {song.bpm || song.bpm || '--'}</div>
                           </>
                         )}
                         <div className="flex items-center gap-2">
@@ -464,7 +490,7 @@ function SetlistDetailPage() {
                         <div className="mt-4 space-y-2 p-3 bg-accent/5 border-l-2 border-accent/20 italic text-[11px] text-muted-foreground print:bg-transparent print:p-0 print:mt-2">
                           {setlistSong?.transitionNote && <p><span className="font-bold uppercase text-[8px] not-italic mr-2">Transition:</span> {setlistSong.transitionNote}</p>}
                           {setlistSong?.leaderNote && <p><span className="font-bold uppercase text-[8px] not-italic mr-2">Leader Note:</span> {setlistSong.leaderNote}</p>}
-                          {item.notes && !song && <p>{item.notes}</p>}
+                          {item.notes && !song && <p>{item.notes as string}</p>}
                         </div>
                       )}
                     </div>
@@ -499,7 +525,7 @@ function SetlistDetailPage() {
           <section className="print:hidden">
             <h2 className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase mb-8 border-b border-accent/10 pb-4">Worship Flow Overview</h2>
             <div className="flex flex-wrap items-center gap-4 py-8 px-12 bg-primary/5 border border-accent/10">
-              {timeline.map((item, idx) => (
+              {timeline.map((item: any, idx: number) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="text-center">
                     <p className="text-[9px] font-bold text-accent uppercase mb-1">{item.startTime}</p>
@@ -556,13 +582,13 @@ function SetlistDetailPage() {
                           <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                             <label className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase block">Available Members</label>
                             <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                              {MOCK_TEAM.filter(m => 
-                                m.primaryRole === selectedRole || 
-                                m.secondaryRoles.includes(selectedRole as any) ||
-                                m.skills.includes(selectedRole as any)
-                              ).map(member => {
-                                const isUnavailable = member.availability?.some(a => a.date === setlist.serviceDate && a.status === 'Unavailable');
-                                const isAlreadyAssigned = setlist.assignments.some(a => a.memberId === member.id);
+                              {team.filter((m: any) => 
+                                (m.primary_role || m.primaryRole) === selectedRole || 
+                                ((m.secondary_roles || m.secondaryRoles || []).includes(selectedRole as any)) ||
+                                ((m.skills || []).includes(selectedRole as any))
+                              ).map((member: any) => {
+                                const isUnavailable = (member.availability || []).some((a: any) => a.date === setlist.serviceDate && a.status === 'Unavailable');
+                                const isAlreadyAssigned = (setlist.assignments || []).some((a: any) => (a.memberId || a.member_id) === member.id);
                                 
                                 return (
                                   <button
@@ -581,16 +607,16 @@ function SetlistDetailPage() {
                                   >
                                     <div className="flex items-center gap-3">
                                       <div className="w-8 h-8 rounded-full overflow-hidden border border-accent/20">
-                                        <img src={member.photoUrl} alt={member.fullName} className="w-full h-full object-cover" />
+                                        <img src={member.avatar_url || member.photoUrl} alt={member.full_name || member.fullName} className="w-full h-full object-cover" />
                                       </div>
                                       <div>
-                                        <p className="text-sm font-serif">{member.fullName}</p>
+                                        <p className="text-sm font-serif">{member.full_name || member.fullName}</p>
                                         {isUnavailable && <p className="text-[8px] text-red-500 uppercase font-bold">Unavailable</p>}
                                         {isAlreadyAssigned && <p className="text-[8px] text-accent uppercase font-bold">Already Assigned</p>}
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      {member.primaryRole === selectedRole && (
+                                      {(member.primary_role || member.primaryRole) === selectedRole && (
                                         <Badge variant="outline" className="text-[7px] uppercase tracking-tighter border-accent/20 text-accent">Primary</Badge>
                                       )}
                                       <ChevronRight className="w-3 h-3 text-accent/30 group-hover:text-accent transition-colors" />
@@ -611,18 +637,18 @@ function SetlistDetailPage() {
                   <div className="space-y-4">
                     <h3 className="text-[9px] font-bold tracking-[0.2em] text-muted-foreground uppercase px-2">Worship Leaders</h3>
                     <div className="space-y-2">
-                      {setlist.assignments
-                        .filter(a => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader')
-                        .map(assignment => {
-                          const member = getMemberById(assignment.memberId);
+                      {(setlist.assignments || [])
+                        .filter((a: any) => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader')
+                        .map((assignment: any) => {
+                          const member = getMemberById(assignment.memberId || assignment.member_id);
                           return (
                             <div key={assignment.id} className="group flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-full overflow-hidden border border-accent/20">
-                                  <img src={member?.photoUrl} alt={member?.fullName} className="w-full h-full object-cover" />
+                                  <img src={member?.avatar_url || (member as any)?.photoUrl} alt={member?.full_name || (member as any)?.fullName} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                  <p className="text-sm font-serif">{member?.fullName}</p>
+                                  <p className="text-sm font-serif">{member?.full_name || (member as any)?.fullName}</p>
                                   <p className="text-[9px] text-accent uppercase tracking-widest">{assignment.role}</p>
                                 </div>
                               </div>
@@ -640,7 +666,7 @@ function SetlistDetailPage() {
                             </div>
                           );
                         })}
-                      {setlist.assignments.filter(a => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader').length === 0 && (
+                      {(setlist.assignments || []).filter((a: any) => a.role === 'Worship Leader' || a.role === 'Assistant Worship Leader').length === 0 && (
                         <p className="text-[10px] text-muted-foreground italic px-2">No leaders assigned</p>
                       )}
                     </div>
@@ -650,18 +676,18 @@ function SetlistDetailPage() {
                   <div className="space-y-4">
                     <h3 className="text-[9px] font-bold tracking-[0.2em] text-muted-foreground uppercase px-2">Band</h3>
                     <div className="space-y-2">
-                      {setlist.assignments
-                        .filter(a => ['Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard', 'Piano', 'Drums', 'Percussion'].includes(a.role))
-                        .map(assignment => {
-                          const member = getMemberById(assignment.memberId);
+                      {(setlist.assignments || [])
+                        .filter((a: any) => ['Acoustic Guitar', 'Electric Guitar', 'Bass', 'Keyboard', 'Piano', 'Drums', 'Percussion'].includes(a.role))
+                        .map((assignment: any) => {
+                          const member = getMemberById(assignment.memberId || assignment.member_id);
                           return (
                             <div key={assignment.id} className="group flex items-center justify-between p-4 bg-muted/20 border border-accent/5 hover:border-accent/20 transition-all">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-full overflow-hidden border border-accent/20">
-                                  <img src={member?.photoUrl} alt={member?.fullName} className="w-full h-full object-cover" />
+                                  <img src={member?.avatar_url || (member as any)?.photoUrl} alt={member?.full_name || (member as any)?.fullName} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                  <p className="text-sm font-serif">{member?.fullName}</p>
+                                  <p className="text-sm font-serif">{member?.full_name || (member as any)?.fullName}</p>
                                   <p className="text-[9px] text-accent uppercase tracking-widest">{assignment.role}</p>
                                 </div>
                               </div>
@@ -730,7 +756,7 @@ function SetlistDetailPage() {
                       {setlist.callTimes && Object.entries(setlist.callTimes).map(([role, time]) => (
                         <div key={role} className="flex items-center justify-between p-4 bg-muted/20 border border-accent/5">
                           <span className="text-[10px] font-bold uppercase tracking-widest">{role}</span>
-                          <span className="text-sm font-serif text-accent">{time}</span>
+                          <span className="text-sm font-serif text-accent">{time as string}</span>
                         </div>
                       ))}
                     </div>
@@ -803,17 +829,7 @@ function SetlistDetailPage() {
           <div className="space-y-4">
             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent">Quick Templates</h3>
             <div className="grid grid-cols-1 gap-2">
-              {SETLIST_TEMPLATES.map((template) => (
-                <Button 
-                  key={template.title}
-                  variant="outline" 
-                  className="w-full rounded-none justify-start text-[9px] font-bold tracking-widest uppercase border-accent/10 h-10 px-4"
-                  onClick={() => alert(`Applied ${template.title} template logic`)}
-                >
-                  <Plus className="w-3 h-3 mr-2 text-accent/50" />
-                  {template.title}
-                </Button>
-              ))}
+              {/* Templates removed */}
             </div>
           </div>
         </div>
