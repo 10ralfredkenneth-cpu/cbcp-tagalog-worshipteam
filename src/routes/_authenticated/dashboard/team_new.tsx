@@ -34,11 +34,15 @@ function AddTeamMemberPage() {
     mutationFn: createMember,
     onSuccess: () => {
       toast.success('Personnel profile created successfully.');
+      // Invalidate all relevant queries to ensure instant sync
       queryClient.invalidateQueries({ queryKey: ['team'] });
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       queryClient.invalidateQueries({ queryKey: ['team-public'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      navigate({ to: '/dashboard/team' });
+      // Small delay to ensure DB sync before navigation
+      setTimeout(() => {
+        navigate({ to: '/dashboard/team' });
+      }, 500);
     },
     onError: (error: any) => {
       const message = error.message || 'Failed to add member';
