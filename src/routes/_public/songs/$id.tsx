@@ -309,8 +309,10 @@ function SongDetailPage() {
             <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`rounded-none border-gray-200 h-9 ${isSplit ? 'bg-accent/10 text-accent border-accent/20' : ''}`}>
               <Split className="w-4 h-4 mr-2" /> Split
             </Button>
-            <Button variant="default" size="sm" className="rounded-none bg-primary text-white h-9">
-              <Share2 className="w-4 h-4 mr-2" /> Share
+            <Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
+              <span className="relative z-10 flex items-center">
+                <Share2 className="w-4 h-4 mr-2" /> Share Practice Link
+              </span>
             </Button>
           </div>
         </div>
