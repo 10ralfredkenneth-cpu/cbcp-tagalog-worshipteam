@@ -49,6 +49,22 @@ function LoginPage() {
       setLoading(false);
     }
   };
+  
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign in with Google');
+      setLoading(false);
+    }
+  };
 
   const handleForgotPassword = async () => {
     if (!email) {
