@@ -81,27 +81,27 @@ function AdminDashboardOverview() {
             <div className="grid grid-cols-1 gap-3">
               {isWorshipLeader && (
                 <>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Create Service <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/services">Create Service <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Create Setlist <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/setlists">Create Setlist <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Add Song <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/songs">Add Song <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
                 </>
               )}
               {isMinistryAdmin && (
                 <>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Add Team Member <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/team">Add Team Member <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Add Resource <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/resources">Add Resource <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
-                  <Button variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
-                    Upload Media <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+                  <Button asChild variant="outline" className="w-full rounded-none justify-between text-[10px] font-bold tracking-widest uppercase border-accent/10 h-12 px-6 group">
+                    <Link to="/dashboard/media">Upload Media <Plus className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" /></Link>
                   </Button>
                 </>
               )}
