@@ -1,11 +1,17 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getResourcesPublic } from "@/lib/db-public.functions";
 
 export function ResourcePreview() {
-  const resources = [
-    { title: "Worship Devotionals", desc: "Biblical reflections that prepare the heart for worship." },
-    { title: "Worship Team Training", desc: "Resources for musicians, singers, leaders, and technical teams." },
-    { title: "Biblical Worship", desc: "Teaching about worship according to Scripture." },
-  ];
+  const { data: resources = [] } = useQuery({
+    queryKey: ['resources-public'],
+    queryFn: getResourcesPublic,
+  });
+
+  const featuredResources = resources.filter((r: any) => r.featured).slice(0, 3);
+  const displayResources = featuredResources.length > 0 ? featuredResources : resources.slice(0, 3);
+
+  if (displayResources.length === 0) return null;
 
   return (
     <section className="py-24 px-6 bg-background">
@@ -16,14 +22,14 @@ export function ResourcePreview() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {resources.map((r) => (
+          {displayResources.map((r: any) => (
             <Link 
-              key={r.title} 
+              key={r.id} 
               to="/resources" 
               className="p-8 border border-accent/10 hover:border-accent/30 transition-all group block"
             >
               <h4 className="font-serif text-2xl mb-4 group-hover:text-accent transition-colors">{r.title}</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-8">{r.desc}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-8">{r.description}</p>
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent border-b border-accent/30 pb-0.5">Explore</span>
             </Link>
           ))}

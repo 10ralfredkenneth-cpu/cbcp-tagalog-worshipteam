@@ -33,7 +33,7 @@ function AdminDashboardOverview() {
   const { data: team = [] } = useQuery({ 
     queryKey: ['team-count'], 
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'Active');
+      const { data, error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('status', 'Archived');
       if (error) throw error;
       return data;
     } 
@@ -161,8 +161,12 @@ function AdminDashboardOverview() {
             </h2>
             <div className="space-y-4">
               {recentActivity.length > 0 ? (
-                recentActivity.map((activity: any) => (
-                  <div key={activity.id} className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between">
+                recentActivity.map((activity: any, idx) => (
+                  <Link 
+                    key={activity.id || idx} 
+                    to={activity.entity === 'Song' ? '/dashboard/songs' : activity.entity === 'Service' ? '/dashboard/services' : '/dashboard'}
+                    className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-accent/10 flex items-center justify-center">
                         <Clock className="w-4 h-4 text-accent" />

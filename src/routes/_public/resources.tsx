@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getResources } from '@/lib/db-resources.functions';
+import { getResourcesPublic } from '@/lib/db-public.functions';
 import { ResourceCard } from '@/components/resources/ResourceCard';
 import { ResourceSearch } from '@/components/resources/ResourceSearch';
 import { ResourceFilters } from '@/components/resources/ResourceFilters';
@@ -29,8 +29,8 @@ function ResourcesLibrary() {
   const [role, setRole] = useState<TeamRole | 'All Team Members' | 'All'>('All');
 
   const { data: resources = [] } = useQuery({
-    queryKey: ['resources'],
-    queryFn: getResources,
+    queryKey: ['resources-public'],
+    queryFn: getResourcesPublic,
   });
 
   const filteredResources = useMemo(() => {
