@@ -100,7 +100,7 @@ function TeamDirectoryLayout() {
             <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">
               '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
 
-                                            Add a content filter that prevents command-like text from appearing anywhere in the app UI.
+                                            .
             </p>
           </div>
           <div className="flex gap-3">
