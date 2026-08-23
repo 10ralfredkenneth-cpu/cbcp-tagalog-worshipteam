@@ -61,7 +61,13 @@ export function AdminSidebar() {
   const toggleSidebar = () => setCollapsed(!collapsed);
   const toggleMobile = () => setMobileOpen(!mobileOpen);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
 
   const navigation = [
     { section: "Main", items: [
