@@ -126,14 +126,7 @@ function Index() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {featuredSongs.map((song: any) => (
-              <SongCard key={song.id} song={{
-                ...song,
-                defaultKey: song.default_key || song.defaultKey,
-                scriptureReferences: song.scripture_references || song.scriptureReferences || [],
-                songType: song.song_type || song.songType,
-                createdAt: song.created_at || song.createdAt,
-                updatedAt: song.updated_at || song.updatedAt
-              }} />
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
 
