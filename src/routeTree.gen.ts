@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthenticatedAwaitingApprovalRouteImport } from './routes/_authenticated/awaiting-approval'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
@@ -52,6 +53,12 @@ const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAwaitingApprovalRoute =
+  AuthenticatedAwaitingApprovalRouteImport.update({
+    id: '/awaiting-approval',
+    path: '/awaiting-approval',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -196,6 +203,7 @@ const PublicTeamIdRoute = PublicTeamIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/awaiting-approval': typeof AuthenticatedAwaitingApprovalRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
@@ -225,6 +233,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/awaiting-approval': typeof AuthenticatedAwaitingApprovalRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
@@ -256,6 +265,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/_authenticated/awaiting-approval': typeof AuthenticatedAwaitingApprovalRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/awaiting-approval'
     | '/dashboard'
     | '/about'
     | '/contact'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/awaiting-approval'
     | '/dashboard'
     | '/about'
     | '/contact'
@@ -346,6 +358,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_public'
+    | '/_authenticated/awaiting-approval'
     | '/_authenticated/dashboard'
     | '/_public/about'
     | '/_public/contact'
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/awaiting-approval': {
+      id: '/_authenticated/awaiting-approval'
+      path: '/awaiting-approval'
+      fullPath: '/awaiting-approval'
+      preLoaderRoute: typeof AuthenticatedAwaitingApprovalRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -623,10 +643,12 @@ const AuthenticatedDashboardRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAwaitingApprovalRoute: typeof AuthenticatedAwaitingApprovalRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAwaitingApprovalRoute: AuthenticatedAwaitingApprovalRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
 }
 
