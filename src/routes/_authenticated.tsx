@@ -8,7 +8,11 @@ import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Auth guard session error:', error);
+      throw redirect({ to: '/login' });
+    }
     
     if (!session) {
       throw redirect({
@@ -29,7 +33,7 @@ function AuthenticatedLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading && isPending && location.pathname !== '/awaiting-approval') {
+    if (!loading && isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
       navigate({ to: '/awaiting-approval' });
     }
   }, [loading, isPending, location.pathname, navigate]);
@@ -43,7 +47,7 @@ function AuthenticatedLayout() {
   }
 
   // Show a blank state while navigating to avoid flickering the sidebar/dashboard
-  if (isPending && location.pathname !== '/awaiting-approval') {
+  if (isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
     return null;
   }
 

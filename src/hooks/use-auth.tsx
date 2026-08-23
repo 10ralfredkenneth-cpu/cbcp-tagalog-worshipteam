@@ -72,11 +72,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('status')
         .eq('id', userId)
         .single();
-
-      if (profileError) {
+      
+      if (profileError && profileError.code !== 'PGRST116') {
         console.error('Error fetching profile status:', profileError);
       } else {
-        setStatus(profileData?.status);
+        setStatus(profileData?.status || 'Pending');
       }
     } catch (error) {
       console.error('Error fetching user auth data:', error);
