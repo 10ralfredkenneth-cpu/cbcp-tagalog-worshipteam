@@ -8,7 +8,7 @@ export interface ChordLine {
 }
 
 export interface SongSection {
-  type: 'Intro' | 'Verse' | 'Pre-Chorus' | 'Chorus' | 'Bridge' | 'Instrumental' | 'Outro';
+  type: string;
   label?: string;
   lines: ChordLine[];
 }
@@ -45,4 +45,5 @@ export interface WorshipSong {
   createdAt: string;
   updatedAt: string;
 }
+
 
