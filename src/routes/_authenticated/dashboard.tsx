@@ -131,6 +131,7 @@ function AdminDashboardOverview() {
           </div>
         </div>
 
+        <div className="lg:col-span-1 space-y-8">
           <section className="p-8 bg-primary text-primary-foreground rounded-none shadow-2xl space-y-6">
             <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-accent">Ministry Status</h3>
             <div className="space-y-4">
