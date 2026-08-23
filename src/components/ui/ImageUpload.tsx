@@ -36,7 +36,7 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
         .from(bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true
         });
 
       if (uploadError) {
