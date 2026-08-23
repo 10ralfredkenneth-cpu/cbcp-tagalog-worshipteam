@@ -323,7 +323,11 @@ function AddSongPage() {
                   className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
                 >
                   <Wand2 className="w-3 h-3 mr-1" />
-                  Smart Format
+                  '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+                                        
+                                            
+                                            Right now, I will focus on the worship song library and add a smart detection when adding a song that automatically adjusts spacing for a compact output of the song's lyrics and chords.
+
 
 
                 </Button>
