@@ -59,7 +59,6 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     sheet_music_url: (song as any).sheetMusicUrl || null,
     external_resources: (song as any).externalResources || [],
   };
-  };
 
   const { data, error } = await supabase
     .from('songs')
