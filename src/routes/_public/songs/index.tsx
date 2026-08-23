@@ -62,13 +62,14 @@ function SongLibraryPage() {
       const title = song.title || '';
       const artist = song.artist || '';
       const themes = song.themes || [];
-      const scripture = Array.isArray(song.scripture_references) ? song.scripture_references : [];
+      const scripture = Array.isArray(song.scriptureReferences) ? song.scriptureReferences : [];
 
       const matchesSearch = 
         title.toLowerCase().includes(search.toLowerCase()) ||
         artist.toLowerCase().includes(search.toLowerCase()) ||
         themes.some((t: string) => t.toLowerCase().includes(search.toLowerCase())) ||
-        scripture.some((r: any) => (typeof r === 'string' ? r : (r.reference || '')).toLowerCase().includes(search.toLowerCase()));
+        scripture.some((r: any) => (typeof r === 'string' ? r : (r.reference || '')).toLowerCase().includes(search.toLowerCase())) ||
+        (song.lyrics || '').toLowerCase().includes(search.toLowerCase());
       
       const matchesTheme = themeFilter === 'All' || themes.includes(themeFilter);
       const songKey = song.defaultKey;
