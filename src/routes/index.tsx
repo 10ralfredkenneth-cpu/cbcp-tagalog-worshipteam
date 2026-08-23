@@ -125,7 +125,7 @@ function Index() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {songs.slice(0, 3).map((song: any) => (
+            {featuredSongs.map((song: any) => (
               <SongCard key={song.id} song={song} />
             ))}
           </div>
