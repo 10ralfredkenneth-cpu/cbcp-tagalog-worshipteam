@@ -281,7 +281,10 @@ function EditSongPage() {
                   '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
                                         
                                             
-                                            Right now, I will focus on the worship song library and add a smart detection when adding a song that automatically adjusts spacing for a compact output of the song's lyrics and chords.
+                                            Implement an easy way for me to manually adjust or fix detected chords and spacing when the smart detection is wrong.
+
+Add a toggle to switch between compact and standard spacing for song lyrics and chords.
+
 
 
 
