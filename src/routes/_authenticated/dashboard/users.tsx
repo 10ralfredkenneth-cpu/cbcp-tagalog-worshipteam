@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { 
   Users, 
   Search, 
@@ -10,7 +10,9 @@ import {
   Lock,
   Unlock,
   UserX,
-  Link2
+  Link2,
+  Plus
+
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
