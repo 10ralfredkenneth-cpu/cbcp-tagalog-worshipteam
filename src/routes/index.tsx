@@ -40,7 +40,7 @@ function Index() {
 
 
   return (
-    <div className="animate-in fade-in duration-1000 overflow-x-hidden">
+    <div className="overflow-x-hidden selection:bg-accent selection:text-primary">
       <HeroSection
         variant="full"
         tagline="John 4:23–24"
