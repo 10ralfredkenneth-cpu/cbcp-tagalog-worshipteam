@@ -44,7 +44,7 @@ function UploadMediaPage() {
       toast.error('Title is required');
       return;
     }
-    mutation.mutate({ data: formData });
+    mutation.mutate(formData);
   };
 
   return (

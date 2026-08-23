@@ -53,7 +53,7 @@ function AddSchedulePage() {
       toast.error('Service, member, and role are required');
       return;
     }
-    mutation.mutate({ data: formData });
+    mutation.mutate(formData);
   };
 
   return (
