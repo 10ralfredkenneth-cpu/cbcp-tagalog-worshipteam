@@ -106,9 +106,10 @@ function SongDetailPage() {
                     <BookOpen className="w-4 h-4 mr-2 text-accent" /> Biblical Foundation
                   </h3>
                   <div className="space-y-4">
-                    {song.scriptureReferences.map(ref => (
-                      <div key={ref}>
-                        <p className="font-serif italic text-foreground text-xl">"{ref}"</p>
+                    {song.scriptureReferences.map((ref, idx) => (
+                      <div key={idx}>
+                        <p className="font-serif italic text-foreground text-xl">"{ref.reference}"</p>
+                        {ref.notes && <p className="text-sm text-muted-foreground mt-2">{ref.notes}</p>}
                         <p className="text-xs text-muted-foreground mt-1">— Scripture Reference</p>
                       </div>
                     ))}
