@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Archive,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { deleteMember } from '@/lib/db-team.functions';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/team')({
@@ -138,6 +140,18 @@ function TeamManagementPage() {
     }
   });
 
+  const deleteMemberMutation = useMutation({
+    mutationFn: async (id: string) => deleteMember({ id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      queryClient.invalidateQueries({ queryKey: ['team-public'] });
+      toast.success('Member deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to delete member: ' + error.message);
+    }
+  });
+
   const handleStatusChange = (id: string, status: string) => {
     updateStatusMutation.mutate({ id, status: status as any });
   };
@@ -145,6 +159,12 @@ function TeamManagementPage() {
   const handleArchive = (id: string) => {
     if (confirm('Are you sure you want to archive this team member?')) {
       archiveMemberMutation.mutate(id);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to PERMANENTLY delete this team member? This action cannot be undone.')) {
+      deleteMemberMutation.mutate(id);
     }
   };
 
@@ -334,6 +354,12 @@ function TeamManagementPage() {
                         className="text-[10px] uppercase tracking-widest font-bold text-red-400 focus:bg-red-400/10 focus:text-red-400 cursor-pointer"
                       >
                         <Archive className="w-3 h-3 mr-2" /> Archive Member
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(member.id)}
+                        className="text-[10px] uppercase tracking-widest font-bold text-red-500 focus:bg-red-500 focus:text-white cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3 mr-2" /> Delete Permanently
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

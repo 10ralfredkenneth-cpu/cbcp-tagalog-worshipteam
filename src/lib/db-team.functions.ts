@@ -86,6 +86,18 @@ export async function updateMember(input: { data: { id: string; updates: any } }
   return data;
 }
 
+export async function deleteMember(input: { data: { id: string } } | { id: string }) {
+  const { id } = ((input as any)?.data ?? input) as { id: string };
+
+  const { error } = await supabase
+    .from("profiles")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return { success: true };
+}
+
 export async function getAssignments() {
   const { data, error } = await supabase
     .from("service_assignments")
