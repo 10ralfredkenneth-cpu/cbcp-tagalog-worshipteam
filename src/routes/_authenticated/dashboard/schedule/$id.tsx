@@ -22,7 +22,7 @@ function AssignmentDetailPage() {
 
   const { data: assignments = [], isLoading: loadingAssignments } = useQuery({
     queryKey: ['assignments'],
-    queryFn: () => getAssignments({})
+    queryFn: () => getAssignments()
   });
 
   const assignment = assignments.find(a => a.id === id);

@@ -31,7 +31,7 @@ function AddSchedulePage() {
     queryFn: () => getServices()
   });
 
-  const { data: team = [] } = useQuery({
+  const { data: team = [] } = useQuery<any[]>({
     queryKey: ['team-members-schedule'],
     queryFn: getTeamMembers
   });
