@@ -57,8 +57,10 @@ function MediaManagementPage() {
             Manage media assets, update metadata, and organize ministry collections.
           </p>
         </div>
-        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Plus className="w-4 h-4 mr-2" /> Upload New Media
+        <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Link to="/media">
+            <Plus className="w-4 h-4 mr-2" /> Upload New Media
+          </Link>
         </Button>
       </header>
 

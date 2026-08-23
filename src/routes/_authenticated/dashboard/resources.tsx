@@ -57,8 +57,10 @@ function ResourceManagementPage() {
             Publish training modules, devotionals, and ministry resources for the team.
           </p>
         </div>
-        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Plus className="w-4 h-4 mr-2" /> Create New Resource
+        <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Link to="/resources">
+            <Plus className="w-4 h-4 mr-2" /> Create New Resource
+          </Link>
         </Button>
       </header>
 

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { 
   User, 
   Mail, 
@@ -9,7 +9,8 @@ import {
   Calendar,
   Save,
   Camera,
-  CheckCircle2
+  CheckCircle2,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

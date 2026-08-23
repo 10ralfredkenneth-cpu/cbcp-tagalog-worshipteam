@@ -58,8 +58,10 @@ function TeamManagementPage() {
             Oversee team members, assign ministry roles, and manage personnel availability.
           </p>
         </div>
-        <Button className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
-          <Plus className="w-4 h-4 mr-2" /> Add Team Member
+        <Button asChild className="rounded-none bg-accent text-primary hover:bg-accent/90 px-8 py-6 font-bold text-[10px] uppercase tracking-widest shadow-xl">
+          <Link to="/team">
+            <Plus className="w-4 h-4 mr-2" /> Add Team Member
+          </Link>
         </Button>
       </header>
 
