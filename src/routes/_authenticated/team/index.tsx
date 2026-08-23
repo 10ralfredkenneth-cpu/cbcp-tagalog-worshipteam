@@ -14,7 +14,7 @@ import {
 import { ArrowLeft, Save } from 'lucide-react';
 import { TeamRole, TeamMemberStatus } from '@/types/team';
 
-export const Route = createFileRoute('/_authenticated/team/add')({
+export const Route = createFileRoute('/_authenticated/team/')({
   component: AddTeamMemberPage,
 });
 

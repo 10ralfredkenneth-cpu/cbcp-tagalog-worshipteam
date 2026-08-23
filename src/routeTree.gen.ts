@@ -22,7 +22,6 @@ import { Route as PublicSongsRouteImport } from './routes/_public/songs'
 import { Route as PublicTeamRouteImport } from './routes/_public/team'
 import { Route as PublicWorshipRouteImport } from './routes/_public/worship'
 import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team/index'
-import { Route as AuthenticatedTeamAddRouteImport } from './routes/_authenticated/team/add'
 import { Route as PublicSetlistsIndexRouteImport } from './routes/_public/setlists/index'
 import { Route as PublicSetlistsIdRouteImport } from './routes/_public/setlists/$id'
 import { Route as PublicSongsIndexRouteImport } from './routes/_public/songs/index'
@@ -93,11 +92,6 @@ const AuthenticatedTeamIndexRoute = AuthenticatedTeamIndexRouteImport.update({
   path: '/team/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTeamAddRoute = AuthenticatedTeamAddRouteImport.update({
-  id: '/team/add',
-  path: '/team/add',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const PublicSetlistsIndexRoute = PublicSetlistsIndexRouteImport.update({
   id: '/setlists/',
   path: '/setlists/',
@@ -139,7 +133,6 @@ export interface FileRoutesByFullPath {
   '/songs': typeof PublicSongsRouteWithChildren
   '/team': typeof PublicTeamRouteWithChildren
   '/worship': typeof PublicWorshipRoute
-  '/team/add': typeof AuthenticatedTeamAddRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
   '/team/$id': typeof PublicTeamIdRoute
@@ -157,7 +150,6 @@ export interface FileRoutesByTo {
   '/resources': typeof PublicResourcesRoute
   '/team': typeof AuthenticatedTeamIndexRoute
   '/worship': typeof PublicWorshipRoute
-  '/team/add': typeof AuthenticatedTeamAddRoute
   '/setlists/$id': typeof PublicSetlistsIdRoute
   '/songs/$id': typeof PublicSongsIdRoute
   '/team/$id': typeof PublicTeamIdRoute
@@ -178,7 +170,6 @@ export interface FileRoutesById {
   '/_public/songs': typeof PublicSongsRouteWithChildren
   '/_public/team': typeof PublicTeamRouteWithChildren
   '/_public/worship': typeof PublicWorshipRoute
-  '/_authenticated/team/add': typeof AuthenticatedTeamAddRoute
   '/_public/setlists/$id': typeof PublicSetlistsIdRoute
   '/_public/songs/$id': typeof PublicSongsIdRoute
   '/_public/team/$id': typeof PublicTeamIdRoute
@@ -200,7 +191,6 @@ export interface FileRouteTypes {
     | '/songs'
     | '/team'
     | '/worship'
-    | '/team/add'
     | '/setlists/$id'
     | '/songs/$id'
     | '/team/$id'
@@ -218,7 +208,6 @@ export interface FileRouteTypes {
     | '/resources'
     | '/team'
     | '/worship'
-    | '/team/add'
     | '/setlists/$id'
     | '/songs/$id'
     | '/team/$id'
@@ -238,7 +227,6 @@ export interface FileRouteTypes {
     | '/_public/songs'
     | '/_public/team'
     | '/_public/worship'
-    | '/_authenticated/team/add'
     | '/_public/setlists/$id'
     | '/_public/songs/$id'
     | '/_public/team/$id'
@@ -347,13 +335,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/team/add': {
-      id: '/_authenticated/team/add'
-      path: '/team/add'
-      fullPath: '/team/add'
-      preLoaderRoute: typeof AuthenticatedTeamAddRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_public/setlists/': {
       id: '/_public/setlists/'
       path: '/setlists'
@@ -401,13 +382,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedTeamAddRoute: typeof AuthenticatedTeamAddRoute
   AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedTeamAddRoute: AuthenticatedTeamAddRoute,
   AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
 }
 
