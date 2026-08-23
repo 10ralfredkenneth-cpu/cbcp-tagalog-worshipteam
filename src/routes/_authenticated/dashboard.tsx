@@ -29,18 +29,13 @@ function AdminDashboardOverview() {
   const { isWorshipLeader, isMinistryAdmin } = useAuth();
 
   const stats = [
-    { label: 'Upcoming Services', value: MOCK_SETLISTS.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar },
-    { label: 'Active Songs', value: MOCK_SONGS.filter(s => s.status === 'Active').length, icon: Music },
-    { label: 'Team Members', value: MOCK_TEAM.filter(m => m.status === 'Active').length, icon: Users },
-    { label: 'Pending Assignments', value: 12, icon: Clock }, // In real app, calculate from assignments
+    { label: 'Upcoming Services', value: MOCK_SETLISTS.filter(s => s.status !== 'Completed' && s.status !== 'Archived').length, icon: Calendar, to: '/dashboard/services' },
+    { label: 'Active Songs', value: MOCK_SONGS.filter(s => s.status === 'Active').length, icon: Music, to: '/dashboard/songs' },
+    { label: 'Team Members', value: MOCK_TEAM.filter(m => m.status === 'Active').length, icon: Users, to: '/dashboard/team' },
+    { label: 'Pending Assignments', value: 0, icon: Clock, to: '/dashboard/schedule' },
   ];
 
-  const recentActivity = [
-    { id: '1', action: 'Service Updated', entity: 'Sunday Worship', user: 'Sarah Jenkins', time: '2 hours ago' },
-    { id: '2', action: 'Song Added', entity: 'Goodness of God', user: 'Mark Thompson', time: '5 hours ago' },
-    { id: '3', action: 'Resource Published', entity: 'Worship Leading Basics', user: 'Admin', time: '1 day ago' },
-    { id: '4', action: 'New Team Member', entity: 'David Smith', user: 'Sarah Jenkins', time: '2 days ago' },
-  ];
+  const recentActivity = []; // Truthful empty state for now as no audit_logs backend is hooked up yet
 
   return (
     <div className="container mx-auto px-6 py-12 space-y-12 animate-in fade-in duration-700">
@@ -57,17 +52,19 @@ function AdminDashboardOverview() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <Card key={stat.label} className="rounded-none border-accent/5 bg-muted/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                {stat.label}
-              </CardTitle>
-              <stat.icon className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-serif text-foreground">{stat.value}</div>
-            </CardContent>
-          </Card>
+          <Link key={stat.label} to={stat.to} className="block transition-transform hover:scale-[1.02]">
+            <Card className="rounded-none border-accent/5 bg-muted/20 h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {stat.label}
+                </CardTitle>
+                <stat.icon className="h-4 w-4 text-accent" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-serif text-foreground">{stat.value}</div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -113,15 +110,15 @@ function AdminDashboardOverview() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
                 <span className="text-[10px] uppercase tracking-widest text-white/60">System Health</span>
-                <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest text-green-400 border-green-400/20">Operational</Badge>
+                <Badge variant="outline" className="rounded-none text-[8px] uppercase tracking-widest text-accent border-accent/20">Standby</Badge>
               </div>
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-[10px] uppercase tracking-widest text-white/60">Active Users</span>
-                <span className="text-xs font-serif text-accent">24 Online</span>
+                <span className="text-[10px] uppercase tracking-widest text-white/60">Active Sessions</span>
+                <span className="text-xs font-serif text-accent">1</span>
               </div>
               <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-[10px] uppercase tracking-widest text-white/60">Last Backup</span>
-                <span className="text-[10px] uppercase tracking-widest text-white/40">12h ago</span>
+                <span className="text-[10px] uppercase tracking-widest text-white/60">Last Sync</span>
+                <span className="text-[10px] uppercase tracking-widest text-white/40">Just now</span>
               </div>
             </div>
           </section>
@@ -134,34 +131,40 @@ function AdminDashboardOverview() {
               Recent Activity
             </h2>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-accent/10 flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
-                          {activity.action}
-                        </span>
-                        <span className="text-muted-foreground">•</span>
-                        <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                          {activity.time}
-                        </span>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity: any) => (
+                  <div key={activity.id} className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-accent/10 flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-accent" />
                       </div>
-                      <h3 className="font-serif text-lg">{activity.entity}</h3>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-[0.1em]">
-                        Modified by {activity.user}
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
+                            {activity.action}
+                          </span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                            {activity.time}
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg">{activity.entity}</h3>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-[0.1em]">
+                          Modified by {activity.user}
+                        </p>
+                      </div>
                     </div>
+                    <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-none">
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-none">
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                ))
+              ) : (
+                <div className="p-12 border border-accent/5 border-dashed text-center">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground italic">No recent activity yet.</p>
                 </div>
-              ))}
-              {isMinistryAdmin && (
+              )}
+              {isMinistryAdmin && recentActivity.length > 0 && (
                 <Button variant="link" className="text-accent text-[10px] font-bold uppercase tracking-widest p-0 h-auto" asChild>
                   <Link to="/dashboard/activity">View Full Activity Log</Link>
                 </Button>
@@ -200,8 +203,8 @@ function AdminDashboardOverview() {
                           </div>
                         ))}
                       </div>
-                      <Button variant="ghost" size="sm" className="text-accent text-[9px] font-bold uppercase tracking-widest p-0 h-auto">
-                        Edit Plan
+                      <Button asChild variant="ghost" size="sm" className="text-accent text-[9px] font-bold uppercase tracking-widest p-0 h-auto">
+                        <Link to={`/dashboard/setlists`}>View Details</Link>
                       </Button>
                     </div>
                   </CardContent>
