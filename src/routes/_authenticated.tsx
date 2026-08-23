@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
