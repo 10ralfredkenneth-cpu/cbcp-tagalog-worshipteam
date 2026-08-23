@@ -33,7 +33,7 @@ function CreateServicePage() {
 
   const [formData, setFormData] = useState<Partial<WorshipSetlist>>({
     title: '',
-    serviceDate: new Date().toISOString().split('T')[0],
+    serviceDate: new Date().toISOString().split('T')[0] as string,
     serviceTime: '10:00',
     serviceType: 'Sunday Worship',
     status: 'Draft',
