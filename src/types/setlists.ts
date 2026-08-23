@@ -61,7 +61,8 @@ export interface WorshipSetlist {
   scriptureReference?: string;
   notes?: string;
   status: SetlistStatus;
-  songs: SetlistSong[];
+  songs: SetlistSong[]; // Keep for compatibility with existing code during transition
+  items: ServiceItem[]; // The complete order of service
   estimatedDuration?: number; // Calculated field
   createdAt: string;
   updatedAt: string;
