@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Save, Music, Type, Languages, Tags, Star, Info, Loader2, Upload, FileText, Trash2, Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { updateSong, getSongs } from '@/lib/db-songs.functions';
@@ -117,6 +118,19 @@ function EditSongPage() {
     } finally {
       setIsUploading(null);
     }
+  };
+
+  const handleImportText = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      updateField('lyrics', text);
+      toast.success('Lyrics imported from file');
+    };
+    reader.readAsText(file);
   };
 
   if (loading || authPending || songLoading) {
@@ -265,16 +279,63 @@ function EditSongPage() {
           </section>
 
           <section className="space-y-6">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Content & Lyrics</h3>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Lyrics & Chords</Label>
-              <Textarea 
-                placeholder="Paste lyrics or chords here..." 
-                className="rounded-none border-accent/10 bg-background min-h-[300px] font-mono text-[12px]" 
-                value={formData.lyrics || ''}
-                onChange={(e) => updateField('lyrics', e.target.value)}
-              />
+            <div className="flex items-center justify-between border-b border-accent/10 pb-2">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Content & Lyrics</h3>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="file" 
+                  accept=".txt,.md"
+                  className="hidden" 
+                  id="import-lyrics"
+                  onChange={handleImportText}
+                />
+                <Button 
+                  asChild 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
+                >
+                  <label htmlFor="import-lyrics" className="cursor-pointer">
+                    <FileText className="w-3 h-3 mr-1" />
+                    Import Text
+                  </label>
+                </Button>
+              </div>
             </div>
+            
+            <Tabs defaultValue="edit" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 rounded-none bg-muted/20 p-1">
+                <TabsTrigger value="edit" className="rounded-none text-[9px] uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-accent">
+                  <Type className="w-3 h-3 mr-2" /> Editor
+                </TabsTrigger>
+                <TabsTrigger value="preview" className="rounded-none text-[9px] uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-accent">
+                  <Eye className="w-3 h-3 mr-2" /> Live Preview
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="edit" className="mt-4 space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Lyrics & Chords</Label>
+                  <Textarea 
+                    placeholder="Paste lyrics or chords here..." 
+                    className="rounded-none border-accent/10 bg-background min-h-[400px] font-mono text-[12px] leading-relaxed" 
+                    value={formData.lyrics || ''}
+                    onChange={(e) => updateField('lyrics', e.target.value)}
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="preview" className="mt-4 border border-accent/10 bg-muted/5 p-8 min-h-[400px]">
+                {formData.lyrics ? (
+                  <pre className="whitespace-pre-wrap font-mono text-[13px] leading-loose text-foreground/90">
+                    {formData.lyrics}
+                  </pre>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-2 py-20">
+                    <Music className="w-8 h-8 opacity-20" />
+                    <p className="text-[10px] uppercase tracking-widest">No content to preview</p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </section>
         </div>
 
