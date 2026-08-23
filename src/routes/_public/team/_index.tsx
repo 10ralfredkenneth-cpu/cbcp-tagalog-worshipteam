@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const Route = createFileRoute('/_public/team/_index')({
+export const Route = createFileRoute('/_public/team/')({
 
   component: TeamPage,
 });
