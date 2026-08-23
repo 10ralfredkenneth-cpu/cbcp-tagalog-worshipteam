@@ -147,8 +147,10 @@ function ResourceManagementPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-none border-accent/10 bg-primary text-primary-foreground">
                       <DropdownMenuLabel className="text-[9px] uppercase tracking-widest text-accent/50 font-bold">Options</DropdownMenuLabel>
-                      <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
-                        <Eye className="w-3 h-3 mr-2" /> View
+                      <DropdownMenuItem asChild className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
+                        <Link to="/resources">
+                          <Eye className="w-3 h-3 mr-2" /> View Public Page
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">
                         <Edit className="w-3 h-3 mr-2" /> Edit Resource
