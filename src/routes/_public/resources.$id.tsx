@@ -220,7 +220,7 @@ function ResourceDetailPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedResources.map(r => (
-                <ResourceCard key={r.id} resource={r} />
+                <ResourceCard key={r.id} resource={r as any} />
               ))}
             </div>
           </div>

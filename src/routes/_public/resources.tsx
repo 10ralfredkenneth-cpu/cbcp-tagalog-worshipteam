@@ -143,7 +143,7 @@ function ResourcesLibrary() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {featuredResources.map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} />
+                    <ResourceCard key={resource.id} resource={resource as any} />
                   ))}
                 </div>
               </section>
@@ -159,7 +159,7 @@ function ResourcesLibrary() {
               {filteredResources.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {filteredResources.map(resource => (
-                    <ResourceCard key={resource.id} resource={resource} />
+                    <ResourceCard key={resource.id} resource={resource as any} />
                   ))}
                 </div>
               ) : (

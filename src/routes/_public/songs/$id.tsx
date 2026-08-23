@@ -339,11 +339,11 @@ function SongDetailPage() {
                 </div>
               </div>
               
-              {(initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes && (
+              {((initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes) && (
                 <div className="bg-accent/5 p-8 border-l-4 border-accent/20">
                   <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-accent">Worship Leader Notes</h3>
                   <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                    {initialSong.worshipLeaderNotes.map((note: any, idx: number) => (
+                    {((initialSong as any).worship_leader_notes || (initialSong as any).worshipLeaderNotes || []).map((note: any, idx: number) => (
                       <li key={idx} className="italic">{note}</li>
                     ))}
                   </ul>
@@ -353,7 +353,7 @@ function SongDetailPage() {
 
             <TabsContent value="lyrics" className="animate-in fade-in slide-in-from-top-4 duration-500">
               <div className="max-w-2xl mx-auto space-y-12 py-8">
-                {initialSong.sections?.map((section: any, idx: number) => (
+                {(initialSong.sections as any || []).map((section: any, idx: number) => (
                   <SectionDisplay key={idx} section={section} mode={viewMode === 'Vocalist' ? 'Vocalist' : 'Standard'} />
                 ))}
                 {!initialSong.sections && (
@@ -378,7 +378,7 @@ function SongDetailPage() {
                 </div>
                 
                 <div className="space-y-12">
-                  {initialSong.sections?.map((section, idx) => (
+                  {(initialSong.sections as any || []).map((section: any, idx: number) => (
                     <SectionDisplay key={idx} section={section} mode={viewMode === 'Musician' ? 'Musician' : 'Standard'} />
                   ))}
                   {!initialSong.sections && (
