@@ -284,6 +284,7 @@ function EditSongPage() {
                                             Right now, I will focus on the worship song library and add a smart detection when adding a song that automatically adjusts spacing for a compact output of the song's lyrics and chords.
 
 
+
                 </Button>
               </div>
             </div>
