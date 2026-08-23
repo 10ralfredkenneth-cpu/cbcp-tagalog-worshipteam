@@ -323,7 +323,10 @@ function AddSongPage() {
                   className="h-7 rounded-none text-[9px] uppercase tracking-widest font-bold text-accent hover:text-accent hover:bg-accent/5"
                 >
                   <Wand2 className="w-3 h-3 mr-1" />
-                  Format Chords
+                  '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+                                        
+                                            
+                                            Add an inline chord formatting tool that highlights unrecognized chords and lets me reformat selected lines with one click.
                 </Button>
               </div>
             </div>
