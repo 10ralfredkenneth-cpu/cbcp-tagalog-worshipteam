@@ -32,7 +32,8 @@ export async function getSongs(): Promise<WorshipSong[]> {
     lyrics: song.lyrics,
     chords: song.chords,
     isPublic: song.is_public,
-    featured: song.featured,
+     featured: song.featured,
+     artworkUrl: song.artwork_url,
     createdAt: song.created_at,
     updatedAt: song.updated_at,
   })) as WorshipSong[];
