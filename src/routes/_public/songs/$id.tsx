@@ -37,7 +37,7 @@ function SongDetailPage() {
   
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   
-  const [currentKey, setCurrentKey] = useState(searchParams.get('key') || song?.defaultKey || 'C');
+  const [currentKey, setCurrentKey] = useState(() => searchParams.get('key') || localStorage.getItem(`song-pref-key-${id}`) || song?.defaultKey || 'C');
   const [showChords, setShowChords] = useState(() => {
     const fromUrl = searchParams.get('chords');
     if (fromUrl !== null) return fromUrl === 'true';
@@ -114,6 +114,10 @@ function SongDetailPage() {
   useEffect(() => {
     localStorage.setItem(`song-pref-scrollSpeed-${id}`, String(scrollSpeed));
   }, [scrollSpeed, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-key-${id}`, currentKey);
+  }, [currentKey, id]);
 
   useEffect(() => {
     localStorage.setItem(`song-pref-fontSize-${id}`, String(fontSize));
