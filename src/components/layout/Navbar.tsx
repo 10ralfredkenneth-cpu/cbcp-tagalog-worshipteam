@@ -50,7 +50,7 @@ export function Navbar() {
           </div>
           <div className="h-4 w-px bg-border" />
           <Button variant="outline" size="sm" className="rounded-none border-foreground font-bold tracking-widest uppercase text-[10px]" asChild>
-             <Link to="/login">TEAM LOGIN</Link>
+             <Link to={isMinistryAdmin ? "/dashboard" : "/login"}>{isMinistryAdmin ? "DASHBOARD" : "TEAM LOGIN"}</Link>
           </Button>
         </div>
 
