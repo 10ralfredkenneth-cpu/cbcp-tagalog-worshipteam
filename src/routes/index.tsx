@@ -9,7 +9,8 @@ import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
 import { useQuery } from "@tanstack/react-query";
 import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
-import { getSettingByKey } from "@/lib/db-settings.functions";
+import { usePublicSectionVisibility } from "@/lib/public-section-visibility";
+
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
@@ -42,12 +43,8 @@ function Index() {
     queryFn: () => getUpcomingServicePublic()
   });
 
-  const { data: homepageSetting } = useQuery({
-    queryKey: ['homepage-sections-public'],
-    queryFn: () => getSettingByKey('homepage_sections')
-  });
-  const sections = (homepageSetting?.value as Record<string, boolean> | null) ?? {};
-  const isVisible = (key: string) => sections[key] !== false;
+  const { isVisible } = usePublicSectionVisibility();
+
 
   const featuredSongs = useMemo(() => {
     return songs.filter((s: any) => s.featured).slice(0, 3);
