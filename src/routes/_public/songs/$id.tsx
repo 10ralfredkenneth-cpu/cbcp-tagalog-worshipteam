@@ -87,6 +87,8 @@ function SongDetailPage() {
   const [loopStart, setLoopStart] = useState<number | null>(null);
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [practiceMode, setPracticeMode] = useState(false);
+  const [currentSection, setCurrentSection] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -242,6 +244,17 @@ function SongDetailPage() {
   }, [autoScroll, metronomePlaying, isCountingIn, latency]);
 
   const sections = useMemo(() => song.lyrics?.split('\n\n') || [], [song.lyrics]);
+  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
+  const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+  useEffect(() => {
+    const onScroll = () => {
+      let nearest = 0; let distance = Number.POSITIVE_INFINITY;
+      sections.forEach((_, index) => { const el = document.getElementById(`section-${index}`); if (el) { const d = Math.abs(el.getBoundingClientRect().top - 120); if (d < distance) { distance = d; nearest = index; } } });
+      setCurrentSection(nearest);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll);
+  }, [sections]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -326,7 +339,7 @@ function SongDetailPage() {
             <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`rounded-none border-gray-200 h-9 ${isSplit ? 'bg-accent/10 text-accent border-accent/20' : ''}`}>
               <Split className="w-4 h-4 mr-2" /> Split
             </Button>
-            <Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
+            <Button variant="outline" size="sm" onClick={() => setPracticeMode(!practiceMode)} className="rounded-none h-9 hidden sm:inline-flex">{practiceMode ? "Exit Practice" : "Practice Mode"}</Button><Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
               <span className="relative z-10 flex items-center">
                 <Share2 className="w-4 h-4 mr-2" /> Share Practice Link
               </span>
@@ -345,11 +358,13 @@ function SongDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl">
+      <div className={`container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl ${practiceMode ? "pt-3" : ""}`}>
+        <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
           <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
-            <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-8">
+            <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
+               <div className="flex items-center justify-between border-b border-border pb-3"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Practice Tools</h2><Button variant="ghost" size="sm" onClick={() => setToolsOpen(false)} className="h-7 px-2 lg:hidden">Close</Button></div>
               {/* Transpose Tool */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Transpose:</h3>
