@@ -153,19 +153,23 @@ function SongDetailPage() {
   }, [darkMode, id]);
 
   useEffect(() => {
+    localStorage.setItem(`song-pref-resumePosition-${id}`, String(resumePosition));
+  }, [resumePosition, id]);
+
+  useEffect(() => {
     const savedPosition = Number(localStorage.getItem(`song-pref-scrollPosition-${id}`));
     lastScrollPositionRef.current = Number.isFinite(savedPosition) && savedPosition > 0 ? savedPosition : 0;
 
     const restorePosition = () => {
-      if (practiceMode && lastScrollPositionRef.current > 0) {
-        window.scrollTo({ top: lastScrollPositionRef.current, behavior: 'auto' });
+      if (practiceMode) {
+        window.scrollTo({ top: resumePosition ? lastScrollPositionRef.current : 0, behavior: 'auto' });
       }
     };
 
     restorePosition();
     const frame = requestAnimationFrame(restorePosition);
     return () => cancelAnimationFrame(frame);
-  }, [id, practiceMode, song?.lyrics]);
+  }, [id, practiceMode, resumePosition, song?.lyrics]);
 
   useEffect(() => {
     const savePosition = () => {
