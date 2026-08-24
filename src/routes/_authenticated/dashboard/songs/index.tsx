@@ -56,6 +56,7 @@ function SongManagementPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [themeFilter, setThemeFilter] = useState('All');
+  const [languageFilter, setLanguageFilter] = useState('All');
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { data: songs = [], isLoading } = useQuery({
@@ -69,15 +70,24 @@ function SongManagementPage() {
     return ['All', ...Array.from(themes).sort()];
   }, [songs]);
 
+  const languages = ['All', 'Tagalog', 'English', 'Taglish', 'Unclassified'];
+  const displayLanguage = (value?: string) => value === 'Filipino/Tagalog' ? 'Tagalog' : value || 'Unclassified';
+
+  const languageCounts = useMemo(() => Object.fromEntries(languages.map(lang => [lang, lang === 'All' ? songs.length : songs.filter(song => displayLanguage(song.language) === lang).length])), [songs]);
+
+  const filteredSongs = useMemo(() => {
+  }, [songs]);
+
   const filteredSongs = useMemo(() => {
     return songs.filter(song => {
       const matchesSearch = 
         song.title.toLowerCase().includes(search.toLowerCase()) ||
         (song.artist || '').toLowerCase().includes(search.toLowerCase());
       const matchesTheme = themeFilter === 'All' || song.themes?.includes(themeFilter);
-      return matchesSearch && matchesTheme;
+      const matchesLanguage = languageFilter === 'All' || displayLanguage(song.language) === languageFilter;
+      return matchesSearch && matchesTheme && matchesLanguage;
     });
-  }, [songs, search, themeFilter]);
+  }, [songs, search, themeFilter, languageFilter]);
 
   const archiveMutation = useMutation({
     mutationFn: archiveSong,
@@ -169,10 +179,12 @@ function SongManagementPage() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="rounded-none border-accent/10 px-6 font-bold text-[10px] uppercase tracking-widest">
-                <Filter className="w-3 h-3 mr-2" /> {themeFilter === 'All' ? 'Themes' : themeFilter}
+                <Filter className="w-3 h-3 mr-2" /> {languageFilter === 'All' ? 'Language' : languageFilter}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="rounded-none border-accent/10 bg-primary text-primary-foreground">
+              {languages.map(language => <DropdownMenuItem key={language} onClick={() => setLanguageFilter(language)} className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">{language} ({languageCounts[language]})</DropdownMenuItem>)}
+              <DropdownMenuSeparator />
               {allThemes.map(theme => (
                 <DropdownMenuItem 
                   key={theme} 
@@ -185,10 +197,10 @@ function SongManagementPage() {
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {(search || themeFilter !== 'All') && (
+          {(search || themeFilter !== 'All' || languageFilter !== 'All') && (
             <Button 
               variant="ghost" 
-              onClick={() => { setSearch(''); setThemeFilter('All'); }}
+              onClick={() => { setSearch(''); setThemeFilter('All'); setLanguageFilter('All'); }}
               className="rounded-none px-4 font-bold text-[10px] uppercase tracking-widest text-accent"
             >
               <X className="w-3 h-3 mr-2" /> Reset
@@ -203,7 +215,8 @@ function SongManagementPage() {
           <TableHeader>
             <TableRow className="hover:bg-transparent border-accent/5">
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Title & Artist</TableHead>
-              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 text-center">Key / BPM</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Language</TableHead>
+               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6 text-center">Key / BPM</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Themes</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Usage</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-accent/50 py-6 px-6">Status</TableHead>
@@ -213,13 +226,13 @@ function SongManagementPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
                   Loading repertoire...
                 </TableCell>
               </TableRow>
             ) : (filteredSongs || []).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
+                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground uppercase text-[10px] tracking-widest italic">
                   No songs matching your search criteria.
                 </TableCell>
               </TableRow>
