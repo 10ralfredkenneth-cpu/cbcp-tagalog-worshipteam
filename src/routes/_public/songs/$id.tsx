@@ -148,6 +148,36 @@ function SongDetailPage() {
     localStorage.setItem(`song-pref-dark-${id}`, String(darkMode));
   }, [darkMode, id]);
 
+  useEffect(() => {
+    const savedPosition = Number(localStorage.getItem(`song-pref-scrollPosition-${id}`));
+    lastScrollPositionRef.current = Number.isFinite(savedPosition) && savedPosition > 0 ? savedPosition : 0;
+
+    const restorePosition = () => {
+      if (practiceMode && lastScrollPositionRef.current > 0) {
+        window.scrollTo({ top: lastScrollPositionRef.current, behavior: 'auto' });
+      }
+    };
+
+    restorePosition();
+    const frame = requestAnimationFrame(restorePosition);
+    return () => cancelAnimationFrame(frame);
+  }, [id, practiceMode, sections.length]);
+
+  useEffect(() => {
+    const savePosition = () => {
+      if (practiceMode) {
+        lastScrollPositionRef.current = window.scrollY;
+        localStorage.setItem(`song-pref-scrollPosition-${id}`, String(window.scrollY));
+      }
+    };
+
+    window.addEventListener('scroll', savePosition, { passive: true });
+    return () => {
+      savePosition();
+      window.removeEventListener('scroll', savePosition);
+    };
+  }, [id, practiceMode]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
