@@ -251,7 +251,7 @@ function SongDetailPage() {
     return () => clearInterval(scrollInterval);
   }, [autoScroll, metronomePlaying, isCountingIn, latency]);
 
-  const sections = useMemo(() => song.lyrics?.split('\n\n') || [], [song.lyrics]);
+  const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
   const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
   const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
