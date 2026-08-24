@@ -59,11 +59,13 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
               decoding="async"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary/5 group-hover:bg-primary/10 transition-colors duration-700">
-              <span className="font-serif italic text-muted-foreground/30 text-2xl group-hover:text-muted-foreground/50 transition-colors">
-                {song.title.charAt(0)}
-              </span>
-            </div>
+             <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-primary/10 group-hover:bg-primary/15 transition-colors duration-700">
+               <span className="text-accent/70 text-3xl" aria-hidden="true">♪</span>
+               <span className="font-serif italic text-muted-foreground/60 text-2xl group-hover:text-muted-foreground transition-colors">
+                 {song.title.charAt(0)}
+               </span>
+               <span className="text-[8px] font-bold tracking-[0.2em] text-accent/60 uppercase">CBCP Worship</span>
+             </div>
           )}
           <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 

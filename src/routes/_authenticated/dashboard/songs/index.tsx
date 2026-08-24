@@ -57,7 +57,8 @@ function SongManagementPage() {
   const [search, setSearch] = useState('');
   const [themeFilter, setThemeFilter] = useState('All');
   const [languageFilter, setLanguageFilter] = useState('All');
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+   const [deleteId, setDeleteId] = useState<string | null>(null);
+   const [coverFilter, setCoverFilter] = useState<'All' | 'Has Cover' | 'Missing Cover'>('All');
 
   const { data: songs = [], isLoading } = useQuery({
     queryKey: ['songs'],
@@ -82,10 +83,11 @@ function SongManagementPage() {
         song.title.toLowerCase().includes(search.toLowerCase()) ||
         (song.artist || '').toLowerCase().includes(search.toLowerCase());
       const matchesTheme = themeFilter === 'All' || song.themes?.includes(themeFilter);
-      const matchesLanguage = languageFilter === 'All' || displayLanguage(song.language) === languageFilter;
-      return matchesSearch && matchesTheme && matchesLanguage;
+       const matchesLanguage = languageFilter === 'All' || displayLanguage(song.language) === languageFilter;
+       const matchesCover = coverFilter === 'All' || (coverFilter === 'Has Cover' ? Boolean(song.artworkUrl) : !song.artworkUrl);
+       return matchesSearch && matchesTheme && matchesLanguage && matchesCover;
     });
-  }, [songs, search, themeFilter, languageFilter]);
+  }, [songs, search, themeFilter, languageFilter, coverFilter]);
 
   const archiveMutation = useMutation({
     mutationFn: archiveSong,
@@ -181,8 +183,10 @@ function SongManagementPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="rounded-none border-accent/10 bg-primary text-primary-foreground">
-              {languages.map(language => <DropdownMenuItem key={language} onClick={() => setLanguageFilter(language)} className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">{language} ({languageCounts[language]})</DropdownMenuItem>)}
-              <DropdownMenuSeparator />
+               {languages.map(language => <DropdownMenuItem key={language} onClick={() => setLanguageFilter(language)} className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">{language} ({languageCounts[language]})</DropdownMenuItem>)}
+               <DropdownMenuSeparator />
+               {(['All', 'Has Cover', 'Missing Cover'] as const).map(status => <DropdownMenuItem key={status} onClick={() => setCoverFilter(status)} className="text-[10px] uppercase tracking-widest font-bold focus:bg-accent focus:text-primary cursor-pointer">{status}</DropdownMenuItem>)}
+               <DropdownMenuSeparator />
               {allThemes.map(theme => (
                 <DropdownMenuItem 
                   key={theme} 
@@ -238,9 +242,9 @@ function SongManagementPage() {
               <TableRow key={song.id} className="group border-accent/5 hover:bg-muted/10 transition-colors">
                 <TableCell className="py-6 px-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-accent/5 flex items-center justify-center border border-accent/10">
-                      <Music className="w-4 h-4 text-accent/40" />
-                    </div>
+                     <div className="w-10 h-10 bg-accent/5 flex items-center justify-center border border-accent/10 overflow-hidden">
+                       {song.artworkUrl ? <img src={song.artworkUrl} alt="" className="w-full h-full object-cover" /> : <Music className="w-4 h-4 text-accent/40" />}
+                     </div>
                     <div>
                       <h3 className="font-serif text-lg leading-tight">{song.title}</h3>
                       <p className="text-[9px] uppercase tracking-widest text-muted-foreground">{song.artist}</p>
