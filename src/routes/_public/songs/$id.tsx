@@ -288,8 +288,42 @@ function SongDetailPage() {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
+  useEffect(() => {
+    if (!practiceMode) {
+      setControlsHidden(false);
+      return;
+    }
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const reveal = () => {
+      setControlsHidden(false);
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => setControlsHidden(true), 4500);
+    };
+    window.addEventListener('pointerdown', reveal);
+    reveal();
+    return () => {
+      window.removeEventListener('pointerdown', reveal);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [practiceMode]);
+
+  useEffect(() => {
+    if (!keepAwake || !('wakeLock' in navigator)) return;
+    let active = true;
+    navigator.wakeLock.request('screen').then((lock) => {
+      if (active) wakeLockRef.current = lock;
+      else void lock.release();
+    }).catch(() => setKeepAwake(false));
+    return () => {
+      active = false;
+      const lock = wakeLockRef.current;
+      wakeLockRef.current = null;
+      if (lock) void lock.release();
+    };
+  }, [keepAwake]);
+
   const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
-  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
+  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Part ${index + 1}`), [sections]);
   const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   useEffect(() => {
