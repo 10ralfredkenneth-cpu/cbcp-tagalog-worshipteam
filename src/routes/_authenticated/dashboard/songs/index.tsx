@@ -75,8 +75,6 @@ function SongManagementPage() {
 
   const languageCounts = useMemo(() => Object.fromEntries(languages.map(lang => [lang, lang === 'All' ? songs.length : songs.filter(song => displayLanguage(song.language) === lang).length])), [songs]);
 
-  const filteredSongs = useMemo(() => {
-  }, [songs]);
 
   const filteredSongs = useMemo(() => {
     return songs.filter(song => {
