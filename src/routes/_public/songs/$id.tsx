@@ -96,12 +96,15 @@ function SongDetailPage() {
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
+  const [controlsHidden, setControlsHidden] = useState(false);
+  const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollLastTimeRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const nextTickTimeRef = useRef<number>(0);
   const beatCountRef = useRef<number>(0);
 
