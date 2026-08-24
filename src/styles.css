@@ -246,3 +246,19 @@ html {
 }
 
 
+
+.brand-entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--color-primary);
+  animation: brand-entrance-out 500ms ease 1400ms forwards;
+}
+.brand-entrance__content { display: grid; justify-items: center; gap: 1rem; animation: brand-entrance-in 900ms ease both; }
+.brand-entrance__logo { width: min(42vw, 260px); aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 0 1.5rem color-mix(in oklch, var(--color-accent) 35%, transparent)); }
+.brand-entrance__name { color: var(--color-primary-foreground); font-family: var(--font-serif); font-size: clamp(1.1rem, 3vw, 1.65rem); text-align: center; }
+@keyframes brand-entrance-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes brand-entrance-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .brand-entrance, .brand-entrance__content { animation: none; } .brand-entrance { opacity: 0; visibility: hidden; } }

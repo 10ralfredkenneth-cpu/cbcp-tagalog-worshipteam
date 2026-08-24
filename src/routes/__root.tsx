@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/components/layout/NotFound";
 import { PostLoginRedirect } from "@/components/auth/PostLoginRedirect";
+import { BrandEntrance } from "@/components/layout/BrandEntrance";
 
 
 import appCss from "../styles.css?url";
@@ -71,10 +72,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Radiant Worship" },
+      { title: "CBCP Tagalog Worship Team" },
       { name: "description", content: "A praise and worship team creating space for authentic encounter." },
-      { name: "author", content: "Radiant Worship" },
-      { property: "og:title", content: "Radiant Worship" },
+      { name: "author", content: "CBCP Tagalog Worship Team" },
+      { property: "og:title", content: "CBCP Tagalog Worship Team" },
       { property: "og:description", content: "A praise and worship team creating space for authentic encounter." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -85,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -115,6 +116,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <PostLoginRedirect />
+        <BrandEntrance />
         <Outlet />
         <Toaster position="top-center" />
       </AuthProvider>

@@ -22,9 +22,9 @@ import { PrepareHeart } from "@/components/home/cta/PrepareHeart";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Radiant Worship | Worship Him in Spirit and in Truth" },
+      { title: "CBCP Tagalog Worship Team | Worship Him in Spirit and in Truth" },
       { name: "description", content: "A place for worshippers, musicians, singers, and servants who desire to glorify Christ and lead His Church in faithful, biblical worship." },
-      { property: "og:title", content: "Radiant Worship" },
+      { property: "og:title", content: "CBCP Tagalog Worship Team" },
       { property: "og:description", content: "Worship Him in Spirit and in Truth" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
