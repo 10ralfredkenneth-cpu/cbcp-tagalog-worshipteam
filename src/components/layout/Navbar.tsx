@@ -41,7 +41,7 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-8 lg:flex">
           <div className="flex items-center gap-6">
-            {navLinks.map((link) => (
+            {visibleNavLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -74,7 +74,7 @@ export function Navbar() {
       {isOpen && (
         <div className="fixed inset-0 top-20 z-40 bg-background p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex flex-col gap-6">
-            {navLinks.map((link) => (
+            {visibleNavLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
