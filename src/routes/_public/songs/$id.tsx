@@ -96,12 +96,15 @@ function SongDetailPage() {
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
+  const [controlsHidden, setControlsHidden] = useState(false);
+  const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollLastTimeRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const nextTickTimeRef = useRef<number>(0);
   const beatCountRef = useRef<number>(0);
 
@@ -285,8 +288,42 @@ function SongDetailPage() {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
+  useEffect(() => {
+    if (!practiceMode) {
+      setControlsHidden(false);
+      return;
+    }
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const reveal = () => {
+      setControlsHidden(false);
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => setControlsHidden(true), 4500);
+    };
+    window.addEventListener('pointerdown', reveal);
+    reveal();
+    return () => {
+      window.removeEventListener('pointerdown', reveal);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [practiceMode]);
+
+  useEffect(() => {
+    if (!keepAwake || !('wakeLock' in navigator)) return;
+    let active = true;
+    navigator.wakeLock.request('screen').then((lock) => {
+      if (active) wakeLockRef.current = lock;
+      else void lock.release();
+    }).catch(() => setKeepAwake(false));
+    return () => {
+      active = false;
+      const lock = wakeLockRef.current;
+      wakeLockRef.current = null;
+      if (lock) void lock.release();
+    };
+  }, [keepAwake]);
+
   const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
-  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
+  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Part ${index + 1}`), [sections]);
   const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   useEffect(() => {
@@ -362,29 +399,24 @@ function SongDetailPage() {
   
 
   return (
-    <div className="song-reader min-h-screen bg-background text-foreground pb-16">
-      {/* Compact reader header */}
-      <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
+    <div className={`song-reader min-h-screen bg-background text-foreground ${practiceMode ? 'pb-14' : 'pb-16'}`} onPointerDown={() => practiceMode && setControlsHidden(false)}>
+      <div className={`bg-background border-b border-border sticky top-0 z-50 print:hidden transition-transform duration-300 ${practiceMode ? (controlsHidden ? '-translate-y-full' : '') : ''}`}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
-          <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent">
-            <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
-          </Button>
-          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
+          {!practiceMode && <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent"><Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link></Button>}
+          {!practiceMode && <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>}
+          {practiceMode && <span className="flex-1 truncate text-xs font-bold uppercase tracking-widest text-muted-foreground">{song.title}</span>}
           <div className="flex shrink-0 items-center gap-1">
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-8 rounded-none px-2 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`}><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
-            <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
+            {!practiceMode && <><Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button><Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className="h-8 rounded-none px-2 sm:px-3"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split</span></Button><Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none px-2 sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button></>}
+            <Button variant={practiceMode ? 'secondary' : 'outline'} size="sm" onClick={() => { setPracticeMode(!practiceMode); setToolsOpen(false); }} className="h-8 rounded-none px-2 sm:px-3"><Maximize2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">{practiceMode ? 'Exit' : 'Full View'}</span></Button>
           </div>
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur px-3 py-2 print:hidden lg:hidden">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-9 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
-          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key <span className="text-primary">{currentKey}</span></span>
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-9 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
-          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
-          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-9 rounded-none px-3"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
+      <div className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur px-3 py-2 print:hidden transition-transform duration-300 ${controlsHidden ? 'translate-y-full' : ''}`}>
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-1">
+          <Button variant="ghost" size="sm" onClick={() => { setPracticeMode(false); setToolsOpen(false); }} className="h-10 px-2 text-xs">{practiceMode ? 'Exit' : 'Library'}</Button>
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-10 min-w-10 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button><span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{currentKey}</span><Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-10 min-w-10 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
+          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-10 px-2 text-xs"><RefreshCw className="mr-1 h-3.5 w-3.5" /> Auto</Button><Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-10 rounded-none px-3"><Settings className="mr-1 h-3.5 w-3.5" /> Tools</Button>
         </div>
       </div>
 
@@ -392,7 +424,7 @@ function SongDetailPage() {
         <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Left Sidebar: Controls (Reference Style) */}
-          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-1 space-y-6 print:hidden ${practiceMode ? (toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block' : 'hidden') : (toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block')}`}>
             <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
                <div className="flex items-center justify-between border-b border-border pb-3"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Practice Tools</h2><Button variant="ghost" size="sm" onClick={() => setToolsOpen(false)} className="h-7 px-2 lg:hidden">Close</Button></div>
               {/* Transpose Tool */}
@@ -603,8 +635,13 @@ function SongDetailPage() {
                 </div>
               </div>
 
-              {/* Text Size */}
-              <div className="space-y-4">
+               <div className="flex items-center justify-between border-t border-border pt-4">
+                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
+                 <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>
+               </div>
+
+               {/* Text Size */}
+               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Text Size:</h3>
                  <div className="flex items-center justify-between border-b pb-2 text-xs">
                    <span>Auto-scroll speed</span>
