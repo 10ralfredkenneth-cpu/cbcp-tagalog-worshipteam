@@ -335,10 +335,20 @@ function SongDetailPage() {
         </div>
       </div>
 
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur px-3 py-2 print:hidden lg:hidden">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-9 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
+          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key <span className="text-primary">{currentKey}</span></span>
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-9 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
+          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto Scroll</Button>
+          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-9 rounded-none px-3"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
+        </div>
+      </div>
+
       <div className="container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
-          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-8">
               {/* Transpose Tool */}
               <div className="space-y-4">
