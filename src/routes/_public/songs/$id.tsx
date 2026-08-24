@@ -571,12 +571,12 @@ function SongDetailPage() {
 
               {/* Text Size */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Font Size:</h3>
-                <div className="flex items-center justify-between px-2">
-                  <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent"><Minus className="w-4 h-4" /></button>
-                  <span className="text-sm font-bold">{fontSize}px</span>
-                  <button onClick={() => setFontSize(Math.min(32, fontSize + 2))} className="text-gray-400 hover:text-accent"><Plus className="w-4 h-4" /></button>
-                </div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Text Size:</h3>
+                 <div className="flex items-center justify-between px-2">
+                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent" aria-label="Decrease text size"><Minus className="w-4 h-4" /></button>
+                   <span className="text-sm font-bold">{Math.round((fontSize / 16) * 100)}%</span>
+                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="text-gray-400 hover:text-accent" aria-label="Increase text size"><Plus className="w-4 h-4" /></button>
+                 </div>
               </div>
             </div>
 
@@ -600,13 +600,13 @@ function SongDetailPage() {
           </div>
 
           {/* Main Song Content */}
-          <div className={`lg:col-span-4 bg-card px-4 py-6 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
-             <div className="mb-7 border-b border-border pb-5 break-inside-avoid">
-               <h2 className="font-serif text-3xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
-               <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
-               <div className="mt-3 flex gap-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
-             </div>
-             <div className="space-y-7 sm:space-y-8" style={{ fontSize: `${fontSize}px` }}>
+           <div className={`lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
+              <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
+                <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
+                <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
+                <div className="mt-2 flex gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
+              </div>
+              <div className="space-y-4 sm:space-y-6" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
@@ -632,14 +632,14 @@ function SongDetailPage() {
                         }
                       }
                     }}
-                    className={`break-inside-avoid-column space-y-2 p-2 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
+                     className={`break-inside-avoid-column space-y-1 p-1 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
                   >
                     {header && (
                       <div className="inline-block bg-accent text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm mb-2">
                         {header[1]}
                       </div>
                     )}
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {displayLines.map((line, lIdx) => (
                         <div 
                           key={lIdx} 
