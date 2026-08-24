@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 import { 
   LayoutDashboard, 
+  Home, 
   Music, 
   Calendar, 
   ListMusic, 
