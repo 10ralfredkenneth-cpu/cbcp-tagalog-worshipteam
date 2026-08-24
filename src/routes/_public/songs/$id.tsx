@@ -104,6 +104,7 @@ function SongDetailPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollLastTimeRef = useRef<number | null>(null);
+  const lastScrollPositionRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const nextTickTimeRef = useRef<number>(0);
