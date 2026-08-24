@@ -96,6 +96,15 @@ function ServiceDetailsPage() {
               )}
             </div>
           </section>
+          <section className="space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Assigned Team</h3>
+            <div className="flex flex-col md:flex-row gap-3">
+              <select value={memberId} onChange={(e) => setMemberId(e.target.value)} className="h-10 flex-1 border border-accent/10 bg-background px-3 text-sm"><option value="">Select personnel</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</select>
+              <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Ministry role" className="h-10 flex-1 border border-accent/10 bg-background px-3 text-sm" />
+              <Button disabled={!memberId || assignmentMutation.isPending} onClick={() => assignmentMutation.mutate()} className="rounded-none"><Plus className="w-4 h-4 mr-2" />Assign</Button>
+            </div>
+            <div className="space-y-2">{service.assignments.length ? service.assignments.map((assignment) => <div key={assignment.id} className="flex items-center gap-3 border-b border-accent/5 py-3 text-sm"><Users className="w-4 h-4 text-accent" /><span>{team.find((member) => member.id === assignment.memberId)?.full_name || 'Assigned personnel'}</span><span className="text-muted-foreground">{assignment.role || 'Ministry team'}</span></div>) : <p className="text-sm text-muted-foreground">No team members assigned yet.</p>}</div>
+          </section>
         </div>
 
         <div className="space-y-12">
