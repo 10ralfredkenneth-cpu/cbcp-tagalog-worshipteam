@@ -3,6 +3,8 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { usePublicSectionVisibility, type PublicSectionKey } from "@/lib/public-section-visibility";
+
 
 const navLinks = [
   { label: "HOME", to: "/" },

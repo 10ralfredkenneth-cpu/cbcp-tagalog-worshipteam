@@ -8,7 +8,9 @@ const PUBLIC_QUERY_KEYS = [
   ["team-public"],
   ["resources-public"],
   ["media-public"],
+  ["homepage-sections-public"],
 ] as const;
+
 
 export function usePublicRealtime() {
   const queryClient = useQueryClient();
