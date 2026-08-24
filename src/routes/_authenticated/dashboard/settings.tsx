@@ -11,7 +11,9 @@ import { getSettings, updateSetting } from '@/lib/db-settings.functions';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-const homepageSections = [
+type SectionDefinition = { key: string; name: string; route: string | null; reserve?: boolean };
+
+const homepageSections: SectionDefinition[] = [
   { key: 'worship', name: 'Worship', route: '/worship' },
   { key: 'songs', name: 'Songs', route: '/songs' },
   { key: 'setlists', name: 'Setlists', route: '/setlists' },
@@ -23,7 +25,8 @@ const homepageSections = [
   { key: 'custom_1', name: 'Custom Section 1', route: null, reserve: true },
   { key: 'custom_2', name: 'Custom Section 2', route: null, reserve: true },
   { key: 'custom_3', name: 'Custom Section 3', route: null, reserve: true },
-] as const;
+];
+
 
 const defaultOrder = homepageSections.map((section) => section.key);
 
