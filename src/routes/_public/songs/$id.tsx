@@ -95,7 +95,8 @@ function SongDetailPage() {
   const [loopStart, setLoopStart] = useState<number | null>(null);
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
-  const [practiceMode, setPracticeMode] = useState(false);
+  const [practiceMode, setPracticeMode] = useState(() => localStorage.getItem(`song-pref-practice-${id}`) === 'true');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem(`song-pref-dark-${id}`) === 'true');
   const [controlsHidden, setControlsHidden] = useState(false);
   const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
