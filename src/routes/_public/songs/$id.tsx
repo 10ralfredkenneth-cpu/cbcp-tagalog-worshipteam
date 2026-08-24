@@ -57,7 +57,11 @@ function SongDetailPage() {
     const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
     return saved !== null ? JSON.parse(saved) : false;
   });
-  const [fontSize, setFontSize] = useState(16);
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-fontSize-${id}`);
+    const parsed = saved ? Number(saved) : 16;
+    return Number.isFinite(parsed) ? Math.min(22, Math.max(12, parsed)) : 16;
+  });
   const [chordColor, setChordColor] = useState(() => {
     const fromUrl = searchParams.get('color');
     if (fromUrl !== null) return `text-${fromUrl}`;
