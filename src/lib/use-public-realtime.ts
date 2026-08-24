@@ -25,7 +25,9 @@ export function usePublicRealtime() {
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "worship_resources" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "media_items" }, invalidatePublicQueries)
+      .on("postgres_changes", { event: "*", schema: "public", table: "ministry_settings", filter: "key=eq.homepage_sections" }, invalidatePublicQueries)
       .subscribe();
+
 
     function invalidatePublicQueries() {
       for (const queryKey of PUBLIC_QUERY_KEYS) {
