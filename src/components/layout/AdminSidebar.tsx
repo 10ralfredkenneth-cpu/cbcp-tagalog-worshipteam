@@ -73,6 +73,7 @@ export function AdminSidebar() {
   const navigation = [
     { section: "Main", items: [
       { to: "/dashboard", icon: <LayoutDashboard size={18} />, label: "Overview" },
+      { to: "/", icon: <Home size={18} />, label: "Home" },
     ]},
     { section: "Planning", items: [
       { to: "/dashboard/services", icon: <Calendar size={18} />, label: "Services" },
