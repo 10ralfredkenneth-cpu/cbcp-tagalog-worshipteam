@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicSectionVisibility, type PublicSectionKey } from "@/lib/public-section-visibility";
+import logoAsset from "@/assets/cbcp-logo.png.asset.json";
 
 
 const navLinks: Array<{ label: string; to: string; section?: PublicSectionKey }> = [
@@ -30,11 +31,9 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-serif text-2xl font-semibold tracking-tighter text-foreground">
-            RADIANT
-            <span className="ml-1 font-sans text-xs font-bold tracking-[0.2em] text-accent">
-              WORSHIP
-            </span>
+          <img src={logoAsset.url} alt="CBCP Tagalog Worship Team" className="h-12 w-12 object-contain" />
+          <span className="hidden font-serif text-lg font-semibold leading-tight text-foreground sm:block">
+            CBCP <span className="text-accent">Tagalog</span><br />Worship Team
           </span>
         </Link>
 

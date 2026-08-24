@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, Instagram, Youtube, Facebook } from "lucide-react";
+import logoAsset from "@/assets/cbcp-logo.png.asset.json";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,12 +12,8 @@ export function Footer() {
           {/* Brand & Mission */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2">
-              <span className="font-serif text-2xl font-semibold tracking-tighter text-background">
-                RADIANT
-                <span className="ml-1 font-sans text-xs font-bold tracking-[0.2em] text-accent">
-                  WORSHIP
-                </span>
-              </span>
+              <img src={logoAsset.url} alt="CBCP Tagalog Worship Team" className="h-16 w-16 object-contain" />
+              <span className="font-serif text-lg font-semibold leading-tight text-background">CBCP <span className="text-accent">Tagalog</span><br />Worship Team</span>
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-background/60">
               A ministry dedicated to creating space for authentic encounters with God through music, prayer, and community.
@@ -31,7 +28,7 @@ export function Footer() {
               <a href="#" className="text-background/40 transition-colors hover:text-accent">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="mailto:contact@radiantworship.com" className="text-background/40 transition-colors hover:text-accent">
+              <a href="mailto:contact@cbcpworship.org" className="text-background/40 transition-colors hover:text-accent">
                 <Mail className="h-5 w-5" />
               </a>
             </div>
@@ -87,7 +84,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-20 border-t border-background/10 pt-8 text-center lg:flex lg:items-center lg:justify-between lg:text-left">
           <p className="text-[10px] font-medium tracking-widest text-background/40 uppercase">
-            © {currentYear} Radiant Worship Ministry. All rights reserved.
+            © {currentYear} CBCP Tagalog Worship Team. All rights reserved.
           </p>
           <p className="mt-4 text-[10px] font-medium tracking-widest text-background/40 uppercase lg:mt-0">
             Excellence in Service • Devotion in Worship
