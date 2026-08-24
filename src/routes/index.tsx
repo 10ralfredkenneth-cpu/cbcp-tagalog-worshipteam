@@ -121,7 +121,7 @@ function Index() {
        {isVisible('setlists') && <WorshipSetlist />}
        {isVisible('team') && <TeamPreview />}
        {isVisible('resources') && <ResourcePreview />}
-       {isVisible('media') && <GalleryPreview />
+       {isVisible('media') && <GalleryPreview />}
 
       <JoinCTA />
 
