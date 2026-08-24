@@ -24,12 +24,19 @@ export function usePublicSectionVisibility() {
 
   const configured = query.data?.value;
   const sections = configured && typeof configured === "object" && !Array.isArray(configured)
-    ? configured as Record<string, boolean>
+    ? configured as Record<string, boolean | { published?: boolean }>
     : {};
 
   return {
     ...query,
     sections,
-    isVisible: (key: PublicSectionKey) => sections[key] !== false,
+    isVisible: (key: PublicSectionKey) => {
+      const setting = sections[key];
+      if (typeof setting === "boolean") return setting;
+      if (setting && typeof setting === "object" && "published" in setting) {
+        return setting.published !== false;
+      }
+      return true;
+    },
   };
 }
