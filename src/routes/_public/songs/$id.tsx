@@ -307,7 +307,7 @@ function SongDetailPage() {
   
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] text-[#1A1A1A] pb-20">
+    <div className="min-h-screen bg-background text-foreground pb-16">
       {/* Top Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 print:hidden">
         <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -335,8 +335,8 @@ function SongDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
           <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-8">
