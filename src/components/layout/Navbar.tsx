@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const navLinks = [
   { label: "HOME", to: "/" },
@@ -17,6 +18,7 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isMinistryAdmin } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
@@ -48,7 +50,7 @@ export function Navbar() {
           </div>
           <div className="h-4 w-px bg-border" />
           <Button variant="outline" size="sm" className="rounded-none border-foreground font-bold tracking-widest uppercase text-[10px]" asChild>
-             <Link to="/login">TEAM LOGIN</Link>
+             <Link to={isMinistryAdmin ? "/dashboard" : "/login"}>{isMinistryAdmin ? "DASHBOARD" : "TEAM LOGIN"}</Link>
           </Button>
         </div>
 
@@ -78,7 +80,7 @@ export function Navbar() {
               </Link>
             ))}
             <Button className="mt-4 w-full rounded-none font-bold tracking-widest uppercase" asChild>
-               <Link to="/login" onClick={() => setIsOpen(false)}>TEAM LOGIN</Link>
+               <Link to={isMinistryAdmin ? "/dashboard" : "/login"} onClick={() => setIsOpen(false)}>{isMinistryAdmin ? "DASHBOARD" : "TEAM LOGIN"}</Link>
             </Button>
           </div>
         </div>
