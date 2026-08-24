@@ -338,7 +338,7 @@ function SongDetailPage() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Sidebar: Controls (Reference Style) */}
-          <div className="lg:col-span-1 space-y-6 print:hidden">
+          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-8">
               {/* Transpose Tool */}
               <div className="space-y-4">
