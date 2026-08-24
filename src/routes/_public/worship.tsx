@@ -5,6 +5,10 @@ export const Route = createFileRoute('/_public/worship')({
     meta: [
       { title: "Our Worship Heart | Radiant Worship" },
       { name: "description", content: "Discover what worship means to us and how we gather as a body of Christ to exalt His name." },
+      { property: "og:title", content: "Our Worship Heart | Radiant Worship" },
+      { property: "og:description", content: "Discover what worship means to us and how we gather as a body of Christ to exalt His name." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: () => (
