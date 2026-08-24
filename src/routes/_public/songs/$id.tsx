@@ -86,6 +86,7 @@ function SongDetailPage() {
   const [loopMode, setLoopMode] = useState(false);
   const [loopStart, setLoopStart] = useState<number | null>(null);
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -306,7 +307,7 @@ function SongDetailPage() {
   
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] text-[#1A1A1A] pb-20">
+    <div className="min-h-screen bg-background text-foreground pb-16">
       {/* Top Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 print:hidden">
         <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -334,10 +335,10 @@ function SongDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
-          <div className="lg:col-span-1 space-y-6 print:hidden">
+          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-8">
               {/* Transpose Tool */}
               <div className="space-y-4">
@@ -578,19 +579,13 @@ function SongDetailPage() {
           </div>
 
           {/* Main Song Content */}
-          <div className={`lg:col-span-3 bg-white p-8 md:p-12 shadow-sm border border-gray-100 min-h-[800px] ${isSplit ? 'columns-1 md:columns-2 gap-12' : ''}`}>
-            {/* Song Header (Internal) */}
-            <div className="mb-12 border-b-2 border-primary/5 pb-8 break-inside-avoid">
-              <h2 className="font-serif text-4xl text-primary font-bold mb-2">{song.title}</h2>
-              <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
-              <div className="mt-6 flex gap-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                <span>Key: <span className="text-primary">{currentKey}</span></span>
-                {song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}
-              </div>
-            </div>
-
-            {/* Song Body */}
-            <div className="space-y-12" style={{ fontSize: `${fontSize}px` }}>
+          <div className={`lg:col-span-4 bg-card px-4 py-6 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
+             <div className="mb-7 border-b border-border pb-5 break-inside-avoid">
+               <h2 className="font-serif text-3xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
+               <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
+               <div className="mt-3 flex gap-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
+             </div>
+             <div className="space-y-7 sm:space-y-8" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
