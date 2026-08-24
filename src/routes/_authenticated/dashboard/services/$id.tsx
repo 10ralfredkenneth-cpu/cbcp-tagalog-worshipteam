@@ -16,13 +16,17 @@ export const Route = createFileRoute('/_authenticated/dashboard/services/$id')({
 
 function ServiceDetailsPage() {
   const { id } = Route.useParams();
-  const { data: services = [], isLoading } = useQuery({
-    queryKey: ['services'],
-    queryFn: () => getServices()
-  });
-
+  const queryClient = useQueryClient();
+  const [memberId, setMemberId] = useState('');
+  const [role, setRole] = useState('');
+  const { data: services = [], isLoading } = useQuery({ queryKey: ['services'], queryFn: getServices });
+  const { data: team = [] } = useQuery({ queryKey: ['team'], queryFn: async () => { const { data, error } = await supabase.from('profiles').select('id, full_name').neq('status', 'Archived').order('full_name'); if (error) throw error; return data || []; } });
   const service = services.find(s => s.id === id);
-
+  const assignmentMutation = useMutation({
+    mutationFn: () => createAssignment({ service_id: id, member_id: memberId, role: role || null }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['services'] }); setMemberId(''); setRole(''); toast.success('Team assignment saved'); },
+    onError: (error: Error) => toast.error(error.message),
+  });
   if (isLoading) return <div className="p-12 text-center uppercase tracking-widest text-[10px]">Loading service details...</div>;
   if (!service) return <div className="p-12 text-center uppercase tracking-widest text-[10px]">Service not found</div>;
 
