@@ -42,11 +42,11 @@ export function ImageUpload({ value, onChange, bucket, className }: ImageUploadP
         logDiagnostic(`Aspect ratio: ${ratio.toFixed(2)}:1`);
 
         // Warn if not roughly square (personnel profiles usually expect 1:1)
-        if (Math.abs(ratio - 1) > 0.2) {
-          const warning = "Note: Personnel photos display best when square (1:1 ratio).";
-          logDiagnostic(`Display Warning: ${warning}`);
-          toast(warning, { icon: '⚠️' });
-        }
+         if (Math.abs(ratio - 1) > 0.2) {
+           const warning = "Note: images display best when square (1:1 ratio).";
+           logDiagnostic(`Display Warning: ${warning}`);
+           toast(warning);
+         }
 
         // Check for minimum resolution (e.g. 200px)
         if (img.width < 200 || img.height < 200) {
