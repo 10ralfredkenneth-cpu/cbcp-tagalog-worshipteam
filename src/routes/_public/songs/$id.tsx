@@ -104,6 +104,7 @@ function SongDetailPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollLastTimeRef = useRef<number | null>(null);
+  const lastScrollPositionRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const nextTickTimeRef = useRef<number>(0);
@@ -146,6 +147,36 @@ function SongDetailPage() {
   useEffect(() => {
     localStorage.setItem(`song-pref-dark-${id}`, String(darkMode));
   }, [darkMode, id]);
+
+  useEffect(() => {
+    const savedPosition = Number(localStorage.getItem(`song-pref-scrollPosition-${id}`));
+    lastScrollPositionRef.current = Number.isFinite(savedPosition) && savedPosition > 0 ? savedPosition : 0;
+
+    const restorePosition = () => {
+      if (practiceMode && lastScrollPositionRef.current > 0) {
+        window.scrollTo({ top: lastScrollPositionRef.current, behavior: 'auto' });
+      }
+    };
+
+    restorePosition();
+    const frame = requestAnimationFrame(restorePosition);
+    return () => cancelAnimationFrame(frame);
+  }, [id, practiceMode, song?.lyrics]);
+
+  useEffect(() => {
+    const savePosition = () => {
+      if (practiceMode) {
+        lastScrollPositionRef.current = window.scrollY;
+        localStorage.setItem(`song-pref-scrollPosition-${id}`, String(window.scrollY));
+      }
+    };
+
+    window.addEventListener('scroll', savePosition, { passive: true });
+    return () => {
+      savePosition();
+      window.removeEventListener('scroll', savePosition);
+    };
+  }, [id, practiceMode]);
 
   // Keyboard shortcuts
   useEffect(() => {
