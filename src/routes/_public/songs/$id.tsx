@@ -57,7 +57,11 @@ function SongDetailPage() {
     const saved = localStorage.getItem(`song-pref-isSplit-${id}`);
     return saved !== null ? JSON.parse(saved) : false;
   });
-  const [fontSize, setFontSize] = useState(16);
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-fontSize-${id}`);
+    const parsed = saved ? Number(saved) : 16;
+    return Number.isFinite(parsed) ? Math.min(22, Math.max(12, parsed)) : 16;
+  });
   const [chordColor, setChordColor] = useState(() => {
     const fromUrl = searchParams.get('color');
     if (fromUrl !== null) return `text-${fromUrl}`;
@@ -97,6 +101,10 @@ function SongDetailPage() {
 
 
   // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(`song-pref-fontSize-${id}`, String(fontSize));
+  }, [fontSize, id]);
+
   useEffect(() => {
     localStorage.setItem(`song-pref-showChords-${id}`, JSON.stringify(showChords));
   }, [showChords, id]);
@@ -321,29 +329,17 @@ function SongDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
-      {/* Top Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 print:hidden">
-        <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild className="p-0 h-auto hover:bg-transparent">
-              <Link to="/songs" className="flex items-center text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                <ArrowLeft className="mr-2 w-3 h-3" /> Library
-              </Link>
-            </Button>
-            <h1 className="font-serif text-2xl md:text-3xl text-primary font-bold">{song.title}</h1>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-none border-gray-200 h-9">
-              <Printer className="w-4 h-4 mr-2" /> Print
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`rounded-none border-gray-200 h-9 ${isSplit ? 'bg-accent/10 text-accent border-accent/20' : ''}`}>
-              <Split className="w-4 h-4 mr-2" /> Split
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setPracticeMode(!practiceMode)} className="rounded-none h-9 hidden sm:inline-flex">{practiceMode ? "Exit Practice" : "Practice Mode"}</Button><Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
-              <span className="relative z-10 flex items-center">
-                <Share2 className="w-4 h-4 mr-2" /> Share Practice Link
-              </span>
-            </Button>
+      {/* Compact reader header */}
+      <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
+          <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent">
+            <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
+          </Button>
+          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
+            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className="h-8 rounded-none px-2 sm:px-3"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split</span></Button>
+            <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
           </div>
         </div>
       </div>
@@ -358,7 +354,7 @@ function SongDetailPage() {
         </div>
       </div>
 
-      <div className={`container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl ${practiceMode ? "pt-3" : ""}`}>
+      <div className={`container mx-auto px-1.5 sm:px-6 py-3 sm:py-8 max-w-7xl ${practiceMode ? "pt-2" : ""}`}>
         <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
@@ -575,12 +571,12 @@ function SongDetailPage() {
 
               {/* Text Size */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Font Size:</h3>
-                <div className="flex items-center justify-between px-2">
-                  <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent"><Minus className="w-4 h-4" /></button>
-                  <span className="text-sm font-bold">{fontSize}px</span>
-                  <button onClick={() => setFontSize(Math.min(32, fontSize + 2))} className="text-gray-400 hover:text-accent"><Plus className="w-4 h-4" /></button>
-                </div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Text Size:</h3>
+                 <div className="flex items-center justify-between px-2">
+                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent" aria-label="Decrease text size"><Minus className="w-4 h-4" /></button>
+                   <span className="text-sm font-bold">{Math.round((fontSize / 16) * 100)}%</span>
+                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="text-gray-400 hover:text-accent" aria-label="Increase text size"><Plus className="w-4 h-4" /></button>
+                 </div>
               </div>
             </div>
 
@@ -604,13 +600,13 @@ function SongDetailPage() {
           </div>
 
           {/* Main Song Content */}
-          <div className={`lg:col-span-4 bg-card px-4 py-6 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
-             <div className="mb-7 border-b border-border pb-5 break-inside-avoid">
-               <h2 className="font-serif text-3xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
-               <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
-               <div className="mt-3 flex gap-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
-             </div>
-             <div className="space-y-7 sm:space-y-8" style={{ fontSize: `${fontSize}px` }}>
+           <div className={`lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
+              <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
+                <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
+                <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
+                <div className="mt-2 flex gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
+              </div>
+              <div className="space-y-4 sm:space-y-6" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
@@ -636,14 +632,14 @@ function SongDetailPage() {
                         }
                       }
                     }}
-                    className={`break-inside-avoid-column space-y-2 p-2 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
+                     className={`break-inside-avoid-column space-y-1 p-1 transition-all cursor-pointer ${isLooped ? 'bg-accent/10 border-l-4 border-accent shadow-sm' : 'hover:bg-gray-50/50'}`}
                   >
                     {header && (
                       <div className="inline-block bg-accent text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] rounded-sm mb-2">
                         {header[1]}
                       </div>
                     )}
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {displayLines.map((line, lIdx) => (
                         <div 
                           key={lIdx} 
