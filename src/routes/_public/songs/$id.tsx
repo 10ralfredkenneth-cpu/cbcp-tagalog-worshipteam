@@ -86,6 +86,7 @@ function SongDetailPage() {
   const [loopMode, setLoopMode] = useState(false);
   const [loopStart, setLoopStart] = useState<number | null>(null);
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
