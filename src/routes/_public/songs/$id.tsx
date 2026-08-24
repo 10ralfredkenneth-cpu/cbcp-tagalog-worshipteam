@@ -329,29 +329,17 @@ function SongDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
-      {/* Top Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 print:hidden">
-        <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild className="p-0 h-auto hover:bg-transparent">
-              <Link to="/songs" className="flex items-center text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                <ArrowLeft className="mr-2 w-3 h-3" /> Library
-              </Link>
-            </Button>
-            <h1 className="font-serif text-2xl md:text-3xl text-primary font-bold">{song.title}</h1>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-none border-gray-200 h-9">
-              <Printer className="w-4 h-4 mr-2" /> Print
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`rounded-none border-gray-200 h-9 ${isSplit ? 'bg-accent/10 text-accent border-accent/20' : ''}`}>
-              <Split className="w-4 h-4 mr-2" /> Split
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setPracticeMode(!practiceMode)} className="rounded-none h-9 hidden sm:inline-flex">{practiceMode ? "Exit Practice" : "Practice Mode"}</Button><Button variant="default" size="sm" onClick={handleShare} className="rounded-none bg-primary text-white h-9 group relative overflow-hidden">
-              <span className="relative z-10 flex items-center">
-                <Share2 className="w-4 h-4 mr-2" /> Share Practice Link
-              </span>
-            </Button>
+      {/* Compact reader header */}
+      <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
+          <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent">
+            <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
+          </Button>
+          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
+            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className="h-8 rounded-none px-2 sm:px-3"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split</span></Button>
+            <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
           </div>
         </div>
       </div>
