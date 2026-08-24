@@ -645,6 +645,10 @@ function SongDetailPage() {
               </div>
 
                <div className="flex items-center justify-between border-t border-border pt-4">
+                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dark reader</span>
+                 <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => setDarkMode(!darkMode)} className="h-8 rounded-none" aria-pressed={darkMode}>{darkMode ? 'On' : 'Off'}</Button>
+               </div>
+               <div className="flex items-center justify-between border-t border-border pt-4">
                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
                  <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>
                </div>
