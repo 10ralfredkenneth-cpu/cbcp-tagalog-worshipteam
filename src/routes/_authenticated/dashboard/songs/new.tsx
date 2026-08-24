@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { WorshipSong } from '@/types/songs';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs/new')({
   component: AddSongPage,
@@ -416,8 +417,13 @@ Add automatic cleanup for inconsistent chord punctuation so recognized chords ar
             </div>
           </section>
 
-          <section className="space-y-6">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Resources & Media</h3>
+           <section className="space-y-6">
+             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Cover Art</h3>
+             <ImageUpload value={formData.artworkUrl} onChange={(url) => updateField('artworkUrl', url)} bucket="song-resources" />
+           </section>
+
+           <section className="space-y-6">
+             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Resources & Media</h3>
             
             <div className="space-y-4">
               <div className="space-y-2">
