@@ -1,10 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getServices } from '@/lib/db-services.functions';
+import { createAssignment } from '@/lib/db-team.functions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Music, Calendar, Clock, MapPin, User, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Edit, Music, Calendar, Clock, MapPin, User, ChevronRight, Plus, Users } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/dashboard/services/$id')({
   component: ServiceDetailsPage,
