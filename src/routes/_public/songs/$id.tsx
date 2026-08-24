@@ -635,8 +635,13 @@ function SongDetailPage() {
                 </div>
               </div>
 
-              {/* Text Size */}
-              <div className="space-y-4">
+               <div className="flex items-center justify-between border-t border-border pt-4">
+                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
+                 <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>
+               </div>
+
+               {/* Text Size */}
+               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Text Size:</h3>
                  <div className="flex items-center justify-between border-b pb-2 text-xs">
                    <span>Auto-scroll speed</span>
