@@ -102,6 +102,10 @@ function SongDetailPage() {
 
   // Persistence effects
   useEffect(() => {
+    localStorage.setItem(`song-pref-fontSize-${id}`, String(fontSize));
+  }, [fontSize, id]);
+
+  useEffect(() => {
     localStorage.setItem(`song-pref-showChords-${id}`, JSON.stringify(showChords));
   }, [showChords, id]);
 
