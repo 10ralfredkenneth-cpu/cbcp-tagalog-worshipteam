@@ -37,7 +37,7 @@ function SongDetailPage() {
   
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   
-  const [currentKey, setCurrentKey] = useState(() => searchParams.get('key') || localStorage.getItem(`song-pref-key-${id}`) || song?.defaultKey || 'C');
+  const [currentKey, setCurrentKey] = useState(searchParams.get('key') || song?.defaultKey || 'C');
   const [showChords, setShowChords] = useState(() => {
     const fromUrl = searchParams.get('chords');
     if (fromUrl !== null) return fromUrl === 'true';
@@ -95,8 +95,7 @@ function SongDetailPage() {
   const [loopStart, setLoopStart] = useState<number | null>(null);
   const [loopEnd, setLoopEnd] = useState<number | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
-  const [practiceMode, setPracticeMode] = useState(() => localStorage.getItem(`song-pref-practice-${id}`) === 'true');
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem(`song-pref-dark-${id}`) === 'true');
+  const [practiceMode, setPracticeMode] = useState(false);
   const [controlsHidden, setControlsHidden] = useState(false);
   const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -114,10 +113,6 @@ function SongDetailPage() {
   useEffect(() => {
     localStorage.setItem(`song-pref-scrollSpeed-${id}`, String(scrollSpeed));
   }, [scrollSpeed, id]);
-
-  useEffect(() => {
-    localStorage.setItem(`song-pref-key-${id}`, currentKey);
-  }, [currentKey, id]);
 
   useEffect(() => {
     localStorage.setItem(`song-pref-fontSize-${id}`, String(fontSize));
@@ -138,14 +133,6 @@ function SongDetailPage() {
   useEffect(() => {
     localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
   }, [chordColor, id]);
-
-  useEffect(() => {
-    localStorage.setItem(`song-pref-practice-${id}`, String(practiceMode));
-  }, [practiceMode, id]);
-
-  useEffect(() => {
-    localStorage.setItem(`song-pref-dark-${id}`, String(darkMode));
-  }, [darkMode, id]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -412,7 +399,7 @@ function SongDetailPage() {
   
 
   return (
-    <div className={`song-reader min-h-screen bg-background text-foreground ${practiceMode ? 'pb-14' : 'pb-16'} ${darkMode ? 'dark' : ''}`} onPointerDown={() => practiceMode && setControlsHidden(false)}>
+    <div className={`song-reader min-h-screen bg-background text-foreground ${practiceMode ? 'pb-14' : 'pb-16'}`} onPointerDown={() => practiceMode && setControlsHidden(false)}>
       <div className={`bg-background border-b border-border sticky top-0 z-50 print:hidden transition-transform duration-300 ${practiceMode ? (controlsHidden ? '-translate-y-full' : '') : ''}`}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
           {!practiceMode && <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent"><Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link></Button>}
@@ -648,10 +635,6 @@ function SongDetailPage() {
                 </div>
               </div>
 
-               <div className="flex items-center justify-between border-t border-border pt-4">
-                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dark reader</span>
-                 <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => setDarkMode(!darkMode)} className="h-8 rounded-none" aria-pressed={darkMode}>{darkMode ? 'On' : 'Off'}</Button>
-               </div>
                <div className="flex items-center justify-between border-t border-border pt-4">
                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
                  <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>

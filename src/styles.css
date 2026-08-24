@@ -158,11 +158,6 @@
   }
 }
 
-.song-reader.dark .bg-white { background-color: var(--color-card); }
-.song-reader.dark .bg-gray-50 { background-color: var(--color-background); }
-.song-reader.dark .text-gray-200, .song-reader.dark .text-gray-400, .song-reader.dark .text-gray-500 { color: var(--color-muted-foreground); }
-.song-reader.dark .border-gray-100, .song-reader.dark .border-gray-200 { border-color: var(--color-border); }
-
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
