@@ -18,7 +18,8 @@ export async function getSongsPublic() {
     updatedAt: song.updated_at,
     scriptureReferences: song.scripture_references || [],
     songType: song.song_type,
-    externalResources: song.external_resources,
+     externalResources: song.external_resources,
+     artworkUrl: song.artwork_url,
   }));
 }
 
