@@ -168,18 +168,27 @@ function SettingsPage() {
                <p className="text-sm text-muted-foreground">Control which existing sections are visible to public visitors.</p>
              </div>
              <div className="divide-y divide-border border-y border-border">
-               {homepageSections.map((section) => {
-                 const visible = localSettings['homepage_sections']?.[section.key] !== false;
+               {(localSettings['homepage_sections']?.order ?? defaultOrder).map((key: string, index: number, order: string[]) => {
+                 const section = homepageSections.find((item) => item.key === key) ?? { key, name: key, route: null };
+                 const config = localSettings['homepage_sections']?.[key] ?? {};
+                 const visible = typeof config === 'boolean' ? config : config.published !== false && !section.reserve;
+                 const navigation = typeof config === 'boolean' ? true : config.showInNavigation !== false;
+                 const ready = Boolean(section.route);
+                 const value = { ...localSettings['homepage_sections'], [key]: { published: visible, showInNavigation: navigation, route: section.route, displayOrder: index } , order };
                  return (
-                   <div key={section.key} className="flex items-center justify-between gap-4 py-5">
-                     <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published · Visible publicly' : 'Hidden · Admin management remains available'}</p></div>
-                     <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => handleSave('homepage_sections', { ...localSettings['homepage_sections'], [section.key]: !visible })} className="rounded-none gap-2">
-                       {visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}
-                     </Button>
+                   <div key={key} className="flex flex-col gap-3 py-5 md:flex-row md:items-center md:justify-between">
+                     <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published' : 'Hidden'} · {navigation ? 'Navigation visible' : 'Navigation hidden'} · {ready ? 'Page configured' : 'Page not configured'}</p></div>
+                     <div className="flex flex-wrap gap-2">
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || index === 0} onClick={() => { const next = [...order]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; handleSave('homepage_sections', { ...value, order: next }); }} className="rounded-none">Move Up</Button>
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || index === order.length - 1} onClick={() => { const next = [...order]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; handleSave('homepage_sections', { ...value, order: next }); }} className="rounded-none">Move Down</Button>
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || !ready} onClick={() => handleSave('homepage_sections', { ...value, [key]: { ...config, published: !visible } })} className="rounded-none gap-2">{visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}</Button>
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || !ready} onClick={() => handleSave('homepage_sections', { ...value, [key]: { ...config, showInNavigation: !navigation } })} className="rounded-none">{navigation ? 'Hide Navigation' : 'Show Navigation'}</Button>
+                     </div>
                    </div>
                  );
                })}
              </div>
+
            </TabsContent>
          </div>
       </Tabs>
