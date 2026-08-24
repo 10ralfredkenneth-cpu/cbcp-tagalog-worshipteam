@@ -97,6 +97,10 @@ function SongDetailPage() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(() => localStorage.getItem(`song-pref-practice-${id}`) === 'true');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem(`song-pref-dark-${id}`) === 'true');
+  const [resumePosition, setResumePosition] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-resumePosition-${id}`);
+    return saved === null ? true : saved === 'true';
+  });
   const [controlsHidden, setControlsHidden] = useState(false);
   const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
