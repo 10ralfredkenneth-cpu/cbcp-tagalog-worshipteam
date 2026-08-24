@@ -6,23 +6,27 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePublicSectionVisibility, type PublicSectionKey } from "@/lib/public-section-visibility";
 
 
-const navLinks = [
+const navLinks: Array<{ label: string; to: string; section?: PublicSectionKey }> = [
   { label: "HOME", to: "/" },
-  { label: "WORSHIP", to: "/worship" },
-  { label: "SONGS", to: "/songs" },
-  { label: "SETLISTS", to: "/setlists" },
-  { label: "TEAM", to: "/team" },
-  { label: "RESOURCES", to: "/resources" },
-  { label: "MEDIA", to: "/media" },
-  { label: "ABOUT", to: "/about" },
-  { label: "CONTACT", to: "/contact" },
+  { label: "WORSHIP", to: "/worship", section: "worship" },
+  { label: "SONGS", to: "/songs", section: "songs" },
+  { label: "SETLISTS", to: "/setlists", section: "setlists" },
+  { label: "TEAM", to: "/team", section: "team" },
+  { label: "RESOURCES", to: "/resources", section: "resources" },
+  { label: "MEDIA", to: "/media", section: "media" },
+  { label: "ABOUT", to: "/about", section: "about" },
+  { label: "CONTACT", to: "/contact", section: "contact" },
 ];
+
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isMinistryAdmin } = useAuth();
+  const { isVisible } = usePublicSectionVisibility();
+  const visibleNavLinks = navLinks.filter((link) => link.section === undefined || isVisible(link.section));
 
   return (
+
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">

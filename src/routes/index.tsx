@@ -43,12 +43,8 @@ function Index() {
     queryFn: () => getUpcomingServicePublic()
   });
 
-  const { data: homepageSetting } = useQuery({
-    queryKey: ['homepage-sections-public'],
-    queryFn: () => getSettingByKey('homepage_sections')
-  });
-  const sections = (homepageSetting?.value as Record<string, boolean> | null) ?? {};
-  const isVisible = (key: string) => sections[key] !== false;
+  const { isVisible } = usePublicSectionVisibility();
+
 
   const featuredSongs = useMemo(() => {
     return songs.filter((s: any) => s.featured).slice(0, 3);
