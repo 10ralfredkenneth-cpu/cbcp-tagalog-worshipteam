@@ -109,6 +109,7 @@ function SetlistBuilderPage() {
   });
 
   const moveSong = (index: number, direction: -1 | 1) => {
+    if (!service) return;
     const ordered = [...service.songs].sort((a, b) => a.order - b.order);
     const nextIndex = index + direction;
     const current = ordered[index];
