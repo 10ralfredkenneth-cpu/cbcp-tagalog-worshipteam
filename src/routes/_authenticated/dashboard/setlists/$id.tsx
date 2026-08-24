@@ -183,10 +183,10 @@ function SetlistBuilderPage() {
                 <div key={song.id} className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between">
                   <div className="flex items-center gap-6">
                     <div className="flex flex-col gap-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-accent/20 hover:text-accent p-0">
+                      <Button variant="ghost" size="icon" aria-label="Move song up" disabled={idx === 0 || reorderMutation.isPending} onClick={() => moveSong(idx, -1)} className="h-6 w-6 text-accent/20 hover:text-accent p-0">
                         <ChevronUp className="w-3 h-3" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-accent/20 hover:text-accent p-0">
+                      <Button variant="ghost" size="icon" aria-label="Move song down" disabled={idx === service.songs.length - 1 || reorderMutation.isPending} onClick={() => moveSong(idx, 1)} className="h-6 w-6 text-accent/20 hover:text-accent p-0">
                         <ChevronDown className="w-3 h-3" />
                       </Button>
                     </div>
