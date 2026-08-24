@@ -97,6 +97,10 @@ function SongDetailPage() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(() => localStorage.getItem(`song-pref-practice-${id}`) === 'true');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem(`song-pref-dark-${id}`) === 'true');
+  const [resumePosition, setResumePosition] = useState(() => {
+    const saved = localStorage.getItem(`song-pref-resumePosition-${id}`);
+    return saved === null ? true : saved === 'true';
+  });
   const [controlsHidden, setControlsHidden] = useState(false);
   const [keepAwake, setKeepAwake] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -149,19 +153,23 @@ function SongDetailPage() {
   }, [darkMode, id]);
 
   useEffect(() => {
+    localStorage.setItem(`song-pref-resumePosition-${id}`, String(resumePosition));
+  }, [resumePosition, id]);
+
+  useEffect(() => {
     const savedPosition = Number(localStorage.getItem(`song-pref-scrollPosition-${id}`));
     lastScrollPositionRef.current = Number.isFinite(savedPosition) && savedPosition > 0 ? savedPosition : 0;
 
     const restorePosition = () => {
-      if (practiceMode && lastScrollPositionRef.current > 0) {
-        window.scrollTo({ top: lastScrollPositionRef.current, behavior: 'auto' });
+      if (practiceMode) {
+        window.scrollTo({ top: resumePosition ? lastScrollPositionRef.current : 0, behavior: 'auto' });
       }
     };
 
     restorePosition();
     const frame = requestAnimationFrame(restorePosition);
     return () => cancelAnimationFrame(frame);
-  }, [id, practiceMode, song?.lyrics]);
+  }, [id, practiceMode, resumePosition, song?.lyrics]);
 
   useEffect(() => {
     const savePosition = () => {
@@ -679,14 +687,20 @@ function SongDetailPage() {
                 </div>
               </div>
 
-               <div className="flex items-center justify-between border-t border-border pt-4">
-                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dark reader</span>
-                 <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => setDarkMode(!darkMode)} className="h-8 rounded-none" aria-pressed={darkMode}>{darkMode ? 'On' : 'Off'}</Button>
-               </div>
-               <div className="flex items-center justify-between border-t border-border pt-4">
-                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
-                 <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>
-               </div>
+                {practiceMode && (
+                  <div className="flex items-center justify-between border-t border-border pt-4">
+                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Resume from last position</span>
+                    <Button variant={resumePosition ? 'secondary' : 'outline'} size="sm" onClick={() => setResumePosition(!resumePosition)} className="h-8 rounded-none" aria-pressed={resumePosition}>{resumePosition ? 'On' : 'Off'}</Button>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t border-border pt-4">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dark reader</span>
+                  <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => setDarkMode(!darkMode)} className="h-8 rounded-none" aria-pressed={darkMode}>{darkMode ? 'On' : 'Off'}</Button>
+                </div>
+                <div className="flex items-center justify-between border-t border-border pt-4">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Keep screen awake</span>
+                  <Button variant={keepAwake ? 'secondary' : 'outline'} size="sm" onClick={() => setKeepAwake(!keepAwake)} className="h-8 rounded-none">{keepAwake ? 'On' : 'Off'}</Button>
+                </div>
 
                {/* Text Size */}
                <div className="space-y-4">
