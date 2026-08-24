@@ -45,10 +45,10 @@ function SongLibraryPage() {
   const groups = useMemo(() => {
     if (groupBy === 'none') return [{ label: '', songs: filteredSongs }];
     const map = new Map<string, any[]>();
-    filteredSongs.forEach((song: any) => { const label = groupBy === 'language' ? displayLanguage(song.language) : (song.title?.[0] || '#').toUpperCase(); map.set(label, [...(map.get(label) || []), song]); });
+    filteredSongs.forEach((song: any) => { const label = groupBy === 'language' ? displayLanguage(song.language) : (song.title?.charAt(0) || '#').toUpperCase(); map.set(label, [...(map.get(label) || []), song]); });
     return Array.from(map, ([label, items]) => ({ label, songs: items })).sort((a, b) => a.label.localeCompare(b.label));
   }, [filteredSongs, groupBy]);
-  const letters = Array.from(new Set(songs.map((s: any) => (s.title?.[0] || '#').toUpperCase()))).sort();
+  const letters = Array.from(new Set(songs.map((s: any) => (s.title?.charAt(0) || '#').toUpperCase()))).sort();
   const reset = () => { setSearch(''); setLanguageFilter('All'); setThemeFilter('All'); setKeyFilter('All'); setSortBy('title-asc'); };
   return <main className="container mx-auto px-4 sm:px-6 py-14 md:py-20">
     <header className="max-w-4xl mx-auto mb-12 text-center"><h1 className="font-serif text-5xl lg:text-6xl text-foreground mb-5">Worship Song Library</h1><p className="text-lg text-muted-foreground">Songs we use to lead the Church in biblical, Christ-centered worship.</p></header>
