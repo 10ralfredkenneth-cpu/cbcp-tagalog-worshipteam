@@ -424,7 +424,7 @@ function SongDetailPage() {
         <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Left Sidebar: Controls (Reference Style) */}
-          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-1 space-y-6 print:hidden ${practiceMode ? (toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block' : 'hidden') : (toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block')}`}>
             <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
                <div className="flex items-center justify-between border-b border-border pb-3"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Practice Tools</h2><Button variant="ghost" size="sm" onClick={() => setToolsOpen(false)} className="h-7 px-2 lg:hidden">Close</Button></div>
               {/* Transpose Tool */}
