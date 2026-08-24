@@ -229,7 +229,7 @@ export default function AdminDashboardOverview() {
                       <div className="flex -space-x-2">
                         {(service.assignments || []).slice(0, 3).map((a: any) => (
                           <div key={a.id} className="w-6 h-6 rounded-none bg-accent/20 border border-primary flex items-center justify-center text-[8px] font-bold text-accent">
-                            {a.role.substring(0, 1)}
+                            {(a.role || 'M').substring(0, 1)}
                           </div>
                         ))}
                       </div>
