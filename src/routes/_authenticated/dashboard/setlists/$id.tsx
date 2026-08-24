@@ -91,16 +91,32 @@ function SetlistBuilderPage() {
 
   const updateKeyMutation = useMutation({
     mutationFn: async ({ itemId, key }: { itemId: string, key: string }) => {
-      const { error } = await supabase
-        .from('service_items')
-        .update({ selected_key: key })
-        .eq('id', itemId);
+      const { error } = await supabase.from('service_items').update({ selected_key: key }).eq('id', itemId);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['services'] });
-    }
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['services'] }); }
   });
+
+  const reorderMutation = useMutation({
+    mutationFn: async ({ firstId, secondId, firstOrder, secondOrder }: { firstId: string; secondId: string; firstOrder: number; secondOrder: number }) => {
+      const first = await supabase.from('service_items').update({ sort_order: secondOrder }).eq('id', firstId);
+      if (first.error) throw first.error;
+      const second = await supabase.from('service_items').update({ sort_order: firstOrder }).eq('id', secondId);
+      if (second.error) throw second.error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['services'] }); toast.success('Setlist order saved'); },
+    onError: (error: Error) => toast.error(`Unable to save order: ${error.message}`),
+  });
+
+  const moveSong = (index: number, direction: -1 | 1) => {
+    if (!service) return;
+    const ordered = [...service.songs].sort((a, b) => a.order - b.order);
+    const nextIndex = index + direction;
+    const current = ordered[index];
+    const next = ordered[nextIndex];
+    if (!current || !next) return;
+    reorderMutation.mutate({ firstId: current.id, secondId: next.id, firstOrder: current.order, secondOrder: next.order });
+  };
 
   if (isLoadingService) return <div className="p-12 text-center uppercase tracking-widest text-[10px]">Loading setlist builder...</div>;
   if (!service) return <div className="p-12 text-center uppercase tracking-widest text-[10px]">Service not found</div>;
@@ -167,10 +183,10 @@ function SetlistBuilderPage() {
                 <div key={song.id} className="group p-6 bg-muted/10 border border-accent/5 hover:border-accent/20 transition-all flex items-center justify-between">
                   <div className="flex items-center gap-6">
                     <div className="flex flex-col gap-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-accent/20 hover:text-accent p-0">
+                      <Button variant="ghost" size="icon" aria-label="Move song up" disabled={idx === 0 || reorderMutation.isPending} onClick={() => moveSong(idx, -1)} className="h-6 w-6 text-accent/20 hover:text-accent p-0">
                         <ChevronUp className="w-3 h-3" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-accent/20 hover:text-accent p-0">
+                      <Button variant="ghost" size="icon" aria-label="Move song down" disabled={idx === service.songs.length - 1 || reorderMutation.isPending} onClick={() => moveSong(idx, 1)} className="h-6 w-6 text-accent/20 hover:text-accent p-0">
                         <ChevronDown className="w-3 h-3" />
                       </Button>
                     </div>
