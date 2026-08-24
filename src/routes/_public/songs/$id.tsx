@@ -638,7 +638,7 @@ function SongDetailPage() {
           </div>
 
           {/* Main Song Content */}
-           <div className={`lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
+           <div className={`song-reader-content lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
               <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
                 <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
                 <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
