@@ -16,6 +16,8 @@ import { WorshipSong, SongLanguage, SongType, SongStatus, SongVisibility } from 
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageUpload } from '@/components/ui/ImageUpload';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { generateSongCover } from '@/lib/ai-cover-art.functions';
 
 export const Route = createFileRoute('/_authenticated/dashboard/songs/$id')({
   component: EditSongPage,
@@ -28,6 +30,13 @@ function EditSongPage() {
   const { loading, isPending: authPending } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMood, setAiMood] = useState('Reverent');
+  const [aiStyle, setAiStyle] = useState('cinematic worship');
+  const [aiDirection, setAiDirection] = useState('');
+  const [aiPreview, setAiPreview] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   
   const { data: song, isLoading: songLoading } = useQuery({
     queryKey: ['song', id],
@@ -454,7 +463,22 @@ function EditSongPage() {
            <section className="space-y-6">
              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Cover Art</h3>
              <ImageUpload value={formData.artworkUrl || ''} onChange={(url) => updateField('artworkUrl', url)} bucket="song-resources" />
+             <Button type="button" variant="outline" className="w-full rounded-none border-accent/20 text-[10px] uppercase tracking-widest font-bold" onClick={() => { setAiOpen(true); setAiError(null); setAiPreview(null); }}>
+               <Wand2 className="w-4 h-4 mr-2" /> Generate With AI
+             </Button>
            </section>
+
+           <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+             <DialogContent className="rounded-none max-w-md">
+               <DialogHeader><DialogTitle className="font-serif text-2xl">Original Cover Artwork</DialogTitle><DialogDescription>Generate an original square interpretation from this song’s worship context. Existing artwork will not be changed until you approve a preview.</DialogDescription></DialogHeader>
+               {aiPreview ? <img src={aiPreview} alt="Generated cover preview" className="w-full aspect-square object-cover border border-accent/10" /> : <div className="space-y-4">
+                 <div className="grid grid-cols-2 gap-3"><div><Label>Visual Mood</Label><Select value={aiMood} onValueChange={setAiMood}><SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger><SelectContent className="rounded-none">{['Reverent','Joyful','Celebration','Reflective','Intimate Worship','Hopeful','Majestic','Prayerful'].map(x => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><div><Label>Style</Label><Select value={aiStyle} onValueChange={setAiStyle}><SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger><SelectContent className="rounded-none">{['cinematic worship','minimalist','atmospheric','abstract','nature-inspired','typography-focused','modern church creative'].map(x => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div></div>
+                 <div><Label>Short visual direction</Label><Textarea value={aiDirection} onChange={e => setAiDirection(e.target.value)} placeholder="Optional direction based on the song message" className="rounded-none" maxLength={500} /></div>
+                 {aiError && <p className="text-sm text-destructive">{aiError}</p>}
+               </div>}
+               <DialogFooter className="gap-2"><Button type="button" variant="ghost" className="rounded-none" onClick={() => setAiOpen(false)}>Cancel</Button>{aiPreview ? <><Button type="button" variant="outline" className="rounded-none" onClick={() => setAiPreview(null)}>Generate Again</Button><Button type="button" className="rounded-none bg-accent text-primary" onClick={() => { updateField('artworkUrl', aiPreview); setAiOpen(false); toast.success('AI cover selected. Save changes to publish it.'); }}>Use This Cover</Button></> : <Button type="button" disabled={aiLoading || !song} className="rounded-none bg-accent text-primary" onClick={async () => { setAiLoading(true); setAiError(null); try { const result = await generateSongCover({ data: { title: formData.title || song?.title || '', artist: formData.artist, songwriter: formData.songwriter, language: formData.language, themes: formData.themes, scripture: formData.scriptureReferences?.map(x => typeof x === 'string' ? x : x.reference).join(', '), mood: aiMood, style: aiStyle, direction: aiDirection } }); setAiPreview(result.url || (result.base64 ? `data:image/png;base64,${result.base64}` : null)); } catch (e) { setAiError(e instanceof Error ? e.message : 'Generation failed. Manual upload remains available.'); } finally { setAiLoading(false); } }}><Wand2 className="w-4 h-4 mr-2" />{aiLoading ? 'Generating...' : 'Generate'}</Button>}</DialogFooter>
+             </DialogContent>
+           </Dialog>
 
            {/* Media Section */}
            <section className="space-y-6">
