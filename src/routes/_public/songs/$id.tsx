@@ -82,7 +82,6 @@ function SongDetailPage() {
     return song?.externalResources?.metronomeDefaultSound ?? 'beep';
   });
   const [autoScroll, setAutoScroll] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
   const [latency, setLatency] = useState(0); // in ms
   const [loopMode, setLoopMode] = useState(false);
   const [loopStart, setLoopStart] = useState<number | null>(null);
