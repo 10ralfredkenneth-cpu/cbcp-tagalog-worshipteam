@@ -19,6 +19,7 @@ export function usePublicRealtime() {
       .on("postgres_changes", { event: "*", schema: "public", table: "songs" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "services" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "service_items" }, invalidatePublicQueries)
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_assignments" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "worship_resources" }, invalidatePublicQueries)
       .on("postgres_changes", { event: "*", schema: "public", table: "media_items" }, invalidatePublicQueries)
