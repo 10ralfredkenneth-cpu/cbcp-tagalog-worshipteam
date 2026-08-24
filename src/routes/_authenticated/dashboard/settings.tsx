@@ -163,11 +163,11 @@ function SettingsPage() {
              </div>
              <div className="divide-y divide-border border-y border-border">
                {homepageSections.map((section) => {
-                 const visible = localSettings.homepage_sections?.[section.key] !== false;
+                 const visible = localSettings['homepage_sections']?.[section.key] !== false;
                  return (
                    <div key={section.key} className="flex items-center justify-between gap-4 py-5">
                      <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published · Visible publicly' : 'Hidden · Admin management remains available'}</p></div>
-                     <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => handleSave('homepage_sections', { ...localSettings.homepage_sections, [section.key]: !visible })} className="rounded-none gap-2">
+                     <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => handleSave('homepage_sections', { ...localSettings['homepage_sections'], [section.key]: !visible })} className="rounded-none gap-2">
                        {visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}
                      </Button>
                    </div>
