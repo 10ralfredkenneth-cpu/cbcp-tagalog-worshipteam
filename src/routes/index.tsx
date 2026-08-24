@@ -9,6 +9,7 @@ import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
 import { useQuery } from "@tanstack/react-query";
 import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
+import { getSettingByKey } from "@/lib/db-settings.functions";
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
@@ -40,6 +41,13 @@ function Index() {
     queryKey: ['upcoming-service-public'],
     queryFn: () => getUpcomingServicePublic()
   });
+
+  const { data: homepageSetting } = useQuery({
+    queryKey: ['homepage-sections-public'],
+    queryFn: () => getSettingByKey('homepage_sections')
+  });
+  const sections = (homepageSetting?.value as Record<string, boolean> | null) ?? {};
+  const isVisible = (key: string) => sections[key] !== false;
 
   const featuredSongs = useMemo(() => {
     return songs.filter((s: any) => s.featured).slice(0, 3);
@@ -80,9 +88,7 @@ function Index() {
         imageSrc="https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=2070&auto=format&fit=crop"
       />
 
-      <MinistryIntro />
-
-      <CoreValues />
+       {isVisible('worship') && <><MinistryIntro /><CoreValues /></>}
 
       {/* Primary Scripture Feature */}
       <section className="bg-primary py-40 px-6 overflow-hidden relative group">

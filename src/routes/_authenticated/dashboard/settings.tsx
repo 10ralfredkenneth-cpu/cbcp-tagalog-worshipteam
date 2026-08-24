@@ -5,11 +5,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Church, Music, Camera, Loader2 } from 'lucide-react';
+import { Globe, Church, Music, Camera, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSettings, updateSetting } from '@/lib/db-settings.functions';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+
+const homepageSections = [
+  { key: 'worship', name: 'Worship' },
+  { key: 'songs', name: 'Songs' },
+  { key: 'setlists', name: 'Setlists' },
+  { key: 'team', name: 'Team' },
+  { key: 'resources', name: 'Resources' },
+  { key: 'media', name: 'Media' },
+  { key: 'about', name: 'About' },
+  { key: 'contact', name: 'Contact' },
+] as const;
 
 export const Route = createFileRoute('/_authenticated/dashboard/settings')({
   component: SettingsPage,
@@ -45,9 +56,10 @@ function SettingsPage() {
     }
   });
 
-  const handleSave = (key: string) => {
-    mutation.mutate({ data: { key, value: localSettings[key] } });
-  };
+  const handleSave = (key: string, value = localSettings[key]) => {
+     setLocalSettings((previous) => ({ ...previous, [key]: value }));
+     mutation.mutate({ data: { key, value } });
+   };
 
   if (isLoading) {
     return (
@@ -73,11 +85,12 @@ function SettingsPage() {
 
       <Tabs defaultValue="identity" className="w-full">
         <TabsList className="bg-transparent border-b border-accent/10 w-full justify-start rounded-none h-auto p-0 gap-8">
-          <TabsTrigger value="identity" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Identity</TabsTrigger>
-          <TabsTrigger value="worship" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Worship</TabsTrigger>
-          <TabsTrigger value="branding" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Branding</TabsTrigger>
-          <TabsTrigger value="notifications" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Notifications</TabsTrigger>
-        </TabsList>
+           <TabsTrigger value="identity" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Identity</TabsTrigger>
+           <TabsTrigger value="worship" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Worship</TabsTrigger>
+           <TabsTrigger value="homepage" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Homepage Sections</TabsTrigger>
+           <TabsTrigger value="branding" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Branding</TabsTrigger>
+           <TabsTrigger value="notifications" className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[10px] uppercase font-bold tracking-widest px-0 py-4">Notifications</TabsTrigger>
+         </TabsList>
 
         <div className="mt-12 max-w-4xl">
           <TabsContent value="identity" className="space-y-8 animate-in slide-in-from-left-4 duration-500">
@@ -141,8 +154,28 @@ function SettingsPage() {
                   Save Defaults
                 </Button>
              </div>
-          </TabsContent>
-        </div>
+           </TabsContent>
+
+           <TabsContent value="homepage" className="space-y-6 animate-in slide-in-from-left-4 duration-500">
+             <div className="space-y-2">
+               <h2 className="text-2xl font-serif text-foreground">Homepage Sections</h2>
+               <p className="text-sm text-muted-foreground">Control which existing sections are visible to public visitors.</p>
+             </div>
+             <div className="divide-y divide-border border-y border-border">
+               {homepageSections.map((section) => {
+                 const visible = localSettings.homepage_sections?.[section.key] !== false;
+                 return (
+                   <div key={section.key} className="flex items-center justify-between gap-4 py-5">
+                     <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published · Visible publicly' : 'Hidden · Admin management remains available'}</p></div>
+                     <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => handleSave('homepage_sections', { ...localSettings.homepage_sections, [section.key]: !visible })} className="rounded-none gap-2">
+                       {visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}
+                     </Button>
+                   </div>
+                 );
+               })}
+             </div>
+           </TabsContent>
+         </div>
       </Tabs>
     </div>
   );
