@@ -112,6 +112,10 @@ export async function createAssignment(input: { data: any } | any) {
   if (!payload?.service_id) throw new Error("A service is required");
   if (!payload?.member_id) throw new Error("A team member is required");
 
+  const { data: existing, error: existingError } = await supabase.from("service_assignments").select("id").eq("service_id", payload.service_id).eq("user_id", payload.member_id).maybeSingle();
+  if (existingError) throw existingError;
+  if (existing) throw new Error("This team member is already assigned to this service");
+
   const insertData: any = {
     service_id: payload.service_id,
     user_id: payload.user_id || payload.member_id,
