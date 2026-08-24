@@ -26,15 +26,20 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 function AuthenticatedLayout() {
-  const { loading, isPending } = useAuth();
+  const { loading, isPending, isMinistryAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading && isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
+    if (loading) return;
+    if (isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
       navigate({ to: '/awaiting-approval' });
+      return;
     }
-  }, [loading, isPending, location.pathname, navigate]);
+    if (!isPending && !isMinistryAdmin && location.pathname !== '/dashboard/profile') {
+      navigate({ to: '/dashboard/profile' });
+    }
+  }, [loading, isPending, isMinistryAdmin, location.pathname, navigate]);
 
   if (loading) {
     return (
@@ -44,8 +49,8 @@ function AuthenticatedLayout() {
     );
   }
 
-  // Show a blank state while navigating to avoid flickering the sidebar/dashboard
-  if (isPending && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
+  // Avoid rendering protected workspace content while access is being resolved.
+  if ((isPending || !isMinistryAdmin) && location.pathname !== '/awaiting-approval' && location.pathname !== '/dashboard/profile') {
     return null;
   }
 
