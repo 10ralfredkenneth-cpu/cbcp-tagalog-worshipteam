@@ -354,7 +354,7 @@ function SongDetailPage() {
         </div>
       </div>
 
-      <div className={`container mx-auto px-3 sm:px-6 py-5 sm:py-8 max-w-7xl ${practiceMode ? "pt-3" : ""}`}>
+      <div className={`container mx-auto px-1.5 sm:px-6 py-3 sm:py-8 max-w-7xl ${practiceMode ? "pt-2" : ""}`}>
         <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Left Sidebar: Controls (Reference Style) */}
