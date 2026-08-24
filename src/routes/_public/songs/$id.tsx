@@ -161,7 +161,7 @@ function SongDetailPage() {
     restorePosition();
     const frame = requestAnimationFrame(restorePosition);
     return () => cancelAnimationFrame(frame);
-  }, [id, practiceMode, sections.length]);
+  }, [id, practiceMode, song?.lyrics]);
 
   useEffect(() => {
     const savePosition = () => {
