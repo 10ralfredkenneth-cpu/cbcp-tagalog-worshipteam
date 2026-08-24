@@ -80,7 +80,7 @@ export function Navbar() {
               </Link>
             ))}
             <Button className="mt-4 w-full rounded-none font-bold tracking-widest uppercase" asChild>
-               <Link to="/login" onClick={() => setIsOpen(false)}>TEAM LOGIN</Link>
+               <Link to={isMinistryAdmin ? "/dashboard" : "/login"} onClick={() => setIsOpen(false)}>{isMinistryAdmin ? "DASHBOARD" : "TEAM LOGIN"}</Link>
             </Button>
           </div>
         </div>
