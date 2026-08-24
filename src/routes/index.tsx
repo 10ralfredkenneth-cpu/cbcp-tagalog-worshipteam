@@ -9,6 +9,7 @@ import { SongCard } from "@/components/ui/songs/SongCard";
 import { WorshipSetlist } from "@/components/ui/setlists/WorshipSetlist";
 import { useQuery } from "@tanstack/react-query";
 import { getSongsPublic, getUpcomingServicePublic } from "@/lib/db-public.functions";
+import { getSettingByKey } from "@/lib/db-settings.functions";
 
 import { TeamPreview } from "@/components/ui/team/TeamPreview";
 import { ResourcePreview } from "@/components/ui/resources/ResourcePreview";
@@ -40,6 +41,13 @@ function Index() {
     queryKey: ['upcoming-service-public'],
     queryFn: () => getUpcomingServicePublic()
   });
+
+  const { data: homepageSetting } = useQuery({
+    queryKey: ['homepage-sections-public'],
+    queryFn: () => getSettingByKey('homepage_sections')
+  });
+  const sections = (homepageSetting?.value as Record<string, boolean> | null) ?? {};
+  const isVisible = (key: string) => sections[key] !== false;
 
   const featuredSongs = useMemo(() => {
     return songs.filter((s: any) => s.featured).slice(0, 3);
@@ -80,66 +88,40 @@ function Index() {
         imageSrc="https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=2070&auto=format&fit=crop"
       />
 
-      <MinistryIntro />
+       {isVisible('worship') && <><MinistryIntro /><CoreValues /></>}
 
-      <CoreValues />
-
-      {/* Primary Scripture Feature */}
-      <section className="bg-primary py-40 px-6 overflow-hidden relative group">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale scale-110 group-hover:scale-100 transition-transform duration-10000" />
-        <div className="mx-auto max-w-7xl relative z-10">
-           <ScriptureBlock 
-              verse="Let everything that has breath praise the LORD. Praise the LORD!"
-              reference="Psalm 150:6"
-              className="text-primary-foreground"
-           />
-        </div>
-      </section>
+       {isVisible('worship') && <>
+       {/* Primary Scripture Feature */}
+       <section className="bg-primary py-40 px-6 overflow-hidden relative group">
+         <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale scale-110 group-hover:scale-100 transition-transform duration-10000" />
+         <div className="mx-auto max-w-7xl relative z-10">
+            <ScriptureBlock verse="Let everything that has breath praise the LORD. Praise the LORD!" reference="Psalm 150:6" className="text-primary-foreground" />
+         </div>
+       </section>
+       </>}
 
 
-      {/* Upcoming Worship Gathering */}
-      <section className="py-24 px-6 bg-background">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16 space-y-4">
-            <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Join the Assembly</span>
-            <h2 className="text-4xl font-serif text-foreground">Gather With Us</h2>
-          </div>
-          <EventCard event={serviceEvent} />
-        </div>
-      </section>
+       {isVisible('worship') && <>
+       {/* Upcoming Worship Gathering */}
+       <section className="py-24 px-6 bg-background">
+         <div className="mx-auto max-w-7xl">
+           <div className="text-center mb-16 space-y-4"><span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Join the Assembly</span><h2 className="text-4xl font-serif text-foreground">Gather With Us</h2></div>
+           <EventCard event={serviceEvent} />
+         </div>
+       </section>
+       </>}
 
-      {/* Featured Songs Preview */}
-      <section className="py-24 px-6 bg-muted/20">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="space-y-4">
-              <span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Our Song Library</span>
-              <h2 className="text-4xl font-serif text-foreground">Songs We Worship With</h2>
-            </div>
-            <Link 
-              to="/songs" 
-              className="text-[10px] font-bold tracking-[0.2em] text-accent hover:text-accent/80 uppercase border-b border-accent/30 pb-1 transition-all"
-            >
-              View Song Library
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {featuredSongs.map((song: any) => (
-              <SongCard key={song.id} song={song} />
-            ))}
-          </div>
+       {isVisible('songs') && <section className="py-24 px-6 bg-muted/20">
+         <div className="mx-auto max-w-7xl">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6"><div className="space-y-4"><span className="text-[10px] font-bold tracking-[0.3em] text-accent uppercase">Our Song Library</span><h2 className="text-4xl font-serif text-foreground">Songs We Worship With</h2></div><Link to="/songs" className="text-[10px] font-bold tracking-[0.2em] text-accent hover:text-accent/80 uppercase border-b border-accent/30 pb-1 transition-all">View Song Library</Link></div>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">{featuredSongs.map((song: any) => <SongCard key={song.id} song={song} />)}</div>
+         </div>
+       </section>}
 
-        </div>
-      </section>
-
-      <WorshipSetlist />
-
-      <TeamPreview />
-
-      <ResourcePreview />
-
-      <GalleryPreview />
+       {isVisible('setlists') && <WorshipSetlist />}
+       {isVisible('team') && <TeamPreview />}
+       {isVisible('resources') && <ResourcePreview />}
+       {isVisible('media') && <GalleryPreview />}
 
       <JoinCTA />
 
