@@ -135,6 +135,14 @@ function SongDetailPage() {
     localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
   }, [chordColor, id]);
 
+  useEffect(() => {
+    localStorage.setItem(`song-pref-practice-${id}`, String(practiceMode));
+  }, [practiceMode, id]);
+
+  useEffect(() => {
+    localStorage.setItem(`song-pref-dark-${id}`, String(darkMode));
+  }, [darkMode, id]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
