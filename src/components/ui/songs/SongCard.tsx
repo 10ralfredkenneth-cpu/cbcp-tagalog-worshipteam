@@ -49,12 +49,12 @@ export function SongCard({ song, viewMode = 'grid' }: SongProps) {
   return (
     <div className="group animate-in fade-in slide-in-from-bottom-6 duration-700">
       <Link to="/songs/$id" params={{ id: song.id }}>
-        <div className="aspect-square w-full mb-6 overflow-hidden bg-muted relative border border-accent/5 group-hover:border-accent/30 transition-all duration-500">
+        <div className="aspect-square w-full mb-4 overflow-hidden bg-muted relative border border-accent/5 group-hover:border-accent/30 transition-all duration-500">
           {song.artworkUrl ? (
             <img 
               src={song.artworkUrl} 
-              alt={song.title} 
-              className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" 
+              alt={`${song.title} cover art`} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               loading="lazy"
               decoding="async"
             />
