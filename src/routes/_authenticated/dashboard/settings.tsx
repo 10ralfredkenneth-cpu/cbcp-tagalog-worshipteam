@@ -11,16 +11,25 @@ import { getSettings, updateSetting } from '@/lib/db-settings.functions';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-const homepageSections = [
-  { key: 'worship', name: 'Worship' },
-  { key: 'songs', name: 'Songs' },
-  { key: 'setlists', name: 'Setlists' },
-  { key: 'team', name: 'Team' },
-  { key: 'resources', name: 'Resources' },
-  { key: 'media', name: 'Media' },
-  { key: 'about', name: 'About' },
-  { key: 'contact', name: 'Contact' },
-] as const;
+type SectionDefinition = { key: string; name: string; route: string | null; reserve?: boolean };
+
+const homepageSections: SectionDefinition[] = [
+  { key: 'worship', name: 'Worship', route: '/worship' },
+  { key: 'songs', name: 'Songs', route: '/songs' },
+  { key: 'setlists', name: 'Setlists', route: '/setlists' },
+  { key: 'team', name: 'Team', route: '/team' },
+  { key: 'resources', name: 'Resources', route: '/resources' },
+  { key: 'media', name: 'Media', route: '/media' },
+  { key: 'about', name: 'About', route: '/about' },
+  { key: 'contact', name: 'Contact', route: '/contact' },
+  { key: 'custom_1', name: 'Custom Section 1', route: null, reserve: true },
+  { key: 'custom_2', name: 'Custom Section 2', route: null, reserve: true },
+  { key: 'custom_3', name: 'Custom Section 3', route: null, reserve: true },
+];
+
+
+const defaultOrder = homepageSections.map((section) => section.key);
+
 
 export const Route = createFileRoute('/_authenticated/dashboard/settings')({
   component: SettingsPage,
@@ -162,18 +171,28 @@ function SettingsPage() {
                <p className="text-sm text-muted-foreground">Control which existing sections are visible to public visitors.</p>
              </div>
              <div className="divide-y divide-border border-y border-border">
-               {homepageSections.map((section) => {
-                 const visible = localSettings['homepage_sections']?.[section.key] !== false;
+               {(localSettings['homepage_sections']?.order ?? defaultOrder).map((key: string, index: number, order: string[]) => {
+                 const section = homepageSections.find((item) => item.key === key) ?? { key, name: key, route: null };
+                 const config = localSettings['homepage_sections']?.[key] ?? {};
+                 const visible = typeof config === 'boolean' ? config : config.published !== false && !section.reserve;
+                 const navigation = typeof config === 'boolean' ? true : config.showInNavigation !== false;
+                 const ready = Boolean(section.route);
+                 const value = { ...localSettings['homepage_sections'], [key]: { published: visible, showInNavigation: navigation, route: section.route, displayOrder: index } , order };
                  return (
-                   <div key={section.key} className="flex items-center justify-between gap-4 py-5">
-                     <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published · Visible publicly' : 'Hidden · Admin management remains available'}</p></div>
-                     <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => handleSave('homepage_sections', { ...localSettings['homepage_sections'], [section.key]: !visible })} className="rounded-none gap-2">
-                       {visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}
-                     </Button>
+                   <div key={key} className="flex flex-col gap-3 py-5 md:flex-row md:items-center md:justify-between">
+                     <div><p className="font-medium text-foreground">{section.name}</p><p className="text-xs text-muted-foreground">{visible ? 'Published' : 'Hidden'} · {navigation ? 'Navigation visible' : 'Navigation hidden'} · {ready ? 'Page configured' : 'Page not configured'}</p></div>
+                     <div className="flex flex-wrap gap-2">
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || index === 0} onClick={() => { const next = [...order]; const current = next.splice(index, 1)[0]; if (current) next.splice(index - 1, 0, current); handleSave('homepage_sections', { ...value, order: next }); }} className="rounded-none">Move Up</Button>
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || index === order.length - 1} onClick={() => { const next = [...order]; const current = next.splice(index, 1)[0]; if (current) next.splice(index + 1, 0, current); handleSave('homepage_sections', { ...value, order: next }); }} className="rounded-none">Move Down</Button>
+
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || !ready} onClick={() => handleSave('homepage_sections', { ...value, [key]: { ...config, published: !visible } })} className="rounded-none gap-2">{visible ? <Eye size={16} /> : <EyeOff size={16} />} {visible ? 'Published' : 'Hidden'}</Button>
+                       <Button variant="outline" size="sm" disabled={mutation.isPending || !ready} onClick={() => handleSave('homepage_sections', { ...value, [key]: { ...config, showInNavigation: !navigation } })} className="rounded-none">{navigation ? 'Hide Navigation' : 'Show Navigation'}</Button>
+                     </div>
                    </div>
                  );
                })}
              </div>
+
            </TabsContent>
          </div>
       </Tabs>
