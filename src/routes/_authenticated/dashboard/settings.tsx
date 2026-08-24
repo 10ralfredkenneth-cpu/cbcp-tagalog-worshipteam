@@ -12,15 +12,21 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 const homepageSections = [
-  { key: 'worship', name: 'Worship' },
-  { key: 'songs', name: 'Songs' },
-  { key: 'setlists', name: 'Setlists' },
-  { key: 'team', name: 'Team' },
-  { key: 'resources', name: 'Resources' },
-  { key: 'media', name: 'Media' },
-  { key: 'about', name: 'About' },
-  { key: 'contact', name: 'Contact' },
+  { key: 'worship', name: 'Worship', route: '/worship' },
+  { key: 'songs', name: 'Songs', route: '/songs' },
+  { key: 'setlists', name: 'Setlists', route: '/setlists' },
+  { key: 'team', name: 'Team', route: '/team' },
+  { key: 'resources', name: 'Resources', route: '/resources' },
+  { key: 'media', name: 'Media', route: '/media' },
+  { key: 'about', name: 'About', route: '/about' },
+  { key: 'contact', name: 'Contact', route: '/contact' },
+  { key: 'custom_1', name: 'Custom Section 1', route: null, reserve: true },
+  { key: 'custom_2', name: 'Custom Section 2', route: null, reserve: true },
+  { key: 'custom_3', name: 'Custom Section 3', route: null, reserve: true },
 ] as const;
+
+const defaultOrder = homepageSections.map((section) => section.key);
+
 
 export const Route = createFileRoute('/_authenticated/dashboard/settings')({
   component: SettingsPage,
