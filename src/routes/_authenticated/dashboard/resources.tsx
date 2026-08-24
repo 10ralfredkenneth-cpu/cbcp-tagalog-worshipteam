@@ -30,25 +30,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getResources } from '@/lib/db-resources.functions';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/_authenticated/dashboard/resources')({
   component: ResourceManagementPage,
 });
 
 function ResourceManagementPage() {
+  const queryClient = useQueryClient();
   const { data: resources = [], isLoading } = useQuery({
     queryKey: ['resources'],
     queryFn: () => getResources(),
   });
 
-  const handleArchive = (id: string) => {
-    toast.success('Resource archived', {
-      description: `Resource item ${id} moved to archive.`
-    });
+  const handleArchive = async (id: string) => {
+    const { error } = await supabase.from('worship_resources').update({ status: 'Archived', is_public: false, visibility: 'Private' }).eq('id', id);
+    if (error) {
+      toast.error(`Unable to archive resource: ${error.message}`);
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ['resources'] });
+    toast.success('Resource archived');
   };
 
   return (

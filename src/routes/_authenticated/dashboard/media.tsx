@@ -70,11 +70,13 @@ function MediaLibraryPage() {
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-muted/20 border border-accent/5">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input 
-            type="text" 
-            placeholder="SEARCH ASSETS..." 
-            className="w-full bg-background border border-accent/10 py-2 pl-10 pr-4 text-[10px] uppercase tracking-widest focus:outline-none focus:border-accent/30"
-          />
+           <input 
+             type="text" 
+             value={searchQuery}
+             onChange={(event) => setSearchQuery(event.target.value)}
+             placeholder="SEARCH ASSETS..." 
+             className="w-full bg-background border border-accent/10 py-2 pl-10 pr-4 text-[10px] uppercase tracking-widest focus:outline-none focus:border-accent/30"
+           />
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto">
           <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="bg-background border border-accent/10 py-2 px-4 text-[10px] uppercase tracking-widest focus:outline-none w-full md:w-40">
