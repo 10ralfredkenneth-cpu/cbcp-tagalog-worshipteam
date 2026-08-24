@@ -408,7 +408,7 @@ function SongDetailPage() {
   
 
   return (
-    <div className={`song-reader min-h-screen bg-background text-foreground ${practiceMode ? 'pb-14' : 'pb-16'}`} onPointerDown={() => practiceMode && setControlsHidden(false)}>
+    <div className={`song-reader min-h-screen bg-background text-foreground ${practiceMode ? 'pb-14' : 'pb-16'} ${darkMode ? 'dark' : ''}`} onPointerDown={() => practiceMode && setControlsHidden(false)}>
       <div className={`bg-background border-b border-border sticky top-0 z-50 print:hidden transition-transform duration-300 ${practiceMode ? (controlsHidden ? '-translate-y-full' : '') : ''}`}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
           {!practiceMode && <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent"><Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link></Button>}
