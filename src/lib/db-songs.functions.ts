@@ -68,7 +68,8 @@ export async function createSong(input: { data: Partial<WorshipSong> } | Partial
     featured: song.featured,
     audio_url: (song as any).audioUrl,
     sheet_music_url: (song as any).sheetMusicUrl,
-    external_resources: (song as any).externalResources,
+     external_resources: (song as any).externalResources,
+     artwork_url: song.artworkUrl,
     lyrics: song.lyrics,
     chords: song.chords,
   };
