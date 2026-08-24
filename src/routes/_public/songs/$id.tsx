@@ -86,6 +86,10 @@ function SongDetailPage() {
     return song?.externalResources?.metronomeDefaultSound ?? 'beep';
   });
   const [autoScroll, setAutoScroll] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState(() => {
+    const saved = Number(localStorage.getItem(`song-pref-scrollSpeed-${id}`));
+    return Number.isFinite(saved) ? Math.min(5, Math.max(1, saved)) : 3;
+  });
   const [latency, setLatency] = useState(0); // in ms
   const [loopMode, setLoopMode] = useState(false);
   const [loopStart, setLoopStart] = useState<number | null>(null);
@@ -95,12 +99,18 @@ function SongDetailPage() {
   const [currentSection, setCurrentSection] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const scrollLastTimeRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const nextTickTimeRef = useRef<number>(0);
   const beatCountRef = useRef<number>(0);
 
 
   // Persistence effects
+  useEffect(() => {
+    localStorage.setItem(`song-pref-scrollSpeed-${id}`, String(scrollSpeed));
+  }, [scrollSpeed, id]);
+
   useEffect(() => {
     localStorage.setItem(`song-pref-fontSize-${id}`, String(fontSize));
   }, [fontSize, id]);
@@ -240,16 +250,40 @@ function SongDetailPage() {
   };
 
 
-  // Auto-scroll logic
+  // Auto-scroll runs independently from the metronome and uses one cancellable frame.
   useEffect(() => {
-    let scrollInterval: NodeJS.Timeout;
-    if (autoScroll && metronomePlaying && !isCountingIn) {
-      scrollInterval = setInterval(() => {
-        window.scrollBy({ top: 1, behavior: 'auto' });
-      }, 50 + latency);
+    if (!autoScroll || document.hidden) return;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (window.scrollY >= maxScroll - 1) {
+      setAutoScroll(false);
+      return;
     }
-    return () => clearInterval(scrollInterval);
-  }, [autoScroll, metronomePlaying, isCountingIn, latency]);
+    const pixelsPerSecond = [8, 14, 22, 32, 44][scrollSpeed - 1] ?? 22;
+    const tick = (time: number) => {
+      const previous = scrollLastTimeRef.current ?? time;
+      const delta = Math.min(100, time - previous);
+      scrollLastTimeRef.current = time;
+      window.scrollBy(0, (pixelsPerSecond * delta) / 1000);
+      if (window.scrollY >= document.documentElement.scrollHeight - window.innerHeight - 1) {
+        setAutoScroll(false);
+        return;
+      }
+      scrollFrameRef.current = requestAnimationFrame(tick);
+    };
+    scrollLastTimeRef.current = null;
+    scrollFrameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+      scrollFrameRef.current = null;
+      scrollLastTimeRef.current = null;
+    };
+  }, [autoScroll, scrollSpeed]);
+
+  useEffect(() => {
+    const onVisibility = () => { if (document.hidden) setAutoScroll(false); };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
 
   const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
   const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
@@ -328,7 +362,7 @@ function SongDetailPage() {
   
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-16">
+    <div className="song-reader min-h-screen bg-background text-foreground pb-16">
       {/* Compact reader header */}
       <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
@@ -338,7 +372,7 @@ function SongDetailPage() {
           <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
           <div className="flex shrink-0 items-center gap-1">
             <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className="h-8 rounded-none px-2 sm:px-3"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split</span></Button>
+            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-8 rounded-none px-2 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`}><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
             <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
           </div>
         </div>
@@ -349,14 +383,14 @@ function SongDetailPage() {
           <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-9 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
           <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key <span className="text-primary">{currentKey}</span></span>
           <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-9 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
-          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto Scroll</Button>
+          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
           <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-9 rounded-none px-3"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
         </div>
       </div>
 
       <div className={`container mx-auto px-1.5 sm:px-6 py-3 sm:py-8 max-w-7xl ${practiceMode ? "pt-2" : ""}`}>
         <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Left Sidebar: Controls (Reference Style) */}
           <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
             <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
@@ -572,6 +606,10 @@ function SongDetailPage() {
               {/* Text Size */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">Text Size:</h3>
+                 <div className="flex items-center justify-between border-b pb-2 text-xs">
+                   <span>Auto-scroll speed</span>
+                   <div className="flex items-center gap-1">{[1, 2, 3, 4, 5].map((speed) => <button key={speed} onClick={() => setScrollSpeed(speed)} className={`h-6 w-6 border ${scrollSpeed === speed ? 'bg-accent text-accent-foreground' : 'bg-background'}`} aria-label={`Set scroll speed ${speed}`}>{speed}</button>)}</div>
+                 </div>
                  <div className="flex items-center justify-between px-2">
                    <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent" aria-label="Decrease text size"><Minus className="w-4 h-4" /></button>
                    <span className="text-sm font-bold">{Math.round((fontSize / 16) * 100)}%</span>
@@ -600,7 +638,7 @@ function SongDetailPage() {
           </div>
 
           {/* Main Song Content */}
-           <div className={`lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 md:columns-2 gap-10' : ''}`}>
+           <div className={`song-reader-content lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
               <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
                 <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
                 <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>

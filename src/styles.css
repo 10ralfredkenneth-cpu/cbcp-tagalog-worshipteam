@@ -200,13 +200,42 @@ html {
 
 
 @media print {
-  .print\:hidden {
+  .print\:hidden,
+  .song-reader ~ footer,
+  .song-reader .song-reader-ui {
     display: none !important;
   }
-  
+
   body {
     background: white !important;
     color: black !important;
+  }
+
+  .song-reader {
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .song-reader > div:not(:has(.song-reader-content)) {
+    display: none !important;
+  }
+
+  .song-reader-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .song-reader .song-reader-content > div:first-child {
+    margin-bottom: 12pt !important;
+  }
+
+  .song-reader .song-reader-content > div:last-child {
+    margin-top: 16pt !important;
   }
   
   .container {
