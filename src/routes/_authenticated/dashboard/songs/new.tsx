@@ -419,7 +419,7 @@ Add automatic cleanup for inconsistent chord punctuation so recognized chords ar
 
            <section className="space-y-6">
              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent border-b border-accent/10 pb-2">Cover Art</h3>
-             <ImageUpload value={formData.artworkUrl} onChange={(url) => updateField('artworkUrl', url)} bucket="song-resources" />
+             <ImageUpload value={formData.artworkUrl || ''} onChange={(url) => updateField('artworkUrl', url)} bucket="song-resources" />
            </section>
 
            <section className="space-y-6">
