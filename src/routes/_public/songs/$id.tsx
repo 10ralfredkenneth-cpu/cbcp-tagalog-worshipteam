@@ -340,7 +340,34 @@ function SongDetailPage() {
   }, []);
 
   const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
-  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
+  // Section labels come from the song itself: [Chorus], "Verse 1:", "PRE-CHORUS" etc.
+  const sectionLabels = useMemo(() => {
+    const keywords = 'intro|verse|pre-?chorus|chorus|refrain|bridge|interlude|instrumental|solo|tag|vamp|turnaround|outro|ending|coda|breakdown|hook';
+    const counters: Record<string, number> = {};
+    return sections.map((section, index) => {
+      const first = (section.split('\n')[0] || '').trim();
+      const bracket = first.match(/^\[(.+)\]$/);
+      const inline = first.match(new RegExp(`^((?:${keywords})\\s*[0-9]*)\\s*:?$`, 'i'));
+      let name = (bracket?.[1] || inline?.[1] || '').trim();
+      if (!name) {
+        const kind = index === 0 ? 'Verse' : 'Part';
+        counters[kind] = (counters[kind] || 0) + 1;
+        name = `${kind} ${counters[kind]}`;
+      }
+      const lower = name.toLowerCase();
+      const digits = name.match(/\d+/)?.[0] ?? '';
+      let short = name;
+      if (lower.startsWith('pre')) short = `PC${digits}`;
+      else if (lower.startsWith('chorus')) short = `Ch${digits}`;
+      else if (lower.startsWith('verse')) short = `V${digits}`;
+      else if (lower.startsWith('bridge')) short = `Br${digits}`;
+      else if (lower.startsWith('intro')) short = 'Intro';
+      else if (lower.startsWith('outro') || lower.startsWith('ending')) short = 'Outro';
+      else if (name.length > 8) short = `${name.slice(0, 7)}…`;
+      return { name, short };
+    });
+  }, [sections]);
+  const sectionNames = useMemo(() => sectionLabels.map((s) => s.name), [sectionLabels]);
   const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   useEffect(() => {
