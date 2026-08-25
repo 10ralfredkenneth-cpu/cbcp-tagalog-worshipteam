@@ -713,14 +713,32 @@ function SongDetailPage() {
                    <div className="flex items-center gap-1">{[1, 2, 3, 4, 5].map((speed) => <button key={speed} onClick={() => setScrollSpeed(speed)} className={`h-6 w-6 border ${scrollSpeed === speed ? 'bg-accent text-accent-foreground' : 'bg-background'}`} aria-label={`Set scroll speed ${speed}`}>{speed}</button>)}</div>
                  </div>
                  <div className="flex items-center justify-between px-2">
-                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent" aria-label="Decrease text size"><Minus className="w-4 h-4" /></button>
+                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="flex h-11 w-11 items-center justify-center text-gray-400 hover:text-accent" aria-label="Decrease text size">A<Minus className="w-3 h-3" /></button>
                    <span className="text-sm font-bold">{Math.round((fontSize / 16) * 100)}%</span>
-                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="text-gray-400 hover:text-accent" aria-label="Increase text size"><Plus className="w-4 h-4" /></button>
+                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="flex h-11 w-11 items-center justify-center text-gray-400 hover:text-accent" aria-label="Increase text size">A<Plus className="w-3 h-3" /></button>
                  </div>
+              </div>
+
+              {/* View + screen options */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">View:</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setFullView(!fullView); setToolsOpen(false); }} className="flex-1 h-11 rounded-none text-[10px] font-bold uppercase tracking-widest">
+                    {fullView ? <><Minimize2 className="mr-1.5 h-4 w-4" /> Exit Full View</> : <><Maximize2 className="mr-1.5 h-4 w-4" /> Full View</>}
+                  </Button>
+                  <Button variant={isSplit ? 'secondary' : 'outline'} size="sm" onClick={() => setIsSplit(!isSplit)} className="h-11 rounded-none px-3" aria-label="Toggle split view"><Split className="h-4 w-4" /></Button>
+                </div>
+                <div className="flex items-center gap-3 cursor-pointer select-none py-1" onClick={() => setKeepAwake(!keepAwake)}>
+                  <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${keepAwake ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                    {keepAwake && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                  </div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500"><Sun className="w-3 h-3" /> Keep Screen Awake</span>
+                </div>
               </div>
             </div>
 
-            {/* Song Meta Card */}
+            {/* Song Meta Card — hidden in Full View */}
+            {!fullView && (
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-4">
                <div className="aspect-square bg-gray-50 flex items-center justify-center border border-gray-100">
                  <Music className="w-12 h-12 text-gray-200" />
@@ -733,19 +751,19 @@ function SongDetailPage() {
                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Key</p>
                  <p className="text-sm font-serif">{song.defaultKey}</p>
                </div>
-               <Button variant="ghost" size="sm" className="w-full text-[10px] font-bold uppercase tracking-widest text-accent border border-accent/10 rounded-none">
-                 + more details
-               </Button>
             </div>
+            )}
           </div>
 
           {/* Main Song Content */}
-           <div className={`song-reader-content lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
-              <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
+           <div className={`song-reader-content bg-card px-2.5 py-3 sm:px-8 md:px-10 shadow-sm border border-border ${fullView ? '' : 'lg:col-span-4 min-h-[700px]'} ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
+              {!fullView && (
+              <div className="mb-3 border-b border-border pb-3 break-inside-avoid">
                 <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
                 <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
                 <div className="mt-2 flex gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
               </div>
+              )}
               <div className="space-y-4 sm:space-y-6" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
