@@ -813,7 +813,7 @@ function SongDetailPage() {
             </div>
 
             {/* Footer / Copyright */}
-            <div className="mt-20 pt-12 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest break-inside-avoid">
+            <div className="mt-10 pt-6 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest break-inside-avoid">
               <p>© {song.copyrightYear || new Date().getFullYear()} {song.copyrightOwner || 'Radiant Worship'}</p>
               {song.ccliNumber && <p>CCLI: {song.ccliNumber}</p>}
             </div>
