@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Music, FileText, Star, Printer, Layout, 
   Minus, Plus, ChevronUp, ChevronDown, Share2, 
-  Split, Maximize2, Hash, ArrowLeft,
+  Split, Maximize2, Minimize2, Hash, ArrowLeft, Sun,
   Volume2, Play, Pause, Settings, RefreshCw,
   Clock, Repeat
 } from 'lucide-react';
