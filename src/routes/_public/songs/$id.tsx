@@ -444,36 +444,57 @@ function SongDetailPage() {
 
   return (
     <div className="song-reader min-h-screen bg-background text-foreground pb-16">
-      {/* Compact reader header */}
-      <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
-          <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent">
-            <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
-          </Button>
-          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
-          <div className="flex shrink-0 items-center gap-1">
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-8 rounded-none px-2 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`}><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
-            <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
+      {/* Compact reader header — hidden in Full View */}
+      {!fullView && (
+        <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
+            <Button variant="ghost" size="sm" asChild className="h-9 shrink-0 px-1 hover:bg-transparent">
+              <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
+            </Button>
+            <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button variant="outline" size="sm" onClick={() => window.print()} className="h-9 rounded-none px-2.5 sm:px-3" aria-label="Print"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
+              <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-9 rounded-none px-2.5 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`} aria-label="Split view"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
+              <Button variant="outline" size="sm" onClick={handleShare} className="h-9 rounded-none px-2.5 sm:px-3" aria-label="Share practice link"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
+              <Button variant="default" size="sm" onClick={() => setFullView(true)} className="h-9 rounded-none bg-primary px-2.5 text-primary-foreground sm:px-3" aria-label="Enter full view"><Maximize2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Full View</span></Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur px-3 py-2 print:hidden lg:hidden">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-9 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
+      {/* Sticky essential control bar (mobile always, Full View on every size) */}
+      <div className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 backdrop-blur transition-opacity duration-500 print:hidden ${fullView ? '' : 'lg:hidden'} ${controlsMinimized ? 'opacity-25 hover:opacity-100' : 'opacity-100'}`}>
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-1">
+          {fullView && (
+            <Button variant="outline" size="sm" onClick={() => setFullView(false)} className="h-11 shrink-0 rounded-none px-2.5 text-xs" aria-label="Exit full view"><Minimize2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Exit</span></Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-11 w-11 p-0" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
           <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key <span className="text-primary">{currentKey}</span></span>
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-9 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
-          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
-          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-9 rounded-none px-3"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-11 w-11 p-0" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
+          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-11 px-2.5 text-xs" aria-label="Toggle auto-scroll"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
+          {fullView && (
+            <Button variant={isSplit ? 'secondary' : 'ghost'} size="sm" onClick={() => setIsSplit(!isSplit)} className="hidden h-11 px-2.5 text-xs min-[420px]:inline-flex" aria-label="Toggle split view"><Split className="h-4 w-4" /></Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-11 rounded-none px-3 text-xs" aria-label="Practice tools"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
         </div>
       </div>
 
-      <div className={`container mx-auto px-1.5 sm:px-6 py-3 sm:py-8 max-w-7xl ${practiceMode ? "pt-2" : ""}`}>
-        <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          {/* Left Sidebar: Controls (Reference Style) */}
-          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
+      <div className={`container mx-auto max-w-7xl px-1.5 sm:px-6 ${fullView ? 'py-1.5' : 'py-3 sm:py-6'}`}>
+        {/* Dynamic section navigation strip */}
+        <div className="mb-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none print:hidden">
+          <Button variant="ghost" size="sm" onClick={() => setShowSectionStrip(!showSectionStrip)} className="h-8 shrink-0 rounded-none px-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Sections {showSectionStrip ? '▾' : '▸'}
+          </Button>
+          {showSectionStrip && sectionLabels.map((label, index) => (
+            <Button key={label.name + index} variant={currentSection === index ? 'secondary' : 'ghost'} size="sm" onClick={() => jumpToSection(index)} className="h-8 shrink-0 rounded-none px-2 text-[10px] uppercase" title={label.name}>
+              <span className="sm:hidden">{label.short}</span>
+              <span className="hidden sm:inline">{label.name}</span>
+            </Button>
+          ))}
+        </div>
+        <div className={`grid grid-cols-1 gap-4 ${fullView ? '' : 'lg:grid-cols-5'}`}>
+          {/* Practice tools panel: sidebar on desktop, bottom sheet on mobile / Full View */}
+          <div className={`space-y-6 print:hidden ${fullView ? 'lg:col-span-1' : 'lg:col-span-1'} ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[70vh] overflow-y-auto block' : 'hidden'} ${fullView ? '' : 'lg:static lg:col-span-1 lg:block lg:max-h-none lg:overflow-visible'}`}>
             <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
                <div className="flex items-center justify-between border-b border-border pb-3"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Practice Tools</h2><Button variant="ghost" size="sm" onClick={() => setToolsOpen(false)} className="h-7 px-2 lg:hidden">Close</Button></div>
               {/* Transpose Tool */}
