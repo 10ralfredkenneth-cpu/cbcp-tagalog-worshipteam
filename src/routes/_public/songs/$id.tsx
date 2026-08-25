@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Music, FileText, Star, Printer, Layout, 
   Minus, Plus, ChevronUp, ChevronDown, Share2, 
-  Split, Maximize2, Hash, ArrowLeft,
+  Split, Maximize2, Minimize2, Hash, ArrowLeft, Sun,
   Volume2, Play, Pause, Settings, RefreshCw,
   Clock, Repeat
 } from 'lucide-react';
@@ -97,6 +97,15 @@ function SongDetailPage() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
+  const [fullView, setFullView] = useState(() => {
+    const fromUrl = searchParams.get('full');
+    if (fromUrl !== null) return fromUrl === 'true';
+    return localStorage.getItem('song-pref-fullView') === 'true';
+  });
+  const [showSectionStrip, setShowSectionStrip] = useState(true);
+  const [controlsMinimized, setControlsMinimized] = useState(false);
+  const [keepAwake, setKeepAwake] = useState(false);
+  const wakeLockRef = useRef<any>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -130,6 +139,51 @@ function SongDetailPage() {
   useEffect(() => {
     localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
   }, [chordColor, id]);
+
+  // Full View: persist and hide the public site chrome (header/footer) via a root class.
+  useEffect(() => {
+    localStorage.setItem('song-pref-fullView', String(fullView));
+    document.documentElement.classList.toggle('reader-full-view', fullView);
+    return () => document.documentElement.classList.remove('reader-full-view');
+  }, [fullView]);
+
+  // Gently minimize Full View controls while reading; any tap/keypress restores them.
+  useEffect(() => {
+    if (!fullView || toolsOpen) { setControlsMinimized(false); return; }
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      clearTimeout(timer);
+      setControlsMinimized(false);
+      timer = setTimeout(() => setControlsMinimized(true), 4000);
+    };
+    schedule();
+    window.addEventListener('pointerdown', schedule);
+    window.addEventListener('keydown', schedule);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('pointerdown', schedule);
+      window.removeEventListener('keydown', schedule);
+    };
+  }, [fullView, toolsOpen, autoScroll]);
+
+  // Optional Wake Lock — fails silently where unsupported.
+  useEffect(() => {
+    let cancelled = false;
+    const release = () => {
+      try { wakeLockRef.current?.release?.(); } catch { /* ignore */ }
+      wakeLockRef.current = null;
+    };
+    if (keepAwake && typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
+      (navigator as any).wakeLock.request('screen')
+        .then((lock: any) => { if (cancelled) { lock.release?.(); } else { wakeLockRef.current = lock; } })
+        .catch(() => setKeepAwake(false));
+    } else {
+      release();
+    }
+    return () => { cancelled = true; release(); };
+  }, [keepAwake]);
+
+
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -286,7 +340,34 @@ function SongDetailPage() {
   }, []);
 
   const sections = useMemo(() => song?.lyrics?.split('\n\n') || [], [song?.lyrics]);
-  const sectionNames = useMemo(() => sections.map((section, index) => section.split('\n')[0]?.match(/^\[(.*)\]$/)?.[1] || `Section ${index + 1}`), [sections]);
+  // Section labels come from the song itself: [Chorus], "Verse 1:", "PRE-CHORUS" etc.
+  const sectionLabels = useMemo(() => {
+    const keywords = 'intro|verse|pre-?chorus|chorus|refrain|bridge|interlude|instrumental|solo|tag|vamp|turnaround|outro|ending|coda|breakdown|hook';
+    const counters: Record<string, number> = {};
+    return sections.map((section, index) => {
+      const first = (section.split('\n')[0] || '').trim();
+      const bracket = first.match(/^\[(.+)\]$/);
+      const inline = first.match(new RegExp(`^((?:${keywords})\\s*[0-9]*)\\s*:?$`, 'i'));
+      let name = (bracket?.[1] || inline?.[1] || '').trim();
+      if (!name) {
+        const kind = index === 0 ? 'Verse' : 'Part';
+        counters[kind] = (counters[kind] || 0) + 1;
+        name = `${kind} ${counters[kind]}`;
+      }
+      const lower = name.toLowerCase();
+      const digits = name.match(/\d+/)?.[0] ?? '';
+      let short = name;
+      if (lower.startsWith('pre')) short = `PC${digits}`;
+      else if (lower.startsWith('chorus')) short = `Ch${digits}`;
+      else if (lower.startsWith('verse')) short = `V${digits}`;
+      else if (lower.startsWith('bridge')) short = `Br${digits}`;
+      else if (lower.startsWith('intro')) short = 'Intro';
+      else if (lower.startsWith('outro') || lower.startsWith('ending')) short = 'Outro';
+      else if (name.length > 8) short = `${name.slice(0, 7)}…`;
+      return { name, short };
+    });
+  }, [sections]);
+  const sectionNames = useMemo(() => sectionLabels.map((s) => s.name), [sectionLabels]);
   const jumpToSection = (index: number) => { setCurrentSection(index); document.getElementById(`section-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   useEffect(() => {
@@ -363,36 +444,57 @@ function SongDetailPage() {
 
   return (
     <div className="song-reader min-h-screen bg-background text-foreground pb-16">
-      {/* Compact reader header */}
-      <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
-          <Button variant="ghost" size="sm" asChild className="h-8 shrink-0 px-1 hover:bg-transparent">
-            <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
-          </Button>
-          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
-          <div className="flex shrink-0 items-center gap-1">
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-8 rounded-none px-2 sm:px-3"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
-            <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-8 rounded-none px-2 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`}><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
-            <Button variant="default" size="sm" onClick={handleShare} className="h-8 rounded-none bg-primary px-2 text-primary-foreground sm:px-3"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
+      {/* Compact reader header — hidden in Full View */}
+      {!fullView && (
+        <div className="bg-white border-b border-border sticky top-0 z-50 print:hidden">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:px-6 sm:py-3">
+            <Button variant="ghost" size="sm" asChild className="h-9 shrink-0 px-1 hover:bg-transparent">
+              <Link to="/songs" className="flex items-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase"><ArrowLeft className="mr-1.5 h-4 w-4" /> Library</Link>
+            </Button>
+            <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-primary sm:text-2xl">{song.title}</h1>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button variant="outline" size="sm" onClick={() => window.print()} className="h-9 rounded-none px-2.5 sm:px-3" aria-label="Print"><Printer className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Print</span></Button>
+              <Button variant="outline" size="sm" onClick={() => setIsSplit(!isSplit)} className={`h-9 rounded-none px-2.5 sm:px-3 ${isSplit ? 'bg-accent/20 text-accent-foreground' : ''}`} aria-label="Split view"><Split className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Split{isSplit ? ' ✓' : ''}</span></Button>
+              <Button variant="outline" size="sm" onClick={handleShare} className="h-9 rounded-none px-2.5 sm:px-3" aria-label="Share practice link"><Share2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Share</span></Button>
+              <Button variant="default" size="sm" onClick={() => setFullView(true)} className="h-9 rounded-none bg-primary px-2.5 text-primary-foreground sm:px-3" aria-label="Enter full view"><Maximize2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Full View</span></Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur px-3 py-2 print:hidden lg:hidden">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-9 px-2" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
+      {/* Sticky essential control bar (mobile always, Full View on every size) */}
+      <div className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 backdrop-blur transition-opacity duration-500 print:hidden ${fullView ? '' : 'lg:hidden'} ${controlsMinimized ? 'opacity-25 hover:opacity-100' : 'opacity-100'}`}>
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-1">
+          {fullView && (
+            <Button variant="outline" size="sm" onClick={() => setFullView(false)} className="h-11 shrink-0 rounded-none px-2.5 text-xs" aria-label="Exit full view"><Minimize2 className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Exit</span></Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(-1)} className="h-11 w-11 p-0" aria-label="Lower key"><Minus className="w-4 h-4" /></Button>
           <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Key <span className="text-primary">{currentKey}</span></span>
-          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-9 px-2" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
-          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-9 px-2 text-xs"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
-          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-9 rounded-none px-3"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
+          <Button variant="ghost" size="sm" onClick={() => handleKeyChange(1)} className="h-11 w-11 p-0" aria-label="Raise key"><Plus className="w-4 h-4" /></Button>
+          <Button variant={autoScroll ? 'secondary' : 'ghost'} size="sm" onClick={() => setAutoScroll(!autoScroll)} className="h-11 px-2.5 text-xs" aria-label="Toggle auto-scroll"><RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Auto{autoScroll ? ` ${scrollSpeed}` : ''}</Button>
+          {fullView && (
+            <Button variant={isSplit ? 'secondary' : 'ghost'} size="sm" onClick={() => setIsSplit(!isSplit)} className="hidden h-11 px-2.5 text-xs min-[420px]:inline-flex" aria-label="Toggle split view"><Split className="h-4 w-4" /></Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => setToolsOpen(!toolsOpen)} className="h-11 rounded-none px-3 text-xs" aria-label="Practice tools"><Settings className="mr-1.5 h-3.5 w-3.5" /> Tools</Button>
         </div>
       </div>
 
-      <div className={`container mx-auto px-1.5 sm:px-6 py-3 sm:py-8 max-w-7xl ${practiceMode ? "pt-2" : ""}`}>
-        <div className="mb-4 flex items-center gap-2 overflow-x-auto scrollbar-none print:hidden"><span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Sections</span>{sectionNames.map((name, index) => <Button key={name + index} variant={currentSection === index ? "secondary" : "ghost"} size="sm" onClick={() => jumpToSection(index)} className="h-7 shrink-0 rounded-none text-[10px] uppercase">{name}</Button>)}</div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          {/* Left Sidebar: Controls (Reference Style) */}
-          <div className={`lg:col-span-1 space-y-6 print:hidden ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[75vh] overflow-y-auto block lg:static lg:max-h-none lg:overflow-visible lg:z-auto' : 'hidden lg:block'}`}>
+      <div className={`container mx-auto max-w-7xl px-1.5 sm:px-6 ${fullView ? 'py-1.5' : 'py-3 sm:py-6'}`}>
+        {/* Dynamic section navigation strip */}
+        <div className="mb-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none print:hidden">
+          <Button variant="ghost" size="sm" onClick={() => setShowSectionStrip(!showSectionStrip)} className="h-8 shrink-0 rounded-none px-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Sections {showSectionStrip ? '▾' : '▸'}
+          </Button>
+          {showSectionStrip && sectionLabels.map((label, index) => (
+            <Button key={label.name + index} variant={currentSection === index ? 'secondary' : 'ghost'} size="sm" onClick={() => jumpToSection(index)} className="h-8 shrink-0 rounded-none px-2 text-[10px] uppercase" title={label.name}>
+              <span className="sm:hidden">{label.short}</span>
+              <span className="hidden sm:inline">{label.name}</span>
+            </Button>
+          ))}
+        </div>
+        <div className={`grid grid-cols-1 gap-4 ${fullView ? '' : 'lg:grid-cols-5'}`}>
+          {/* Practice tools panel: sidebar on desktop, bottom sheet on mobile / Full View */}
+          <div className={`space-y-6 print:hidden ${fullView ? 'lg:col-span-1' : 'lg:col-span-1'} ${toolsOpen ? 'fixed inset-x-3 bottom-16 z-50 max-h-[70vh] overflow-y-auto block' : 'hidden'} ${fullView ? '' : 'lg:static lg:col-span-1 lg:block lg:max-h-none lg:overflow-visible'}`}>
             <div className="bg-card p-6 shadow-sm border border-border rounded-sm space-y-8">
                <div className="flex items-center justify-between border-b border-border pb-3"><h2 className="text-xs font-bold uppercase tracking-widest text-primary">Practice Tools</h2><Button variant="ghost" size="sm" onClick={() => setToolsOpen(false)} className="h-7 px-2 lg:hidden">Close</Button></div>
               {/* Transpose Tool */}
@@ -611,14 +713,32 @@ function SongDetailPage() {
                    <div className="flex items-center gap-1">{[1, 2, 3, 4, 5].map((speed) => <button key={speed} onClick={() => setScrollSpeed(speed)} className={`h-6 w-6 border ${scrollSpeed === speed ? 'bg-accent text-accent-foreground' : 'bg-background'}`} aria-label={`Set scroll speed ${speed}`}>{speed}</button>)}</div>
                  </div>
                  <div className="flex items-center justify-between px-2">
-                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="text-gray-400 hover:text-accent" aria-label="Decrease text size"><Minus className="w-4 h-4" /></button>
+                   <button onClick={() => setFontSize(Math.max(12, fontSize - 2))} className="flex h-11 w-11 items-center justify-center text-gray-400 hover:text-accent" aria-label="Decrease text size">A<Minus className="w-3 h-3" /></button>
                    <span className="text-sm font-bold">{Math.round((fontSize / 16) * 100)}%</span>
-                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="text-gray-400 hover:text-accent" aria-label="Increase text size"><Plus className="w-4 h-4" /></button>
+                   <button onClick={() => setFontSize(Math.min(22, fontSize + 2))} className="flex h-11 w-11 items-center justify-center text-gray-400 hover:text-accent" aria-label="Increase text size">A<Plus className="w-3 h-3" /></button>
                  </div>
+              </div>
+
+              {/* View + screen options */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-2">View:</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setFullView(!fullView); setToolsOpen(false); }} className="flex-1 h-11 rounded-none text-[10px] font-bold uppercase tracking-widest">
+                    {fullView ? <><Minimize2 className="mr-1.5 h-4 w-4" /> Exit Full View</> : <><Maximize2 className="mr-1.5 h-4 w-4" /> Full View</>}
+                  </Button>
+                  <Button variant={isSplit ? 'secondary' : 'outline'} size="sm" onClick={() => setIsSplit(!isSplit)} className="h-11 rounded-none px-3" aria-label="Toggle split view"><Split className="h-4 w-4" /></Button>
+                </div>
+                <div className="flex items-center gap-3 cursor-pointer select-none py-1" onClick={() => setKeepAwake(!keepAwake)}>
+                  <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${keepAwake ? 'bg-accent border-accent' : 'bg-white border-gray-200'}`}>
+                    {keepAwake && <div className="w-1.5 h-1.5 bg-primary rotate-45" />}
+                  </div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500"><Sun className="w-3 h-3" /> Keep Screen Awake</span>
+                </div>
               </div>
             </div>
 
-            {/* Song Meta Card */}
+            {/* Song Meta Card — hidden in Full View */}
+            {!fullView && (
             <div className="bg-white p-6 shadow-sm border border-gray-100 rounded-sm space-y-4">
                <div className="aspect-square bg-gray-50 flex items-center justify-center border border-gray-100">
                  <Music className="w-12 h-12 text-gray-200" />
@@ -631,20 +751,21 @@ function SongDetailPage() {
                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Key</p>
                  <p className="text-sm font-serif">{song.defaultKey}</p>
                </div>
-               <Button variant="ghost" size="sm" className="w-full text-[10px] font-bold uppercase tracking-widest text-accent border border-accent/10 rounded-none">
-                 + more details
-               </Button>
             </div>
+            )}
           </div>
 
           {/* Main Song Content */}
-           <div className={`song-reader-content lg:col-span-4 bg-card px-3 py-4 sm:px-8 md:px-12 shadow-sm border border-border min-h-[700px] ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
-              <div className="mb-4 border-b border-border pb-4 break-inside-avoid">
+           <div className={`song-reader-content bg-card px-2.5 py-3 sm:px-8 md:px-10 shadow-sm border border-border ${fullView ? '' : 'lg:col-span-4 min-h-[700px]'} ${isSplit ? 'columns-1 min-[520px]:columns-2 lg:columns-2 gap-6 sm:gap-10' : ''}`}>
+              {!fullView && (
+              <div className="mb-3 border-b border-border pb-3 break-inside-avoid">
                 <h2 className="font-serif text-2xl sm:text-4xl text-primary font-bold mb-1">{song.title}</h2>
                 <p className="text-accent font-medium tracking-widest uppercase text-xs">{song.artist}</p>
                 <div className="mt-2 flex gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
               </div>
-              <div className="space-y-4 sm:space-y-6" style={{ fontSize: `${fontSize}px` }}>
+              )}
+              <h2 className="hidden print:block font-serif text-2xl text-black">{song.title}</h2>
+              <div className="space-y-3 sm:space-y-4" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
@@ -692,7 +813,7 @@ function SongDetailPage() {
             </div>
 
             {/* Footer / Copyright */}
-            <div className="mt-20 pt-12 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest break-inside-avoid">
+            <div className="mt-10 pt-6 border-t border-gray-100 text-[10px] text-gray-400 uppercase tracking-widest break-inside-avoid">
               <p>© {song.copyrightYear || new Date().getFullYear()} {song.copyrightOwner || 'Radiant Worship'}</p>
               {song.ccliNumber && <p>CCLI: {song.ccliNumber}</p>}
             </div>

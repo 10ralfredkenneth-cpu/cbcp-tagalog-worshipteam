@@ -177,6 +177,15 @@ html {
   scrollbar-width: none;
 }
 
+/* Full View (immersive practice mode) hides the public site chrome. */
+.reader-full-view nav,
+.reader-full-view footer:not(.song-reader footer) {
+  display: none !important;
+}
+.reader-full-view .song-reader {
+  padding-top: 0;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
