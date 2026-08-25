@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { SongCard } from '@/components/ui/songs/SongCard';
-import { LibraryEvaluation } from '@/components/ui/songs/LibraryEvaluation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, LayoutGrid, List, Filter, Music, ChevronDown } from 'lucide-react';
@@ -59,8 +58,6 @@ function SongLibraryPage() {
       {groupBy === 'alphabetical' && <nav className="flex flex-wrap gap-2 border-t border-accent/10 pt-4" aria-label="Alphabetical navigation">{letters.map((letter) => <a key={letter} href={`#song-group-${letter}`} className="text-xs font-bold text-accent hover:underline">{letter}</a>)}</nav>}
       {showFilters && <div className="flex flex-wrap gap-4 border-t border-accent/10 pt-5 mt-2"><label className="text-xs text-muted-foreground">Group by <select value={groupBy} onChange={(e) => setGroupBy(e.target.value as GroupMode)} className="ml-2 bg-muted/50 p-2 text-foreground"><option value="none">None</option><option value="language">Language</option><option value="alphabetical">Alphabetical</option></select></label><label className="text-xs text-muted-foreground">Sort <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} className="ml-2 bg-muted/50 p-2 text-foreground"><option value="title-asc">Title A–Z</option><option value="title-desc">Title Z–A</option><option value="recent">Recently Added</option><option value="most-used">Most Used</option></select></label><label className="text-xs text-muted-foreground">Theme <select value={themeFilter} onChange={(e) => setThemeFilter(e.target.value)} className="ml-2 bg-muted/50 p-2 text-foreground">{allThemes.map((v) => <option key={v}>{v}</option>)}</select></label><label className="text-xs text-muted-foreground">Key <select value={keyFilter} onChange={(e) => setKeyFilter(e.target.value)} className="ml-2 bg-muted/50 p-2 text-foreground">{allKeys.map((v) => <option key={v}>{v}</option>)}</select></label><Button variant="ghost" className="rounded-none text-accent" onClick={reset}>Reset</Button></div>}
     </section>
-    {!isLoading && songs.length > 0 && <LibraryEvaluation songs={songs} />}
-
     {isLoading ? <div className="py-20 text-center text-muted-foreground">Loading repertoire…</div> : groups.map(({ label, songs: groupSongs }) => <section key={label || 'all'} id={label ? `song-group-${label}` : undefined} className="mb-12"><div className="flex items-center justify-between mb-5">{label && <h2 className="font-serif text-2xl text-foreground">{label}</h2>}<span className="text-xs text-muted-foreground">{groupSongs.length} song{groupSongs.length === 1 ? '' : 's'}</span></div><div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-1'}>{groupSongs.map((song: any) => <SongCard key={song.id} song={song} viewMode={viewMode} />)}</div></section>)}
     {!isLoading && filteredSongs.length === 0 && <div className="py-20 text-center"><Music className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" /><h2 className="font-serif text-2xl">No songs found</h2><Button variant="outline" className="rounded-none mt-6" onClick={reset}>Clear filters</Button></div>}
   </main>;
