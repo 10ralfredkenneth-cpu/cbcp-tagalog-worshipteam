@@ -97,6 +97,15 @@ function SongDetailPage() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
+  const [fullView, setFullView] = useState(() => {
+    const fromUrl = searchParams.get('full');
+    if (fromUrl !== null) return fromUrl === 'true';
+    return localStorage.getItem('song-pref-fullView') === 'true';
+  });
+  const [showSectionStrip, setShowSectionStrip] = useState(true);
+  const [controlsMinimized, setControlsMinimized] = useState(false);
+  const [keepAwake, setKeepAwake] = useState(false);
+  const wakeLockRef = useRef<any>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
