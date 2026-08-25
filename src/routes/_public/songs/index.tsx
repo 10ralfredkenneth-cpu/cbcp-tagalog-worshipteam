@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSongsPublic } from '@/lib/db-public.functions';
 import { SongCard } from '@/components/ui/songs/SongCard';
+import { LibraryEvaluation } from '@/components/ui/songs/LibraryEvaluation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, LayoutGrid, List, Filter, Music, ChevronDown } from 'lucide-react';
