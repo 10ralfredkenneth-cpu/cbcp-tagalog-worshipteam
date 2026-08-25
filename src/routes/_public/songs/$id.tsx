@@ -140,6 +140,51 @@ function SongDetailPage() {
     localStorage.setItem(`song-pref-chordColor-${id}`, chordColor);
   }, [chordColor, id]);
 
+  // Full View: persist and hide the public site chrome (header/footer) via a root class.
+  useEffect(() => {
+    localStorage.setItem('song-pref-fullView', String(fullView));
+    document.documentElement.classList.toggle('reader-full-view', fullView);
+    return () => document.documentElement.classList.remove('reader-full-view');
+  }, [fullView]);
+
+  // Gently minimize Full View controls while reading; any tap/keypress restores them.
+  useEffect(() => {
+    if (!fullView || toolsOpen) { setControlsMinimized(false); return; }
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      clearTimeout(timer);
+      setControlsMinimized(false);
+      timer = setTimeout(() => setControlsMinimized(true), 4000);
+    };
+    schedule();
+    window.addEventListener('pointerdown', schedule);
+    window.addEventListener('keydown', schedule);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('pointerdown', schedule);
+      window.removeEventListener('keydown', schedule);
+    };
+  }, [fullView, toolsOpen, autoScroll]);
+
+  // Optional Wake Lock — fails silently where unsupported.
+  useEffect(() => {
+    let cancelled = false;
+    const release = () => {
+      try { wakeLockRef.current?.release?.(); } catch { /* ignore */ }
+      wakeLockRef.current = null;
+    };
+    if (keepAwake && typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
+      (navigator as any).wakeLock.request('screen')
+        .then((lock: any) => { if (cancelled) { lock.release?.(); } else { wakeLockRef.current = lock; } })
+        .catch(() => setKeepAwake(false));
+    } else {
+      release();
+    }
+    return () => { cancelled = true; release(); };
+  }, [keepAwake]);
+
+
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
