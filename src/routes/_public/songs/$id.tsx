@@ -764,7 +764,8 @@ function SongDetailPage() {
                 <div className="mt-2 flex gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest"><span>Key: <span className="text-primary">{currentKey}</span></span>{song.bpm && <span>BPM: <span className="text-primary">{song.bpm}</span></span>}</div>
               </div>
               )}
-              <div className="space-y-4 sm:space-y-6" style={{ fontSize: `${fontSize}px` }}>
+              <h2 className="hidden print:block font-serif text-2xl text-black">{song.title}</h2>
+              <div className="space-y-3 sm:space-y-4" style={{ fontSize: `${fontSize}px` }}>
               {sections.map((section, sIdx) => {
                 const lines = section.split('\n');
                 const header = lines[0]?.match(/^\[(.*)\]$/);
